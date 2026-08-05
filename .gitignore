@@ -3,6 +3,12 @@ node_modules/
 out/
 next-env.d.ts
 tsconfig.tsbuildinfo
+.env*
+!.env.example
+.vercel
+__pycache__/
+.pytest_cache/
+*.py[cod]
 
 # phase execution outputs
 phases/**/phase*-output.json

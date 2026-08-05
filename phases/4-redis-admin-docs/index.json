@@ -1,0 +1,10 @@
+{
+  "project": "티켓 예매 MVP",
+  "phase": "4-redis-admin-docs",
+  "steps": [
+    { "step": 0, "name": "admin-dashboard", "status": "pending" },
+    { "step": 1, "name": "redis-stores", "status": "pending" },
+    { "step": 2, "name": "deploy-verify", "status": "pending" },
+    { "step": 3, "name": "docs-finalize", "status": "pending" }
+  ]
+}

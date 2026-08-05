@@ -2,6 +2,10 @@
 """
 Harness Step Executor — phase 내 step을 순차 실행하고 자가 교정한다.
 
+역할 분담:
+- Claude: phases/*/step*.md 명세와 docs/ADR·ARCHITECTURE 설계를 사전 작성하고, 완료 후 리뷰
+- Codex: 이 하네스가 `codex exec`로 호출하여 각 step 명세를 실제 코드로 구현
+
 Usage:
     python3 scripts/execute.py <phase-dir> [--push]
 """
@@ -82,6 +86,7 @@ class StepExecutor:
 
     def run(self):
         self._print_header()
+        self._check_clean_worktree()
         self._check_blockers()
         self._checkout_branch()
         guardrails = self._load_guardrails()
@@ -176,13 +181,13 @@ class StepExecutor:
 
     def _load_guardrails(self) -> str:
         sections = []
-        claude_md = ROOT / "CLAUDE.md"
-        if claude_md.exists():
-            sections.append(f"## 프로젝트 규칙 (CLAUDE.md)\n\n{claude_md.read_text()}")
+        guide = next((path for path in (ROOT / "AGENTS.md", ROOT / "CLAUDE.md") if path.exists()), None)
+        if guide is not None:
+            sections.append(f"## 프로젝트 규칙 ({guide.name})\n\n{guide.read_text(encoding='utf-8')}")
         docs_dir = ROOT / "docs"
         if docs_dir.is_dir():
             for doc in sorted(docs_dir.glob("*.md")):
-                sections.append(f"## {doc.stem}\n\n{doc.read_text()}")
+                sections.append(f"## {doc.stem}\n\n{doc.read_text(encoding='utf-8')}")
         return "\n\n---\n\n".join(sections) if sections else ""
 
     @staticmethod
@@ -208,7 +213,10 @@ class StepExecutor:
                 f"{prev_error}\n\n---\n\n"
             )
         return (
-            f"당신은 {self._project} 프로젝트의 개발자입니다. 아래 step을 수행하세요.\n\n"
+            f"당신은 {self._project} 프로젝트의 **구현 담당(Codex)**입니다. "
+            f"설계·명세는 이미 Claude가 phases/*/step*.md와 docs/에 작성해 두었습니다. "
+            f"당신의 역할은 그 명세를 **정확히** 코드로 구현하는 것이며, 설계 결정을 임의로 변경하지 마세요. "
+            f"설계에 모호함·모순이 있으면 status를 'blocked'로 표시하고 blocked_reason에 질문을 남기세요.\n\n"
             f"{guardrails}\n\n---\n\n"
             f"{step_context}{retry_section}"
             f"## 작업 규칙\n\n"
@@ -224,9 +232,9 @@ class StepExecutor:
             f"   {commit_example}\n\n---\n\n"
         )
 
-    # --- Claude 호출 ---
+    # --- Codex 호출 ---
 
-    def _invoke_claude(self, step: dict, preamble: str) -> dict:
+    def _invoke_codex(self, step: dict, preamble: str) -> dict:
         step_num, step_name = step["step"], step["name"]
         step_file = self._phase_dir / f"step{step_num}.md"
 
@@ -235,13 +243,14 @@ class StepExecutor:
             sys.exit(1)
 
         prompt = preamble + step_file.read_text()
+        codex_cmd = "codex.cmd" if sys.platform == "win32" else "codex"
         result = subprocess.run(
-            ["claude", "-p", "--dangerously-skip-permissions", "--output-format", "json", prompt],
+            [codex_cmd, "exec", "--dangerously-bypass-approvals-and-sandbox", "--json", prompt],
             cwd=self._root, capture_output=True, text=True, timeout=1800,
         )
 
         if result.returncode != 0:
-            print(f"\n  WARN: Claude가 비정상 종료됨 (code {result.returncode})")
+            print(f"\n  WARN: Codex가 비정상 종료됨 (code {result.returncode})")
             if result.stderr:
                 print(f"  stderr: {result.stderr[:500]}")
 
@@ -251,7 +260,7 @@ class StepExecutor:
             "stdout": result.stdout, "stderr": result.stderr,
         }
         out_path = self._phase_dir / f"step{step_num}-output.json"
-        with open(out_path, "w") as f:
+        with open(out_path, "w", encoding="utf-8") as f:
             json.dump(output, f, indent=2, ensure_ascii=False)
 
         return output
@@ -265,6 +274,18 @@ class StepExecutor:
         if self._auto_push:
             print(f"  Auto-push: enabled")
         print(f"{'='*60}")
+
+    def _check_clean_worktree(self):
+        r = self._run_git("status", "--porcelain")
+        if r.returncode != 0:
+            print("  ERROR: git status 실패")
+            sys.exit(1)
+        if r.stdout.strip():
+            print("\n  ERROR: 작업 트리가 깨끗하지 않습니다.")
+            print("  Harness 실행 전에 변경사항을 commit 또는 stash하세요:")
+            for line in r.stdout.strip().splitlines():
+                print(f"    {line}")
+            sys.exit(1)
 
     def _check_blockers(self):
         index = self._read_json(self._index_file)
@@ -306,11 +327,29 @@ class StepExecutor:
                 tag += f" [retry {attempt}/{self.MAX_RETRIES}]"
 
             with progress_indicator(tag) as pi:
-                self._invoke_claude(step, preamble)
-                elapsed = int(pi.elapsed)
+                codex_output = self._invoke_codex(step, preamble)
+            elapsed = int(pi.elapsed)
 
             index = self._read_json(self._index_file)
             status = next((s.get("status", "pending") for s in index["steps"] if s["step"] == step_num), "pending")
+
+            # Codex 비정상 종료이고 step이 완료·차단 상태가 아니면 실패로 처리
+            if codex_output["exitCode"] != 0 and status not in ("completed", "blocked"):
+                err_from_exit = f"Codex 비정상 종료 (code {codex_output['exitCode']}). 출력을 확인하세요."
+                if attempt < self.MAX_RETRIES:
+                    prev_error = err_from_exit
+                    print(f"  ↻ Step {step_num}: retry {attempt}/{self.MAX_RETRIES} — {err_from_exit}")
+                    continue
+                for s in index["steps"]:
+                    if s["step"] == step_num:
+                        s["status"] = "error"
+                        s["error_message"] = err_from_exit
+                        s["failed_at"] = self._stamp()
+                self._write_json(self._index_file, index)
+                self._commit_step(step_num, step_name)
+                print(f"  ✗ Step {step_num}: {step_name} failed — {err_from_exit} [{elapsed}s]")
+                self._update_top_index("error")
+                sys.exit(1)
             ts = self._stamp()
 
             if status == "completed":
@@ -327,6 +366,7 @@ class StepExecutor:
                     if s["step"] == step_num:
                         s["blocked_at"] = ts
                 self._write_json(self._index_file, index)
+                self._commit_step(step_num, step_name)
                 reason = next((s.get("blocked_reason", "") for s in index["steps"] if s["step"] == step_num), "")
                 print(f"  ⏸ Step {step_num}: {step_name} blocked [{elapsed}s]")
                 print(f"    Reason: {reason}")

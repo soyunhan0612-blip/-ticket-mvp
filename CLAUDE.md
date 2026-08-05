@@ -1,21 +1,45 @@
-# 프로젝트: {프로젝트명}
+# 프로젝트: 티켓 예매 MVP
+
+포트폴리오용 티켓링크형 예매 서비스. 핵심 여정(공연 목록 → 회차 → 좌석 선택 → 예매/취소, 셀러 등록 + AI 설명)을 10일 MVP로 구현. **좌석 선택 화면이 시각적·기술적 시그니처**다.
 
 ## 기술 스택
-- {프레임워크 (예: Next.js 15)}
-- {언어 (예: TypeScript strict mode)}
-- {스타일링 (예: Tailwind CSS)}
+- Next.js 15 (App Router, RSC)
+- TypeScript strict mode
+- Tailwind CSS
+- Tanstack Query (서버 상태, 3초 폴링, 낙관적 업데이트)
+- Jotai (atomFamily로 좌석 구독 격리)
+- vitest (TDD)
+- Upstash Redis (Day 9 영속화)
 
 ## 아키텍처 규칙
-- CRITICAL: {절대 지켜야 할 규칙 1 (예: 모든 API 로직은 app/api/ 라우트 핸들러에서만 처리)}
-- CRITICAL: {절대 지켜야 할 규칙 2 (예: 클라이언트 컴포넌트에서 직접 외부 API를 호출하지 말 것)}
-- {일반 규칙 (예: 컴포넌트는 components/ 폴더에, 타입은 types/ 폴더에 분리)}
+- CRITICAL: 모든 API 로직은 `app/api/**/route.ts`에서만 처리. 클라이언트 컴포넌트에서 외부 API 직접 호출 금지
+- CRITICAL: `userId`는 쿠키에서만 읽는다. 요청 바디·쿼리스트링에서 절대 받지 않는다 (IDOR)
+- CRITICAL: 응답에 남의 `userId`를 절대 싣지 않는다. 폴링 스냅샷은 서버가 쿠키와 비교해 `mine: boolean`으로 환원해 내려보낸다
+- CRITICAL: 좌석 규칙(최대 매수 4석, 좌석 ID 유효성)은 서버에서도 재검증한다 — `lib/seat-rules.ts`, `lib/seat-map.ts`를 route handler에서 호출
+- CRITICAL: `NEXT_PUBLIC_` 접두사를 AI 키·Upstash 토큰에 절대 붙이지 않는다 (브라우저 번들에 평문 유출)
+- CRITICAL: `release`/`confirm`은 소유권 검증 필수. 좌석 소유자와 쿠키 `userId` 불일치 시 403
+- CRITICAL: 좌석 페이지에 `export const dynamic = 'force-dynamic'`. 없으면 RSC 결과가 캐시돼 옛 좌석 스냅샷을 보게 된다
+- CRITICAL: 셀러 등록 설명은 **plain text + `whitespace-pre-wrap`**. `dangerouslySetInnerHTML` 금지 (저장형 XSS 방어)
+- 순수 로직은 `lib/`, Store 구현체는 `services/`, UI는 `components/`, 타입은 `types/`
+- Store 구현체는 팩토리로 교체 (memory ↔ redis). API route는 인터페이스만 참조
 
 ## 개발 프로세스
 - CRITICAL: 새 기능 구현 시 반드시 테스트를 먼저 작성하고, 테스트가 통과하는 구현을 작성할 것 (TDD)
-- 커밋 메시지는 conventional commits 형식을 따를 것 (feat:, fix:, docs:, refactor:)
+- `tdd-guard` 훅이 `lib/`, `services/`, `app/api/**/route.ts` 편집을 테스트 선행 없이 차단한다. `components/`, `page.tsx`, `layout.tsx`, `types/`, 설정 파일은 통과. 훅과 싸우지 말고 순서를 지킨다
+- 커밋 메시지는 conventional commits 형식 (feat:, fix:, docs:, refactor:)
+- **Day 3의 순진한 좌석 구현은 반드시 별도 커밋으로 남긴다** — 성능 before/after 서사의 증거. 없으면 서사가 통째로 증발한다
+
+## Claude/Codex 훅
+
+- Claude Code는 `.claude/settings.json`, Codex는 `.codex/hooks.json`을 사용하며 **두 에이전트가 `scripts/hooks/` 아래의 동일한 Node 스크립트를 공유**한다. 파일명이 `codex-*`로 시작하는 것은 초기 구현 순서일 뿐 Codex 전용이 아니다.
+- 훅은 위험 명령 차단(`codex-block-dangerous.cjs`), TDD 가드(`codex-tdd-guard.cjs`), Stop 검증 게이트(Codex: `codex-verify-gate.cjs` / Claude: `claude-verify-gate.cjs` — 종료 코드 규약만 다르고 검사 로직은 동일)로 분리한다. Windows와 Unix에서 동일하게 동작하도록 Node로 구현한다.
+- `package.json`이 생기기 전에는 TDD와 Stop 검증을 건너뛴다. 스캐폴딩 이후 Stop 훅은 `npm run lint`와 `npm run test`만 실행하며, `npm run build`는 배포 또는 라우팅·설정 변경 시 명시적으로 실행한다.
+- Codex에서는 저장소 훅을 최초 1회 review & trust 해야 한다.
 
 ## 명령어
+```
 npm run dev      # 개발 서버
-npm run build    # 프로덕션 빌드
+npm run build    # 프로덕션 빌드 (배포 직전 수동)
 npm run lint     # ESLint
-npm run test     # 테스트
+npm run test     # 테스트 (Stop 훅에서 자동)
+```

@@ -1,0 +1,9 @@
+{
+  "project": "티켓 예매 MVP",
+  "phase": "1-seatmap",
+  "steps": [
+    { "step": 0, "name": "seatmap-v0-naive", "status": "pending" },
+    { "step": 1, "name": "atomfamily-optimization", "status": "pending" },
+    { "step": 2, "name": "zoom-pan-svg", "status": "pending" }
+  ]
+}

@@ -1,0 +1,9 @@
+{
+  "phases": [
+    { "dir": "0-foundation", "status": "pending" },
+    { "dir": "1-seatmap", "status": "pending" },
+    { "dir": "2-hold-polling", "status": "pending" },
+    { "dir": "3-reservation-seller-ai", "status": "pending" },
+    { "dir": "4-redis-admin-docs", "status": "pending" }
+  ]
+}

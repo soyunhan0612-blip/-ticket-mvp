@@ -1,0 +1,10 @@
+{
+  "project": "티켓 예매 MVP",
+  "phase": "2-hold-polling",
+  "steps": [
+    { "step": 0, "name": "hold-lib-store", "status": "pending" },
+    { "step": 1, "name": "hold-api-route", "status": "pending" },
+    { "step": 2, "name": "cookie-middleware", "status": "pending" },
+    { "step": 3, "name": "polling-optimistic-rollback", "status": "pending" }
+  ]
+}
