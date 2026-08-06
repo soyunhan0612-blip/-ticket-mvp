@@ -29,7 +29,9 @@
     {
       "step": 3,
       "name": "seat-map",
-      "status": "pending"
+      "status": "completed",
+      "summary": "src/lib/seat-map.ts — 좌석 ID 형식 A-D×25×20=2000석, toSeatId/parseSeatId/isValidSeatId 구현, TDD 완료",
+      "started_at": "2026-08-06T15:46:12+0900"
     },
     {
       "step": 4,
