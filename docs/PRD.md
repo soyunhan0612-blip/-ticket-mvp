@@ -40,7 +40,7 @@
 ## 디자인 방향
 - **도구처럼 보인다** — 티켓 서비스 실사용 UX, 마케팅 페이지가 아님
 - 좌석 상태는 색으로 즉시 구분 (available / held-mine / held-other / sold)
-- 미니멀. AI 슬롭 안티패턴 준수 (자세한 것은 `UI_GUIDE.md`)
+- 미니멀. AI 슬롭 안티패턴 준수 (원칙은 `UX_PRINCIPLES.md`, 스타일은 `UI_GUIDE.md`)
 
 ---
 
@@ -63,7 +63,7 @@
 ### Day 2 — 목록/상세 (RSC) + 조기 배포
 - `/shows`, `/shows/[id]` RSC로 구현, `app/api/shows` route
 - **개발 전용 플래그가 켜진 경우에만** 목록·상세 조회에 인위적 지연 200~600ms + 5% 실패율 (로딩·에러 UI 검증용). 공개 데모와 좌석 폴링에는 절대 X
-- `docs/UI_GUIDE.md` 채우고 그 값만 사용 (AI 슬롭 안티패턴 준수)
+- `docs/UI_GUIDE.md`의 색·간격 값 확정 (원칙은 `UX_PRINCIPLES.md`, AI 슬롭 안티패턴 준수)
 - **빈 껍데기 상태로 Vercel 1회 배포** — 배포 리스크를 마지막 날로 미루지 않는다
 - 검증: 배포 URL에서 목록·상세가 뜨고, 페이지 소스 HTML에 공연 데이터가 들어있음
 

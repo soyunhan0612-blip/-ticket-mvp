@@ -5,7 +5,7 @@
 - `docs/PRD.md`에 설명된 티켓 예매 MVP를 구현한다.
 - Next.js, TypeScript 엄격 모드, Tailwind CSS, TanStack Query, Jotai, Vitest를 사용한다.
 - `docs/ARCHITECTURE.md`에 정의된 RSC/클라이언트 경계와 저장소 인터페이스를 유지한다. 그 설계 근거는 `docs/ADR.md`에 있다.
-- 시각적 요소에 관한 결정은 `docs/UI_GUIDE.md`를 최종 기준으로 삼는다.
+- 시각적 요소에 관한 결정은 `docs/UI_GUIDE.md`(스타일)와 `docs/UX_PRINCIPLES.md`(원칙·화면 매핑)를 최종 기준으로 삼는다.
 
 ## 아키텍처
 
