@@ -15,7 +15,8 @@
       "name": "project-scaffold",
       "status": "completed",
       "summary": "Next15+TS strict+Tailwind+RQv5+Jotai+vitest 스캐폴딩, next.config에 보안 헤더 3종, Providers 클라이언트 컴포넌트, 스모크 테스트 통과",
-      "started_at": "2026-08-06T15:25:30+0900"
+      "started_at": "2026-08-06T15:25:30+0900",
+      "completed_at": "2026-08-06T15:40:17+0900"
     },
     {
       "step": 2,
