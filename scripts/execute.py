@@ -242,7 +242,7 @@ class StepExecutor:
             print(f"  ERROR: {step_file} not found")
             sys.exit(1)
 
-        prompt = preamble + step_file.read_text()
+        prompt = preamble + step_file.read_text(encoding="utf-8")
         codex_cmd = "codex.cmd" if sys.platform == "win32" else "codex"
         result = subprocess.run(
             [codex_cmd, "exec", "--dangerously-bypass-approvals-and-sandbox", "--json", prompt],
