@@ -40,7 +40,7 @@
       "status": "completed",
       "summary": "src/lib/seat-rules.ts — MAX_SEATS_PER_HOLD=4, canSelect/validateSelection 구현, seat-map.isValidSeatId 재사용, TDD 완료",
       "started_at": "2026-08-06T15:54:12+0900",
-      "completed_at": "2026-08-06T15:58:07+0900"
+      "completed_at": "2026-08-06T15:59:31+0900"
     },
     {
       "step": 5,
