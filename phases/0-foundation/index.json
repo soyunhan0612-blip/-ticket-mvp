@@ -21,7 +21,9 @@
     {
       "step": 2,
       "name": "core-types",
-      "status": "pending"
+      "status": "completed",
+      "summary": "src/types/index.ts에 도메인 타입 7종(Show/Session/Seat/SeatStatus/Hold/Reservation/SeatSnapshot) 정의, SeatSnapshot은 mine:boolean으로 userId 노출 없음",
+      "started_at": "2026-08-06T15:40:18+0900"
     },
     {
       "step": 3,
