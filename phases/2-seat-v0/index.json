@@ -7,7 +7,8 @@
       "name": "ui-guide-seat-colors",
       "status": "completed",
       "summary": "UI_GUIDE 좌석 4색 확정 (neutral-500/white/neutral-700/neutral-800)",
-      "started_at": "2026-08-07T16:50:51+0900"
+      "started_at": "2026-08-07T16:50:51+0900",
+      "completed_at": "2026-08-07T16:52:56+0900"
     },
     {
       "step": 1,
