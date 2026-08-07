@@ -40,10 +40,40 @@ Day별 진행 결과와 결정 근거. 서사 문서.
 
 ## Day 2 — (예정)
 
-## Day 3 — 좌석 최적화 before (예정)
+## Day 3 — 좌석 최적화 before (구현 완료, 측정 대기)
 
-> 이 자리에 순진한 구현의 리렌더 수치 스크린샷 · React Profiler 캡처.
-> CLAUDE.md 규칙에 따라 별도 커밋으로 남긴다.
+### 기능적 관점
+- `/sessions/[id]/seats` RSC 셸 + 클라이언트 `<SeatMap>` 하이드레이션
+- 2000석(4구역 × 25행 × 20열) SVG 렌더, 클릭 토글 선택, **최대 4석 상한** 서버 재검증과 동일 규칙 재사용(`lib/seat-rules.ts`)
+- `SelectionBar`에서 선택 좌석 배열 표시 + `선택 완료` alert (Day 5에 `POST /api/holds`로 대체될 자리)
+
+### 기술적 관점
+- SeatMap은 `useState<string[]>` 하나로 선택 전체 관리, 2000 Seat에 `selected`·`onClick` **prop drilling**
+- `selected.includes(seat.id)`로 좌석별 상태 판정 — 좌석 1회 클릭마다 부모 리렌더 → 2000 자식 리렌더 (의도된 안티패턴)
+- **최적화 없음**: `memo` / `useMemo` / `useCallback` / `atomFamily` 전부 미사용 — Day 4에서 도입할 대조군
+- `export const dynamic = 'force-dynamic'` 삽입 (CLAUDE.md CRITICAL, 이번엔 스냅샷 없어도 미래 대비)
+
+### 아키텍처 관점
+- 순수 로직은 이미 `src/lib/`에 있어 재사용만 함 (`seat-rules.canSelect`, `validateSelection`, `MAX_SEATS_PER_HOLD`)
+- 좌석 컴포넌트는 `src/components/seat/`에 3종(Seat/SeatMap/SelectionBar) — Day 4 리팩토링·Day 5~6 서버 상태 통합의 진입점
+- 서버 hold·폴링·낙관적 업데이트는 이 phase 범위 밖 (Day 5~6)
+
+### 결정 근거
+- **왜 일부러 순진하게 만들었나**: Day 4에 `atomFamily` + `memo`로 리팩토링해 "클릭당 리렌더 2000 → 1~2"의 before/after 서사를 만들기 위한 대조군. CLAUDE.md가 이 커밋의 존재를 명시적으로 요구
+- **왜 4색을 monochrome 밝기 대비로만 정했나**: UI_GUIDE AI 슬롭 안티패턴(보라·글로우·그라데이션) 회피. 도구처럼 읽히는 좌석맵이 시그니처가 되도록
+- **왜 SelectionBar의 확정 버튼을 alert로 stub했나**: 서버 hold API가 아직 없음. Day 5에 이 자리를 `POST /api/holds` 낙관적 업데이트로 교체 — 이번 phase에 넣으면 서사가 두 곳으로 흩어짐
+
+### before 측정 (React DevTools Profiler)
+> 아래는 브라우저에서 수동 측정 후 사람이 채운다. 자동화 X.
+
+- 초기 마운트 시간: **_ ms
+- 좌석 1회 클릭 시 리렌더 컴포넌트 수: **_
+- 측정 절차: `npm run dev` → `/sessions/session-01/seats` → React DevTools Profiler `Record` → 좌석 하나 클릭 → `Stop` → "Ranked" 뷰의 렌더 개수를 캡처
+- 스크린샷: `docs/assets/day3-before-profiler.png` (미첨부 상태로 커밋되었으면 이후 별도 커밋)
+
+### 참조
+- 이 phase 커밋(2단계): `feat(2-seat-v0): …` / `chore(2-seat-v0): …`
+- 다음: Day 4에서 `atoms/seat.ts` (atomFamily) + `React.memo(Seat)` → after 측정 캡처
 
 ## Day 4 — 좌석 최적화 after (예정)
 
