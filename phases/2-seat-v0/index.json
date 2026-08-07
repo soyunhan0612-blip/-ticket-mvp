@@ -13,7 +13,9 @@
     {
       "step": 1,
       "name": "seat-components",
-      "status": "pending"
+      "status": "completed",
+      "summary": "seat/ 컴포넌트 3종 생성 (Seat/SeatMap/SelectionBar), 의도적 순진한 구현: useState<string[]> 하나로 선택 관리, memo/useMemo/atomFamily 없음",
+      "started_at": "2026-08-07T16:52:56+0900"
     },
     {
       "step": 2,
