@@ -23,6 +23,13 @@ from datetime import datetime, timezone, timedelta
 from pathlib import Path
 from typing import Optional
 
+# Windows 콘솔은 cp949로 기본 설정되어 유니코드 진행 표시기·화살표 출력이 실패한다.
+if sys.platform == "win32":
+    for stream in (sys.stdout, sys.stderr):
+        reconfigure = getattr(stream, "reconfigure", None)
+        if reconfigure is not None:
+            reconfigure(encoding="utf-8")
+
 ROOT = Path(__file__).resolve().parent.parent
 
 
@@ -242,11 +249,13 @@ class StepExecutor:
             print(f"  ERROR: {step_file} not found")
             sys.exit(1)
 
-        prompt = preamble + step_file.read_text()
+        prompt = preamble + step_file.read_text(encoding="utf-8")
         codex_cmd = "codex.cmd" if sys.platform == "win32" else "codex"
+        # 프롬프트는 Windows 명령줄 길이 제한(8191자)을 넘기므로 stdin으로 전달한다.
         result = subprocess.run(
-            [codex_cmd, "exec", "--dangerously-bypass-approvals-and-sandbox", "--json", prompt],
-            cwd=self._root, capture_output=True, text=True, timeout=1800,
+            [codex_cmd, "exec", "--dangerously-bypass-approvals-and-sandbox", "--json", "-"],
+            cwd=self._root, capture_output=True, text=True, encoding="utf-8",
+            input=prompt, timeout=1800,
         )
 
         if result.returncode != 0:

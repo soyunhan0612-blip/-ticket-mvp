@@ -3,8 +3,12 @@ node_modules/
 out/
 next-env.d.ts
 tsconfig.tsbuildinfo
+
+# 환경 변수
 .env*
 !.env.example
+
+# Vercel
 .vercel
 __pycache__/
 .pytest_cache/
