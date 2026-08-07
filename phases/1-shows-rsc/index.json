@@ -13,7 +13,9 @@
     {
       "step": 1,
       "name": "shows-api",
-      "status": "pending"
+      "status": "completed",
+      "summary": "/api/shows GET·/api/shows/[id] GET + route tests",
+      "started_at": "2026-08-07T13:00:43+0900"
     },
     {
       "step": 2,
