@@ -29,7 +29,9 @@
     {
       "step": 3,
       "name": "shows-page",
-      "status": "pending"
+      "status": "completed",
+      "summary": "/shows RSC 카드 그리드 + 상세 링크 + metadata",
+      "started_at": "2026-08-07T13:08:21+0900"
     },
     {
       "step": 4,
