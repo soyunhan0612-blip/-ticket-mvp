@@ -7,7 +7,8 @@
     },
     {
       "dir": "1-shows-rsc",
-      "status": "pending"
+      "status": "blocked",
+      "blocked_at": "2026-08-07T13:24:24+0900"
     }
   ]
 }
