@@ -18,6 +18,13 @@ npm run dev                  # http://localhost:3000
 
 `.env.local`은 커밋되지 않는다 (`.gitignore` 참조). 값은 `.env.example` 항목 설명 확인.
 
+## 진행 상황
+
+| Day | 상태 | 주요 산출물 |
+|---|---|---|
+| 0 Foundation | ✅ | 스캐폴딩, 순수 로직 3종(seat-map/rules/mock-data), 47 tests |
+| 1~9 | ⏳ | [docs/PROGRESS.md](docs/PROGRESS.md) 참조 |
+
 ## 스크립트
 
 | 명령 | 용도 |
