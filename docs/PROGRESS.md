@@ -36,9 +36,37 @@ Day별 진행 결과와 결정 근거. 서사 문서.
 
 ---
 
-## Day 1 — (예정)
+## Day 1 — Day 0에 흡수
 
-## Day 2 — (예정)
+> PRD의 Day 1 항목(types · lib · 보안 헤더 · tdd-guard 조정)은 phase 0-foundation에서 Day 0과 함께 처리되어 위 Day 0 섹션에 포함됨. 별도 서사 없음.
+
+## Day 2 — 목록/상세 (RSC) + 조기 배포 (완료 2026-08-07)
+
+### 기능적 관점
+- `/shows` 카드 그리드 · `/shows/[id]` 상세 페이지 (회차 목록 KST 포맷, 없는 id는 `notFound`)
+- `/api/shows` GET · `/api/shows/[id]` GET REST endpoint 2종
+- Vercel 프로덕션 배포 완료
+
+### 기술적 관점
+- 두 페이지 모두 RSC (`"use client"` 없음), `params`는 Next.js 15 규약대로 `await`
+- `services/show-store.ts` 인터페이스 + memory 구현체 + 팩토리 (Day 9 Redis 교체 대비)
+- Route handler에서 store를 통해 조회 — 인터페이스 계약이 있어 memory ↔ redis 교체 시 route는 손대지 않음
+- Tanstack Query · Jotai는 이번 phase에서 미사용 — 데이터가 정적이고 클라이언트 상태가 아직 없음. 좌석 phase에서 도입
+- `docs/UI_GUIDE.md`에 색·간격·컴포넌트 클래스 토큰 확정 (Tailwind 기본 팔레트 유지, 임의값 금지)
+
+### 아키텍처 관점
+- Store 인터페이스 팩토리 패턴(`services/show-store.ts`) — Day 9 Redis 전환의 진입점. Route handler는 인터페이스만 참조
+- UI 토큰을 UI_GUIDE에 중앙화하여 Day 3의 seat 컴포넌트가 카드·버튼 클래스를 그대로 재사용 가능
+- 서버 hold·서버 재검증은 이 phase 밖 — 이 phase는 읽기 전용, 소유권 개념 없음
+
+### 결정 근거
+- **왜 서버 hold 없이 shows부터**: PRD 원칙대로 배포 리스크를 조기에 해소. RSC + 정적 데이터 페이지를 먼저 올려 Day 3부터는 좌석 시그니처에만 집중 가능
+- **왜 UI 토큰을 이 단계에서 확정**: Day 3의 seat 컴포넌트(카드·버튼 스타일)가 새 값을 만들지 않고 재사용하도록 하기 위해. 뒤로 미루면 seat 구현 도중 토큰이 흔들림
+- **왜 memory 구현체부터 인터페이스로 감쌌나**: Day 9의 Redis 교체가 인터페이스 계약만 지키면 되도록. Store 계약이 없으면 route handler에 Redis 지식이 새어들어 교체 비용이 폭발
+
+### 참조
+- phase 1-shows-rsc 커밋: `feat(1-shows-rsc): step 0~5` (6개 step)
+- Vercel 프로덕션: https://ticket-mvp-eight.vercel.app
 
 ## Day 3 — 좌석 최적화 before (예정)
 
