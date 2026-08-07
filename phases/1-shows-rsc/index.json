@@ -7,7 +7,8 @@
       "name": "show-store",
       "status": "completed",
       "summary": "services/show-store.ts 인터페이스 + memory 구현체 + 팩토리 + tests",
-      "started_at": "2026-08-07T12:57:13+0900"
+      "started_at": "2026-08-07T12:57:13+0900",
+      "completed_at": "2026-08-07T13:00:42+0900"
     },
     {
       "step": 1,
