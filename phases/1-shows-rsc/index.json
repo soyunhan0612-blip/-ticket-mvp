@@ -45,9 +45,10 @@
     {
       "step": 5,
       "name": "deploy-vercel",
-      "status": "pending",
+      "status": "completed",
+      "summary": "Vercel 프로덕션 배포, /shows·/shows/[id] 200 및 존재하지 않는 상세 404 확인, README 갱신",
       "started_at": "2026-08-07T13:20:57+0900",
-      "blocked_at": "2026-08-07T13:58:52+0900"
+      "completed_at": "2026-08-07T14:23:28+0900"
     }
   ],
   "created_at": "2026-08-07T12:57:13+0900"
