@@ -82,10 +82,12 @@ rounded-md border border-neutral-700 bg-neutral-950 px-4 py-3 text-neutral-100 p
 ### 좌석 상태 (4색만)
 | 상태 | 의미 | 색 지정 |
 |---|---|---|
-| `available` | 빈 좌석 | Day 3에 확정 |
-| `held-mine` | 내가 잡은 좌석 (타이머 표시) | Day 3에 확정 (강조색) |
-| `held-other` | 남이 잡은 좌석 | Day 3에 확정 (회색 계열) |
-| `sold` | 판매 완료 | Day 3에 확정 (짙은 회색) |
+| `available` | 빈 좌석 | `fill-neutral-500` (`#737373`) |
+| `held-mine` | 내가 잡은 좌석 (타이머 표시) | `fill-white` (`#ffffff`) |
+| `held-other` | 남이 잡은 좌석 | `fill-neutral-700` (`#404040`) |
+| `sold` | 판매 완료 | `fill-neutral-800` (`#262626`) |
+
+4단계 모두 monochrome 밝기 대비로만 구분한다. AI 슬롭 안티패턴(보라·글로우) 회피 및 좌석맵이 도구처럼 읽히도록 하기 위한 결정. Day 5~6에서 실제 서버 상태가 붙었을 때 대비가 부족하면 이 표에서 값을 조정한다 — 새 색을 추가하지 않는다.
 
 - 다른 상태 추가 금지. 상태를 늘리고 싶어지면 서버 스냅샷 스키마를 먼저 검토
 - `mine`은 응답에서 불리언으로만 온다 — 남의 `userId`가 노출되지 않도록 서버가 환원한 결과

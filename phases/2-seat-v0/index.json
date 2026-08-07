@@ -2,8 +2,23 @@
   "project": "티켓 예매 MVP",
   "phase": "2-seat-v0",
   "steps": [
-    { "step": 0, "name": "ui-guide-seat-colors", "status": "pending" },
-    { "step": 1, "name": "seat-components", "status": "pending" },
-    { "step": 2, "name": "seats-route-and-progress", "status": "pending" }
-  ]
+    {
+      "step": 0,
+      "name": "ui-guide-seat-colors",
+      "status": "completed",
+      "summary": "UI_GUIDE 좌석 4색 확정 (neutral-500/white/neutral-700/neutral-800)",
+      "started_at": "2026-08-07T16:50:51+0900"
+    },
+    {
+      "step": 1,
+      "name": "seat-components",
+      "status": "pending"
+    },
+    {
+      "step": 2,
+      "name": "seats-route-and-progress",
+      "status": "pending"
+    }
+  ],
+  "created_at": "2026-08-07T16:50:51+0900"
 }
