@@ -1,0 +1,12 @@
+{
+  "project": "티켓 예매 MVP",
+  "phase": "1-shows-rsc",
+  "steps": [
+    { "step": 0, "name": "show-store", "status": "pending" },
+    { "step": 1, "name": "shows-api", "status": "pending" },
+    { "step": 2, "name": "ui-tokens", "status": "pending" },
+    { "step": 3, "name": "shows-page", "status": "pending" },
+    { "step": 4, "name": "show-detail-page", "status": "pending" },
+    { "step": 5, "name": "deploy-vercel", "status": "pending" }
+  ]
+}
