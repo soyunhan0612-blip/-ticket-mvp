@@ -45,9 +45,10 @@
     {
       "step": 5,
       "name": "deploy-vercel",
-      "status": "pending",
+      "status": "blocked",
       "started_at": "2026-08-07T13:20:57+0900",
-      "blocked_at": "2026-08-07T13:24:23+0900"
+      "blocked_at": "2026-08-07T13:58:05+0900",
+      "blocked_reason": "Vercel 프로젝트 링크 실패: `vercel link --yes`가 `.pytest_cache` 디렉터리를 스캔하는 중 EPERM 오류를 반환함. 해당 디렉터리의 접근 권한 또는 잠금 문제를 해결한 뒤 `vercel link --yes` 실행 후 재실행"
     }
   ],
   "created_at": "2026-08-07T12:57:13+0900"
