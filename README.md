@@ -5,7 +5,7 @@
 
 ## 요구사항
 
-- Node.js 20.11 이상
+- Node.js 22 이상 (jsdom/undici 의존성이 `webidl.util.markAsUncloneable` 요구)
 - npm 10 이상
 
 ## 설치 & 실행
