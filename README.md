@@ -48,3 +48,7 @@ npm run dev                  # http://localhost:3000
 - `docs/ADR.md` — 기술 선택 근거
 - `docs/UX_PRINCIPLES.md` / `docs/UI_GUIDE.md` — UX·UI 가이드
 - `CLAUDE.md` — 개발 규칙·CRITICAL 룰
+
+## 배포
+
+- 프로덕션: https://ticket-mvp-eight.vercel.app
