@@ -10,6 +10,10 @@
       "status": "completed",
       "blocked_at": "2026-08-07T13:58:53+0900",
       "completed_at": "2026-08-07T14:24:27+0900"
+    },
+    {
+      "dir": "2-seat-v0",
+      "status": "pending"
     }
   ]
 }
