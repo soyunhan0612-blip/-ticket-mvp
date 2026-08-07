@@ -18,60 +18,60 @@
 ### 배경
 | 용도 | 값 |
 |------|------|
-| 페이지 | {예: #0a0a0a} |
-| 카드 | {예: #141414} |
+| 페이지 | `bg-neutral-950` (`#0a0a0a`) |
+| 카드 | `bg-neutral-900` (`#171717`) |
 
 ### 텍스트
 | 용도 | 값 |
 |------|------|
-| 주 텍스트 | {예: text-white} |
-| 본문 | {예: text-neutral-300} |
-| 보조 | {예: text-neutral-400} |
-| 비활성 | {예: text-neutral-500} |
+| 주 텍스트 | `text-white` (`#ffffff`) |
+| 본문 | `text-neutral-300` (`#d4d4d4`) |
+| 보조 | `text-neutral-400` (`#a3a3a3`) |
+| 비활성 | `text-neutral-500` (`#737373`) |
 
 ### 데이터/시맨틱 색상
 | 용도 | 값 |
 |------|------|
-| {긍정/성공} | {예: #22c55e} |
-| {부정/에러} | {예: #ef4444} |
-| {중립/기본} | {예: #525252} |
+| 긍정/성공 | `text-green-500` (`#22c55e`) |
+| 부정/에러 | `text-red-500` (`#ef4444`) |
+| 중립/기본 | `text-neutral-600` (`#525252`) |
 
 ## 컴포넌트
 ### 카드
 ```
-{예: rounded-lg bg-[#141414] border border-neutral-800 p-6}
+rounded-lg border border-neutral-800 bg-neutral-900 p-6 transition-colors duration-150 hover:border-neutral-700
 ```
 
 ### 버튼
 ```
-Primary: {예: rounded-lg bg-white text-black hover:bg-neutral-200}
-Text:    {예: text-neutral-500 hover:text-neutral-300}
+Primary: rounded-md bg-white px-4 py-2.5 text-sm font-medium text-neutral-950 hover:bg-neutral-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-neutral-950 disabled:bg-neutral-700 disabled:text-neutral-400
+Text:    rounded-sm px-1 py-1 text-sm font-medium text-neutral-400 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-neutral-950 disabled:text-neutral-600
 ```
 
 ### 입력 필드
 ```
-{예: rounded-lg bg-neutral-900 border border-neutral-800 px-4 py-3}
+rounded-md border border-neutral-700 bg-neutral-950 px-4 py-3 text-neutral-100 placeholder:text-neutral-500 focus-visible:border-neutral-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70 disabled:border-neutral-800 disabled:text-neutral-500
 ```
 
 ## 레이아웃
-- 전체 너비: {예: max-w-5xl}
-- 정렬: {예: 좌측 정렬 기본. 중앙 정렬 금지}
-- 간격: {예: gap-3~4, 섹션 간 space-y-8}
+- 전체 너비: `mx-auto w-full max-w-5xl px-4 sm:px-6 lg:px-8`
+- 정렬: 좌측 정렬을 기본으로 하고, 중앙 정렬은 빈 상태와 로딩 표시에서만 사용
+- 간격: 컴포넌트 내부와 그리드는 `gap-4`, 섹션 사이는 `space-y-8`
 
 ## 타이포그래피
 | 용도 | 스타일 |
 |------|--------|
-| 페이지 제목 | {예: text-4xl font-semibold text-white} |
-| 카드 제목 | {예: text-sm font-medium text-neutral-400} |
-| 본문 | {예: text-sm text-neutral-300 leading-relaxed} |
+| 페이지 제목 | `text-3xl font-semibold tracking-tight text-white sm:text-4xl` |
+| 카드 제목 | `text-lg font-semibold text-white` |
+| 본문 | `text-sm leading-6 text-neutral-300` |
 
 ## 애니메이션
-- {허용할 애니메이션만 나열. 예: fade-in (0.4s), slide-up (0.5s)}
-- {그 외 모든 애니메이션 금지}
+- hover·focus의 색상 전환만 `transition-colors duration-150`으로 허용
+- 좌석 폴링 상태 변경, 진입 효과, 이동·확대 효과를 포함한 그 외 애니메이션은 사용하지 않음
 
 ## 아이콘
-- {예: SVG 인라인, strokeWidth 1.5}
-- {예: 아이콘 컨테이너(둥근 배경 박스)로 감싸지 않는다}
+- 인라인 SVG, 기본 `h-5 w-5`, `stroke="currentColor"`, `strokeWidth={1.5}` 사용
+- 둥근 배경 아이콘 컨테이너로 감싸지 않으며, 버튼에서는 항상 텍스트 라벨과 함께 사용
 
 ---
 
