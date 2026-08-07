@@ -1,0 +1,9 @@
+{
+  "project": "티켓 예매 MVP",
+  "phase": "2-seat-v0",
+  "steps": [
+    { "step": 0, "name": "ui-guide-seat-colors", "status": "pending" },
+    { "step": 1, "name": "seat-components", "status": "pending" },
+    { "step": 2, "name": "seats-route-and-progress", "status": "pending" }
+  ]
+}
