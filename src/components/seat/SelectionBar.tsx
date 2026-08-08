@@ -9,7 +9,11 @@ import {
   validateSelection,
 } from "@/lib/seat-rules";
 
-export function SelectionBar(): JSX.Element | null {
+interface SelectionBarProps {
+  sessionId: string;
+}
+
+export function SelectionBar({ sessionId: _sessionId }: SelectionBarProps): JSX.Element | null {
   const selected = useAtomValue(selectedSeatIdsAtom);
   const setSelected = useSetAtom(selectedSeatIdsAtom);
 
