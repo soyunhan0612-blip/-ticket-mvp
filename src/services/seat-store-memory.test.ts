@@ -158,4 +158,141 @@ describe("SeatStore memory", () => {
       expect((await store.getSnapshot("snapshot-version", "user-a")).version).toBe(2);
     });
   });
+
+  describe("confirmSeats", () => {
+    it("transitions held seats to sold", async () => {
+      const store = createSeatStoreMemory();
+      await store.hold("confirm-basic", ["A-1-1", "A-1-2"], "user-a");
+
+      await store.confirmSeats("confirm-basic", ["A-1-1", "A-1-2"], "user-a");
+
+      const snapshot = await store.getSnapshot("confirm-basic", "user-a");
+      expect(snapshot.seats["A-1-1"]).toEqual({ s: "sold", mine: true });
+      expect(snapshot.seats["A-1-2"]).toEqual({ s: "sold", mine: true });
+    });
+
+    it("throws FORBIDDEN when owner does not match", async () => {
+      const store = createSeatStoreMemory();
+      await store.hold("confirm-forbidden", ["A-1-1"], "user-a");
+
+      await expect(store.confirmSeats("confirm-forbidden", ["A-1-1"], "user-b"))
+        .rejects.toThrow("FORBIDDEN");
+    });
+
+    it("throws EXPIRED for an expired hold", async () => {
+      const store = createSeatStoreMemory();
+      await store.hold("confirm-expired", ["A-1-1"], "user-a");
+      vi.advanceTimersByTime(HOLD_TTL_MS);
+
+      await expect(store.confirmSeats("confirm-expired", ["A-1-1"], "user-a"))
+        .rejects.toThrow("EXPIRED");
+    });
+
+    it("throws EXPIRED for a seat that is available (not held)", async () => {
+      const store = createSeatStoreMemory();
+
+      await expect(store.confirmSeats("confirm-available", ["A-1-1"], "user-a"))
+        .rejects.toThrow("EXPIRED");
+    });
+
+    it("throws error for a seat that is already sold", async () => {
+      const store = createSeatStoreMemory();
+      await store.hold("confirm-already-sold", ["A-1-1"], "user-a");
+      await store.confirmSeats("confirm-already-sold", ["A-1-1"], "user-a");
+
+      await expect(store.confirmSeats("confirm-already-sold", ["A-1-1"], "user-a"))
+        .rejects.toThrow();
+    });
+
+    it("does not transition any seats on partial failure (atomic)", async () => {
+      const store = createSeatStoreMemory();
+      await store.hold("confirm-atomic", ["A-1-1"], "user-a");
+      await store.hold("confirm-atomic", ["A-1-2"], "user-b");
+
+      await expect(store.confirmSeats("confirm-atomic", ["A-1-1", "A-1-2"], "user-a"))
+        .rejects.toThrow("FORBIDDEN");
+
+      const snapshot = await store.getSnapshot("confirm-atomic", "user-a");
+      expect(snapshot.seats["A-1-1"]?.s).toBe("held");
+    });
+
+    it("increments version", async () => {
+      const store = createSeatStoreMemory();
+      await store.hold("confirm-version", ["A-1-1"], "user-a");
+      const before = (await store.getSnapshot("confirm-version", "user-a")).version;
+
+      await store.confirmSeats("confirm-version", ["A-1-1"], "user-a");
+
+      const after = (await store.getSnapshot("confirm-version", "user-a")).version;
+      expect(after).toBeGreaterThan(before);
+    });
+
+    it("sold seats have no expiresAt in snapshot", async () => {
+      const store = createSeatStoreMemory();
+      await store.hold("confirm-no-expires", ["A-1-1"], "user-a");
+      await store.confirmSeats("confirm-no-expires", ["A-1-1"], "user-a");
+
+      const snapshot = await store.getSnapshot("confirm-no-expires", "user-a");
+      expect(snapshot.seats["A-1-1"]).not.toHaveProperty("expiresAt");
+    });
+  });
+
+  describe("releaseSold", () => {
+    it("reverts sold seats to available", async () => {
+      const store = createSeatStoreMemory();
+      await store.hold("release-sold-basic", ["A-1-1"], "user-a");
+      await store.confirmSeats("release-sold-basic", ["A-1-1"], "user-a");
+
+      await store.releaseSold("release-sold-basic", ["A-1-1"], "user-a");
+
+      const snapshot = await store.getSnapshot("release-sold-basic", "user-a");
+      expect(snapshot.seats).toEqual({});
+    });
+
+    it("throws FORBIDDEN when owner does not match", async () => {
+      const store = createSeatStoreMemory();
+      await store.hold("release-sold-forbidden", ["A-1-1"], "user-a");
+      await store.confirmSeats("release-sold-forbidden", ["A-1-1"], "user-a");
+
+      await expect(store.releaseSold("release-sold-forbidden", ["A-1-1"], "user-b"))
+        .rejects.toThrow("FORBIDDEN");
+    });
+
+    it("increments version", async () => {
+      const store = createSeatStoreMemory();
+      await store.hold("release-sold-version", ["A-1-1"], "user-a");
+      await store.confirmSeats("release-sold-version", ["A-1-1"], "user-a");
+      const before = (await store.getSnapshot("release-sold-version", "user-a")).version;
+
+      await store.releaseSold("release-sold-version", ["A-1-1"], "user-a");
+
+      const after = (await store.getSnapshot("release-sold-version", "user-a")).version;
+      expect(after).toBeGreaterThan(before);
+    });
+  });
+
+  describe("revertSold", () => {
+    it("reverts sold seats to available without ownership check", async () => {
+      const store = createSeatStoreMemory();
+      await store.hold("revert-sold-basic", ["A-1-1"], "user-a");
+      await store.confirmSeats("revert-sold-basic", ["A-1-1"], "user-a");
+
+      await store.revertSold("revert-sold-basic", ["A-1-1"]);
+
+      const snapshot = await store.getSnapshot("revert-sold-basic", "user-a");
+      expect(snapshot.seats).toEqual({});
+    });
+
+    it("increments version", async () => {
+      const store = createSeatStoreMemory();
+      await store.hold("revert-sold-version", ["A-1-1"], "user-a");
+      await store.confirmSeats("revert-sold-version", ["A-1-1"], "user-a");
+      const before = (await store.getSnapshot("revert-sold-version", "user-a")).version;
+
+      await store.revertSold("revert-sold-version", ["A-1-1"]);
+
+      const after = (await store.getSnapshot("revert-sold-version", "user-a")).version;
+      expect(after).toBeGreaterThan(before);
+    });
+  });
 });
