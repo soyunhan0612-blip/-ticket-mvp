@@ -7,7 +7,8 @@
       "name": "hold-logic",
       "status": "completed",
       "started_at": "2026-08-08T15:22:45+0900",
-      "summary": "5분 hold TTL 상수와 경계값을 포함한 만료·만료시각 순수 함수 및 테스트 7건 구현"
+      "summary": "5분 hold TTL 상수와 경계값을 포함한 만료·만료시각 순수 함수 및 테스트 7건 구현",
+      "completed_at": "2026-08-08T15:24:38+0900"
     },
     {
       "step": 1,
