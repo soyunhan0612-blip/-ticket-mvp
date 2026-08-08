@@ -24,7 +24,7 @@
       "status": "completed",
       "started_at": "2026-08-08T15:26:17+0900",
       "summary": "원자적 다중 좌석 hold, 소유권 release, 만료 정리 스냅샷을 지원하는 인메모리 SeatStore와 테스트 구현",
-      "completed_at": "2026-08-08T15:29:32+0900"
+      "completed_at": "2026-08-08T15:29:55+0900"
     },
     {
       "step": 3,
