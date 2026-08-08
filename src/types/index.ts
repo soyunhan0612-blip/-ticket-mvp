@@ -20,6 +20,12 @@ export interface Seat {
 
 export type SeatStatus = "available" | "held" | "sold";
 
+export type SeatVisualState =
+  | "available"
+  | "selected"
+  | "held-other"
+  | "sold";
+
 export interface Hold {
   sessionId: string;
   seatIds: string[];

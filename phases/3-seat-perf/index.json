@@ -2,10 +2,33 @@
   "project": "ticket-mvp",
   "phase": "3-seat-perf",
   "steps": [
-    { "step": 0, "name": "atoms-seat", "status": "pending" },
-    { "step": 1, "name": "seat-memo", "status": "pending" },
-    { "step": 2, "name": "seatmap-refactor", "status": "pending" },
-    { "step": 3, "name": "selectionbar-atom", "status": "pending" },
-    { "step": 4, "name": "measurement-docs", "status": "pending" }
-  ]
+    {
+      "step": 0,
+      "name": "atoms-seat",
+      "status": "completed",
+      "started_at": "2026-08-08T12:07:38+0900",
+      "summary": "Jotai 좌석 상태·선택·토글·시각 상태 atomFamily와 단위 테스트 12개를 추가"
+    },
+    {
+      "step": 1,
+      "name": "seat-memo",
+      "status": "pending"
+    },
+    {
+      "step": 2,
+      "name": "seatmap-refactor",
+      "status": "pending"
+    },
+    {
+      "step": 3,
+      "name": "selectionbar-atom",
+      "status": "pending"
+    },
+    {
+      "step": 4,
+      "name": "measurement-docs",
+      "status": "pending"
+    }
+  ],
+  "created_at": "2026-08-08T12:07:38+0900"
 }
