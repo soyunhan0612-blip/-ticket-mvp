@@ -1,20 +1,15 @@
-// 의도적 안티패턴: Day 4에서 memo로 리팩토링할 before 대조군.
-import type { JSX } from "react";
+"use client";
 
-import type { Seat as SeatType } from "@/types";
+import { useAtomValue, useSetAtom } from "jotai";
+import { memo, type JSX } from "react";
 
-export type SeatVisualState =
-  | "available"
-  | "selected"
-  | "held-other"
-  | "sold";
+import { seatVisualStateAtomFamily, toggleSeatAtom } from "@/atoms/seat";
+import type { Seat as SeatType, SeatVisualState } from "@/types";
 
 interface SeatProps {
   seat: SeatType;
   x: number;
   y: number;
-  state: SeatVisualState;
-  onClick: () => void;
 }
 
 const STATE_CLASS_NAMES: Record<SeatVisualState, string> = {
@@ -24,20 +19,16 @@ const STATE_CLASS_NAMES: Record<SeatVisualState, string> = {
   sold: "fill-neutral-800 cursor-not-allowed",
 };
 
-export function Seat({
-  seat,
-  x,
-  y,
-  state,
-  onClick,
-}: SeatProps): JSX.Element {
+export const Seat = memo(function Seat({ seat, x, y }: SeatProps): JSX.Element {
+  const state = useAtomValue(seatVisualStateAtomFamily(seat.id));
+  const toggle = useSetAtom(toggleSeatAtom);
   const isInteractive = state === "available" || state === "selected";
 
   return (
     <rect
       className={STATE_CLASS_NAMES[state]}
       height={12}
-      onClick={isInteractive ? onClick : undefined}
+      onClick={isInteractive ? () => toggle(seat.id) : undefined}
       pointerEvents={isInteractive ? "auto" : "none"}
       rx={2}
       width={12}
@@ -47,4 +38,4 @@ export function Seat({
       <title>{seat.id}</title>
     </rect>
   );
-}
+});

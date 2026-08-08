@@ -13,7 +13,10 @@
     {
       "step": 1,
       "name": "seat-memo",
-      "status": "pending"
+      "status": "completed",
+      "started_at": "2026-08-08T12:10:34+0900",
+      "summary": "Seat 컴포넌트를 React.memo로 래핑하고 좌석별 시각 상태 및 토글 Jotai atom을 직접 구독하도록 전환",
+      "completed_at": "2026-08-08T12:11:23+0900"
     },
     {
       "step": 2,
