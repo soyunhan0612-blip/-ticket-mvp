@@ -68,6 +68,18 @@ export const seatVisualStateAtomFamily = atomFamily((seatId: string) =>
   }),
 );
 
+export const myHeldSeatIdsAtom = atom<string[]>((get) => {
+  const trackedIds = get(trackedSeatIdsAtom);
+  const result: string[] = [];
+  for (const seatId of trackedIds) {
+    const status = get(seatStatusAtomFamily(seatId));
+    if (status !== null && status.s === "held" && status.mine === true) {
+      result.push(seatId);
+    }
+  }
+  return result;
+});
+
 export const snapshotVersionAtom = atom<number>(0);
 
 export const myHoldExpiresAtAtom = atom<number | null>(null);
