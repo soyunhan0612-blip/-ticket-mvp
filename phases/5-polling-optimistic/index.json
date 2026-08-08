@@ -7,7 +7,8 @@
       "name": "atoms-sync",
       "status": "completed",
       "started_at": "2026-08-08T16:03:31+0900",
-      "summary": "version 기반 스냅샷 동기화와 좌석 상태 정리, 내 hold 만료 시각 추적 atom을 추가"
+      "summary": "version 기반 스냅샷 동기화와 좌석 상태 정리, 내 hold 만료 시각 추적 atom을 추가",
+      "completed_at": "2026-08-08T16:05:22+0900"
     },
     {
       "step": 1,
