@@ -23,6 +23,14 @@ export const toggleSeatAtom = atom(
       return;
     }
 
+    const serverStatus = get(seatStatusAtomFamily(seatId));
+    if (
+      serverStatus !== null &&
+      !(serverStatus.s === "held" && serverStatus.mine)
+    ) {
+      return;
+    }
+
     if (
       selectedSeatIds.length < MAX_SEATS_PER_HOLD &&
       canSelect(selectedSeatIds, seatId)

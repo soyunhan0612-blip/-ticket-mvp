@@ -59,6 +59,33 @@ describe("toggleSeatAtom", () => {
 
     expect(store.get(selectedSeatIdsAtom)).toEqual([]);
   });
+
+  it("ignores a seat held by another user", () => {
+    const store = createStore();
+    store.set(seatStatusAtomFamily("A-1-1"), { s: "held", mine: false });
+
+    store.set(toggleSeatAtom, "A-1-1");
+
+    expect(store.get(selectedSeatIdsAtom)).toEqual([]);
+  });
+
+  it("ignores a sold seat", () => {
+    const store = createStore();
+    store.set(seatStatusAtomFamily("A-1-1"), { s: "sold" });
+
+    store.set(toggleSeatAtom, "A-1-1");
+
+    expect(store.get(selectedSeatIdsAtom)).toEqual([]);
+  });
+
+  it("allows toggling a seat held by the current user", () => {
+    const store = createStore();
+    store.set(seatStatusAtomFamily("A-1-1"), { s: "held", mine: true });
+
+    store.set(toggleSeatAtom, "A-1-1");
+
+    expect(store.get(selectedSeatIdsAtom)).toEqual(["A-1-1"]);
+  });
 });
 
 describe("seatVisualStateAtomFamily", () => {
