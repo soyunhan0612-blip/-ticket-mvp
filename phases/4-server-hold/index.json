@@ -32,7 +32,7 @@
       "status": "completed",
       "started_at": "2026-08-08T15:29:55+0900",
       "summary": "최초 요청에 보안 속성을 적용한 익명 userId UUID 쿠키를 발급하는 middleware 구현",
-      "completed_at": "2026-08-08T15:30:54+0900"
+      "completed_at": "2026-08-08T15:31:17+0900"
     },
     {
       "step": 4,
