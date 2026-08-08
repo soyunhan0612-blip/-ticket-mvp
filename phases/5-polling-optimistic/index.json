@@ -21,7 +21,10 @@
     {
       "step": 2,
       "name": "hold-mutation",
-      "status": "pending"
+      "status": "completed",
+      "started_at": "2026-08-08T16:07:07+0900",
+      "summary": "POST /api/holds 낙관적 업데이트와 409·네트워크 오류 전체 롤백 mutation 훅을 추가",
+      "completed_at": "2026-08-08T16:08:11+0900"
     },
     {
       "step": 3,
