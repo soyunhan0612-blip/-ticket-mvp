@@ -1,0 +1,11 @@
+{
+  "project": "ticket-mvp",
+  "phase": "3-seat-perf",
+  "steps": [
+    { "step": 0, "name": "atoms-seat", "status": "pending" },
+    { "step": 1, "name": "seat-memo", "status": "pending" },
+    { "step": 2, "name": "seatmap-refactor", "status": "pending" },
+    { "step": 3, "name": "selectionbar-atom", "status": "pending" },
+    { "step": 4, "name": "measurement-docs", "status": "pending" }
+  ]
+}
