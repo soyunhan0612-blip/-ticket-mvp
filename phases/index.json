@@ -18,7 +18,8 @@
     },
     {
       "dir": "3-seat-perf",
-      "status": "pending"
+      "status": "completed",
+      "completed_at": "2026-08-08T12:28:31+0900"
     }
   ]
 }
