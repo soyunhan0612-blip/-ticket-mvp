@@ -1,0 +1,13 @@
+{
+  "project": "ticket-mvp",
+  "phase": "5-polling-optimistic",
+  "steps": [
+    { "step": 0, "name": "atoms-sync", "status": "pending" },
+    { "step": 1, "name": "snapshot-hook", "status": "pending" },
+    { "step": 2, "name": "hold-mutation", "status": "pending" },
+    { "step": 3, "name": "page-hydration", "status": "pending" },
+    { "step": 4, "name": "selectionbar-api", "status": "pending" },
+    { "step": 5, "name": "hold-timer", "status": "pending" },
+    { "step": 6, "name": "toast-conflict", "status": "pending" }
+  ]
+}
