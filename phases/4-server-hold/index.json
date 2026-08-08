@@ -48,7 +48,7 @@
       "status": "completed",
       "started_at": "2026-08-08T15:34:06+0900",
       "summary": "쿠키 인증·서버 좌석 검증·원자적 충돌 처리·소유권 release를 적용한 holds POST/DELETE API와 통합테스트 11건 구현",
-      "completed_at": "2026-08-08T15:35:52+0900"
+      "completed_at": "2026-08-08T15:36:20+0900"
     },
     {
       "step": 6,
