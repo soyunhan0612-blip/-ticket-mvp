@@ -9,6 +9,7 @@ import { SelectionBar } from "./SelectionBar";
 
 interface SeatMapProps {
   seats: readonly SeatType[];
+  sessionId: string;
 }
 
 const SEAT_PITCH = 14;
@@ -33,7 +34,7 @@ function getSeatPosition(seat: SeatType): { x: number; y: number } {
   };
 }
 
-export function SeatMap({ seats }: SeatMapProps): JSX.Element {
+export function SeatMap({ seats, sessionId }: SeatMapProps): JSX.Element {
   return (
     <div className="space-y-8">
       <svg
@@ -56,7 +57,7 @@ export function SeatMap({ seats }: SeatMapProps): JSX.Element {
         })}
       </svg>
 
-      <SelectionBar />
+      <SelectionBar sessionId={sessionId} />
     </div>
   );
 }

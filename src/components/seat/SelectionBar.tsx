@@ -3,25 +3,39 @@
 import { useAtomValue, useSetAtom } from "jotai";
 import type { JSX } from "react";
 
-import { selectedSeatIdsAtom } from "@/atoms/seat";
+import { conflictSeatIdsAtom, selectedSeatIdsAtom } from "@/atoms/seat";
+import { useHoldMutation } from "@/hooks/use-hold-mutation";
 import {
   MAX_SEATS_PER_HOLD,
   validateSelection,
 } from "@/lib/seat-rules";
 
-export function SelectionBar(): JSX.Element | null {
+interface SelectionBarProps {
+  sessionId: string;
+}
+
+export function SelectionBar({ sessionId }: SelectionBarProps): JSX.Element | null {
   const selected = useAtomValue(selectedSeatIdsAtom);
   const setSelected = useSetAtom(selectedSeatIdsAtom);
+  const setConflictSeatIds = useSetAtom(conflictSeatIdsAtom);
+  const holdMutation = useHoldMutation(sessionId);
 
-  function completeSelection(): void {
+  async function completeSelection(): Promise<void> {
     const validation = validateSelection(selected);
 
-    if (validation.ok) {
-      alert(JSON.stringify(selected));
+    if (!validation.ok) {
       return;
     }
 
-    alert(`선택 오류: ${validation.reason}`);
+    try {
+      const result = await holdMutation.mutateAsync(selected);
+
+      if (!result.success) {
+        setConflictSeatIds(result.conflict ?? []);
+      }
+    } catch {
+      // 네트워크 오류 롤백은 useHoldMutation에서 처리한다.
+    }
   }
 
   if (selected.length === 0) {
@@ -45,10 +59,11 @@ export function SelectionBar(): JSX.Element | null {
         <div className="flex flex-wrap items-center gap-4">
           <button
             className="rounded-md bg-white px-4 py-2.5 text-sm font-medium text-neutral-950 hover:bg-neutral-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-neutral-950 disabled:bg-neutral-700 disabled:text-neutral-400"
+            disabled={holdMutation.isPending}
             onClick={completeSelection}
             type="button"
           >
-            선택 완료
+            {holdMutation.isPending ? "처리 중..." : "선택 완료"}
           </button>
           <button
             className="rounded-sm px-1 py-1 text-sm font-medium text-neutral-400 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-neutral-950 disabled:text-neutral-600"

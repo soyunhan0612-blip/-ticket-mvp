@@ -1,7 +1,16 @@
+import {
+  dehydrate,
+  HydrationBoundary,
+  QueryClient,
+} from "@tanstack/react-query";
+import { cookies } from "next/headers";
 import { notFound } from "next/navigation";
 
-import { SeatMap } from "@/components/seat/SeatMap";
+import { SeatMapContainer } from "@/components/seat/SeatMapContainer";
+import { SNAPSHOT_QUERY_KEY } from "@/hooks/use-seat-snapshot";
+import { USER_ID_COOKIE_NAME } from "@/lib/cookie";
 import { generateSeats, MOCK_SESSIONS, MOCK_SHOWS } from "@/lib/mock-data";
+import { getSeatStore } from "@/services";
 
 export const dynamic = "force-dynamic";
 
@@ -18,6 +27,15 @@ export default async function SeatSelectionPage(props: PageProps) {
   const show = MOCK_SHOWS.find((candidate) => candidate.id === session.showId);
 
   if (!show) notFound();
+
+  const cookieStore = await cookies();
+  const userId = cookieStore.get(USER_ID_COOKIE_NAME)?.value ?? "";
+  const queryClient = new QueryClient();
+
+  await queryClient.prefetchQuery({
+    queryKey: [SNAPSHOT_QUERY_KEY, id],
+    queryFn: () => getSeatStore().getSnapshot(id, userId),
+  });
 
   const seats = generateSeats();
   const sessionTime = new Date(session.startsAt).toLocaleString("ko-KR", {
@@ -41,7 +59,9 @@ export default async function SeatSelectionPage(props: PageProps) {
         <p className="mt-1 text-sm text-neutral-400">{session.id}</p>
       </header>
 
-      <SeatMap seats={seats} />
+      <HydrationBoundary state={dehydrate(queryClient)}>
+        <SeatMapContainer seats={seats} sessionId={id} />
+      </HydrationBoundary>
     </main>
   );
 }
