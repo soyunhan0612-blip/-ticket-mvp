@@ -40,7 +40,7 @@
       "status": "completed",
       "started_at": "2026-08-08T16:10:41+0900",
       "summary": "SelectionBar의 alert stub을 실제 hold mutation과 409 인라인 충돌 메시지 및 pending 상태로 교체",
-      "completed_at": "2026-08-08T16:11:31+0900"
+      "completed_at": "2026-08-08T16:11:57+0900"
     },
     {
       "step": 5,
