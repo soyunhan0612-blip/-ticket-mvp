@@ -6,6 +6,6 @@
     { "step": 1, "name": "reservation-store", "status": "completed", "summary": "ReservationStore 인터페이스·메모리 구현체·팩토리 등록, 11개 테스트 통과" },
     { "step": 2, "name": "reservation-api", "status": "completed", "summary": "POST/GET /api/reservations + DELETE /api/reservations/[id] 구현, 17개 API 테스트 통과" },
     { "step": 3, "name": "confirm-ui", "status": "completed", "summary": "myHeldSeatIdsAtom, ConfirmBar, 예매/취소/목록 hooks, 범용 Toast 구현" },
-    { "step": 4, "name": "reservations-page", "status": "pending" }
+    { "step": 4, "name": "reservations-page", "status": "completed", "summary": "/reservations 예매 내역 페이지, ReservationList/Card 컴포넌트, 글로벌 네비게이션 추가" }
   ]
 }
