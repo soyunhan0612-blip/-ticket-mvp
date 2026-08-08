@@ -31,7 +31,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node \"$(git rev-parse --show-toplevel)/scripts/hooks/codex-verify-gate.cjs\"",
+            "command": "/bin/zsh -lc 'node \"$(git rev-parse --show-toplevel)/scripts/hooks/codex-verify-gate.cjs\"'",
             "commandWindows": "powershell -NoProfile -NonInteractive -Command \"& { $root = git rev-parse --show-toplevel; & node \\\"$root/scripts/hooks/codex-verify-gate.cjs\\\" }\"",
             "timeout": 360,
             "statusMessage": "lint·test 게이트"

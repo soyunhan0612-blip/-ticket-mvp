@@ -11,6 +11,8 @@ const {
   blockedDangerousPattern,
   commandText,
   editedPaths,
+  findCompatibleNodeDirectory,
+  minimumNodeVersion,
   normalizePath,
   requiresTest,
   testCandidates,
@@ -46,7 +48,7 @@ function temporaryProject(packageJson) {
 }
 
 test("normalizes absolute Windows and relative Unix paths", () => {
-  assert.equal(normalizePath("C:\\ticket-mvp\\src\\lib\\seat-map.ts", ROOT), "src/lib/seat-map.ts");
+  assert.equal(normalizePath("C:\\ticket-mvp\\src\\lib\\seat-map.ts", "C:\\ticket-mvp"), "src/lib/seat-map.ts");
   assert.equal(normalizePath("./src/services/store.ts", ROOT), "src/services/store.ts");
 });
 
@@ -112,6 +114,48 @@ test("lists colocated and __tests__ test candidates", () => {
   assert.ok(candidates.includes("src/lib/seat/map.spec.ts"));
   assert.ok(candidates.includes("src/lib/seat/__tests__/map.test.ts"));
   assert.ok(candidates.includes("src/lib/seat/__tests__/map.spec.ts"));
+});
+
+test("extracts the minimum Node version from the project engine range", () => {
+  assert.deepEqual(minimumNodeVersion(">=22.0.0"), [22, 0, 0]);
+  assert.deepEqual(minimumNodeVersion(">=22.12"), [22, 12, 0]);
+  assert.equal(minimumNodeVersion("^22.0.0"), undefined);
+});
+
+test("selects a compatible Node directory later in PATH", () => {
+  const versions = new Map([
+    [path.join("/old", "node"), "v20.11.1"],
+    [path.join("/current", "node"), "v22.22.3"],
+  ]);
+  const directory = findCompatibleNodeDirectory({
+    pathValue: ["/old", "/current", "/old"].join(path.delimiter),
+    minimumVersion: [22, 0, 0],
+    platform: "darwin",
+    fileExists: (file) => versions.has(file) || file.endsWith("/npm"),
+    probeVersion: (file) => versions.get(file),
+  });
+  assert.equal(directory, "/current");
+});
+
+test("uses Windows executable names when selecting a compatible Node", () => {
+  const directory = findCompatibleNodeDirectory({
+    pathValue: "C:\\old;C:\\node22",
+    minimumVersion: [22, 0, 0],
+    platform: "win32",
+    fileExists: (file) => file.endsWith("node.exe") || file.endsWith("npm.cmd"),
+    probeVersion: (file) => file.includes("node22") ? "v22.1.0" : "v20.11.1",
+  });
+  assert.equal(directory, "C:\\node22");
+});
+
+test("returns no Node directory when PATH has no compatible runtime", () => {
+  assert.equal(findCompatibleNodeDirectory({
+    pathValue: "/old",
+    minimumVersion: [22, 0, 0],
+    platform: "darwin",
+    fileExists: () => true,
+    probeVersion: () => "v20.11.1",
+  }), undefined);
 });
 
 test("dangerous-command hook denies argv commands", () => {

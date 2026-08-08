@@ -1,0 +1,48 @@
+{
+  "project": "ticket-mvp",
+  "phase": "3-seat-perf",
+  "steps": [
+    {
+      "step": 0,
+      "name": "atoms-seat",
+      "status": "completed",
+      "started_at": "2026-08-08T12:07:38+0900",
+      "summary": "Jotai 좌석 상태·선택·토글·시각 상태 atomFamily와 단위 테스트 12개를 추가",
+      "completed_at": "2026-08-08T12:10:34+0900"
+    },
+    {
+      "step": 1,
+      "name": "seat-memo",
+      "status": "completed",
+      "started_at": "2026-08-08T12:10:34+0900",
+      "summary": "Seat 컴포넌트를 React.memo로 래핑하고 좌석별 시각 상태 및 토글 Jotai atom을 직접 구독하도록 전환",
+      "completed_at": "2026-08-08T12:13:09+0900"
+    },
+    {
+      "step": 2,
+      "name": "seatmap-refactor",
+      "status": "completed",
+      "started_at": "2026-08-08T12:13:09+0900",
+      "summary": "SeatMap을 선택 상태와 무관한 순수 레이아웃으로 전환하고 SelectionBar가 선택 atom을 직접 구독하도록 리팩터링",
+      "completed_at": "2026-08-08T12:24:02+0900"
+    },
+    {
+      "step": 3,
+      "name": "selectionbar-atom",
+      "status": "completed",
+      "started_at": "2026-08-08T12:24:02+0900",
+      "summary": "SelectionBar의 Jotai 선택 atom 직접 구독·초기화 및 빈 선택 조건부 렌더 구현을 검증",
+      "completed_at": "2026-08-08T12:26:57+0900"
+    },
+    {
+      "step": 4,
+      "name": "measurement-docs",
+      "status": "completed",
+      "started_at": "2026-08-08T12:26:57+0900",
+      "summary": "Day 4 좌석 리렌더 최적화의 구현 근거와 정직한 before/after 수동 측정 placeholder를 PROGRESS.md에 기록",
+      "completed_at": "2026-08-08T12:28:31+0900"
+    }
+  ],
+  "created_at": "2026-08-08T12:07:38+0900",
+  "completed_at": "2026-08-08T12:28:31+0900"
+}
