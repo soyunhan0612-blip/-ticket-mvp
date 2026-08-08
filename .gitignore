@@ -10,6 +10,7 @@ tsconfig.tsbuildinfo
 
 # Vercel
 .vercel
+.nvmrc
 __pycache__/
 .pytest_cache/
 *.py[cod]

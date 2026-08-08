@@ -116,6 +116,59 @@ function makeSeatStoreMemory(): SeatStore {
 
       return { version: session.version, serverNow, seats };
     },
+
+    async confirmSeats(sessionId, seatIds, userId) {
+      const session = getSession(sessionId);
+
+      // Validate all seats first (all-or-nothing)
+      for (const seatId of seatIds) {
+        const entry = session.seats.get(seatId);
+        if (!entry || (entry.status === "held" && isExpired(entry.expiresAt))) {
+          throw new Error(`EXPIRED: seat ${seatId} is not held`);
+        }
+        if (entry.status === "sold") {
+          throw new Error(`EXPIRED: seat ${seatId} is already sold`);
+        }
+        if (entry.userId !== userId) {
+          throw new Error(`FORBIDDEN: seat ${seatId} is owned by another user`);
+        }
+      }
+
+      // All checks passed — transition all to sold
+      for (const seatId of seatIds) {
+        const entry = session.seats.get(seatId)!;
+        session.seats.set(seatId, { userId: entry.userId, expiresAt: 0, status: "sold" });
+      }
+      session.version += 1;
+    },
+
+    async releaseSold(sessionId, seatIds, userId) {
+      const session = getSession(sessionId);
+
+      for (const seatId of seatIds) {
+        const entry = session.seats.get(seatId);
+        if (entry && entry.userId !== userId) {
+          throw new Error(`FORBIDDEN: seat ${seatId} is owned by another user`);
+        }
+      }
+
+      for (const seatId of seatIds) {
+        session.seats.delete(seatId);
+      }
+      session.version += 1;
+    },
+
+    async revertSold(sessionId, seatIds) {
+      const session = getSession(sessionId);
+
+      for (const seatId of seatIds) {
+        const entry = session.seats.get(seatId);
+        if (entry?.status === "sold") {
+          session.seats.delete(seatId);
+        }
+      }
+      session.version += 1;
+    },
   };
 }
 
