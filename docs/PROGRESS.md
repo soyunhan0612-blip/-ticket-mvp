@@ -103,9 +103,39 @@ Day별 진행 결과와 결정 근거. 서사 문서.
 - 이 phase 커밋(2단계): `feat(2-seat-v0): …` / `chore(2-seat-v0): …`
 - 다음: Day 4에서 `atoms/seat.ts` (atomFamily) + `React.memo(Seat)` → after 측정 캡처
 
-## Day 4 — 좌석 최적화 after (예정)
+## Day 4 — 좌석 최적화 after (구현 완료, 측정 대기)
 
-> 이 자리에 `atomFamily` 적용 후 리렌더 수치 · before/after 대비.
-> "클릭당 리렌더 2000 → 1~2"로 한정해 기록, 초기 마운트 비용은 별도로 병기 (과장 금지).
+### 기능적 관점
+- 좌석 클릭 시 리렌더 범위를 해당 좌석 1~2개로 한정하는 구조로 전환 (이전: 약 2000개). 실제 수치는 아래 Profiler 측정 후 기록
+- 선택·해제·4석 상한·`SelectionBar` 표시 등 기능적 동작은 Day 3과 동일하게 유지
+
+### 기술적 관점
+- `atoms/seat.ts`: `seatStatusAtomFamily`, `selectedSeatIdsAtom`, `toggleSeatAtom`, `seatVisualStateAtomFamily` 4종으로 좌석 상태·선택·토글·시각 상태 구성
+- `Seat.tsx`: `React.memo` + `useAtomValue` + `useSetAtom` 적용, props에서 상태와 `onClick` 제거
+- `SeatMap.tsx`: `useState` 제거, `Seat`에는 좌석과 좌표 등 기하학 props만 전달
+- `SelectionBar.tsx`: props 제거, `selectedSeatIdsAtom`을 직접 구독해 선택 목록과 가시성 관리
+
+### 아키텍처 관점
+- `seatStatusAtomFamily`를 Day 5 폴링 스냅샷 반영의 진입점으로 마련. 이번 phase에서는 기본값 `null`만 사용
+- 서버 좌석 상태(`seatStatusAtomFamily`)와 클라이언트 선택(`selectedSeatIdsAtom`)을 분리해 각 상태의 변경 경로를 독립적으로 유지
+- `SeatVisualState` 타입을 `types/index.ts`로 이동해 atom과 컴포넌트 사이의 순환 의존 해소
+
+### 결정 근거
+- **왜 Seat 내부에서 `toggleSeatAtom`을 직접 호출하나**: 부모가 만든 `onClick` 클로저를 prop으로 전달하면 참조가 바뀌어 `React.memo`의 좌석별 렌더 격리를 무력화하기 때문
+- **왜 SelectionBar가 가시성을 내부에서 판단하나**: `SeatMap`이 선택 atom을 구독하면 클릭마다 부모와 2000개 좌석의 렌더 경로가 다시 열리기 때문
+- **왜 `held-mine`을 `selected`와 동일 처리하나**: UI_GUIDE의 4색 체계를 늘리지 않으면서 사용자에게 모두 "내 좌석"이라는 동일한 시각 신호를 주기 위해서
+- `atomFamily`가 개선하는 범위는 **클릭 같은 업데이트 시 리렌더**다. 2000개 SVG 노드를 생성하는 초기 마운트 비용은 구조적으로 남으므로 개선되었다고 간주하지 않고 별도 측정
+
+### after 측정 (React DevTools Profiler)
+> 아래는 브라우저에서 수동 측정 후 사람이 채운다.
+
+- 초기 마운트 시간: **_ ms** (Day 3: **_ ms**)
+- 좌석 1회 클릭 시 리렌더 컴포넌트 수: **_** (Day 3: **_**)
+- 측정 절차: `npm run dev` → `/sessions/session-01/seats` → React DevTools Profiler → 좌석 클릭
+- 스크린샷: `docs/assets/day4-after-profiler.png`
+
+### 참조
+- 이 phase 커밋: `feat(3-seat-perf): ...`
+- ADR-002: "클릭당 리렌더 2000 → 1~2"로 한정. 초기 마운트 비용은 별도 수치로 정직 병기
 
 ## Day 5~9 — (예정)

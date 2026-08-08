@@ -37,7 +37,10 @@
     {
       "step": 4,
       "name": "measurement-docs",
-      "status": "pending"
+      "status": "completed",
+      "started_at": "2026-08-08T12:26:57+0900",
+      "summary": "Day 4 좌석 리렌더 최적화의 구현 근거와 정직한 before/after 수동 측정 placeholder를 PROGRESS.md에 기록",
+      "completed_at": "2026-08-08T12:28:07+0900"
     }
   ],
   "created_at": "2026-08-08T12:07:38+0900"
