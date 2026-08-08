@@ -29,7 +29,10 @@
     {
       "step": 3,
       "name": "selectionbar-atom",
-      "status": "pending"
+      "status": "completed",
+      "started_at": "2026-08-08T12:24:02+0900",
+      "summary": "SelectionBar의 Jotai 선택 atom 직접 구독·초기화 및 빈 선택 조건부 렌더 구현을 검증",
+      "completed_at": "2026-08-08T12:24:59+0900"
     },
     {
       "step": 4,
