@@ -27,6 +27,7 @@ export type SeatVisualState =
   | "sold";
 
 export interface Hold {
+  id: string;
   sessionId: string;
   seatIds: string[];
   userId: string;
