@@ -23,7 +23,8 @@
     },
     {
       "dir": "4-server-hold",
-      "status": "pending"
+      "status": "completed",
+      "completed_at": "2026-08-08T15:38:06+0900"
     }
   ]
 }
