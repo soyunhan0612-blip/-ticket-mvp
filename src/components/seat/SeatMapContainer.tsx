@@ -4,6 +4,7 @@ import type { JSX } from "react";
 
 import { useSeatSnapshot } from "@/hooks/use-seat-snapshot";
 import type { Seat as SeatType } from "@/types";
+import { Toast } from "@/components/toast/Toast";
 
 import { HoldTimer } from "./HoldTimer";
 import { SeatMap } from "./SeatMap";
@@ -23,6 +24,7 @@ export function SeatMapContainer({
     <>
       <SeatMap seats={seats} sessionId={sessionId} />
       <HoldTimer />
+      <Toast />
     </>
   );
 }

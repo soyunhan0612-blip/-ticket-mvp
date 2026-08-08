@@ -10,6 +10,9 @@ export const seatStatusAtomFamily = atomFamily((_seatId: string) =>
 
 export const selectedSeatIdsAtom = atom<string[]>([]);
 
+// 충돌 좌석 ID 목록 (409 수신 후 일시적 표시용)
+export const conflictSeatIdsAtom = atom<string[]>([]);
+
 export const toggleSeatAtom = atom(
   null,
   (get, set, seatId: string) => {

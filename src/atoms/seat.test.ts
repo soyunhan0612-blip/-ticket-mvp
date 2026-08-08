@@ -2,6 +2,7 @@ import { createStore } from "jotai";
 import { describe, expect, it } from "vitest";
 
 import {
+  conflictSeatIdsAtom,
   myHoldExpiresAtAtom,
   seatStatusAtomFamily,
   seatVisualStateAtomFamily,
@@ -11,6 +12,22 @@ import {
   syncSnapshotAtom,
   toggleSeatAtom,
 } from "./seat";
+
+describe("conflictSeatIdsAtom", () => {
+  it("starts empty", () => {
+    const store = createStore();
+
+    expect(store.get(conflictSeatIdsAtom)).toEqual([]);
+  });
+
+  it("returns the configured seat ids", () => {
+    const store = createStore();
+
+    store.set(conflictSeatIdsAtom, ["A-1-1", "A-1-2"]);
+
+    expect(store.get(conflictSeatIdsAtom)).toEqual(["A-1-1", "A-1-2"]);
+  });
+});
 
 describe("syncSnapshotAtom", () => {
   it("updates version and serverNow for an empty snapshot", () => {
