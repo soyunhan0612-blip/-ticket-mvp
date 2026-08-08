@@ -1,0 +1,13 @@
+{
+  "project": "ticket-mvp",
+  "phase": "4-server-hold",
+  "steps": [
+    { "step": 0, "name": "hold-logic", "status": "pending" },
+    { "step": 1, "name": "cookie-helper", "status": "pending" },
+    { "step": 2, "name": "seat-store-impl", "status": "pending" },
+    { "step": 3, "name": "middleware-cookie", "status": "pending" },
+    { "step": 4, "name": "zod-install", "status": "pending" },
+    { "step": 5, "name": "api-holds", "status": "pending" },
+    { "step": 6, "name": "api-snapshot", "status": "pending" }
+  ]
+}
