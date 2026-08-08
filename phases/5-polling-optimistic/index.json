@@ -2,12 +2,43 @@
   "project": "ticket-mvp",
   "phase": "5-polling-optimistic",
   "steps": [
-    { "step": 0, "name": "atoms-sync", "status": "pending" },
-    { "step": 1, "name": "snapshot-hook", "status": "pending" },
-    { "step": 2, "name": "hold-mutation", "status": "pending" },
-    { "step": 3, "name": "page-hydration", "status": "pending" },
-    { "step": 4, "name": "selectionbar-api", "status": "pending" },
-    { "step": 5, "name": "hold-timer", "status": "pending" },
-    { "step": 6, "name": "toast-conflict", "status": "pending" }
-  ]
+    {
+      "step": 0,
+      "name": "atoms-sync",
+      "status": "completed",
+      "started_at": "2026-08-08T16:03:31+0900",
+      "summary": "version 기반 스냅샷 동기화와 좌석 상태 정리, 내 hold 만료 시각 추적 atom을 추가"
+    },
+    {
+      "step": 1,
+      "name": "snapshot-hook",
+      "status": "pending"
+    },
+    {
+      "step": 2,
+      "name": "hold-mutation",
+      "status": "pending"
+    },
+    {
+      "step": 3,
+      "name": "page-hydration",
+      "status": "pending"
+    },
+    {
+      "step": 4,
+      "name": "selectionbar-api",
+      "status": "pending"
+    },
+    {
+      "step": 5,
+      "name": "hold-timer",
+      "status": "pending"
+    },
+    {
+      "step": 6,
+      "name": "toast-conflict",
+      "status": "pending"
+    }
+  ],
+  "created_at": "2026-08-08T16:03:31+0900"
 }
