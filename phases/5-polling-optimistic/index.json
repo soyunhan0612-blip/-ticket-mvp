@@ -45,7 +45,10 @@
     {
       "step": 5,
       "name": "hold-timer",
-      "status": "pending"
+      "status": "completed",
+      "started_at": "2026-08-08T16:11:57+0900",
+      "summary": "서버 시각 보정 기반 hold 만료 카운트다운을 추가하고 좌석맵 아래에 연결",
+      "completed_at": "2026-08-08T16:12:52+0900"
     },
     {
       "step": 6,

@@ -5,6 +5,7 @@ import type { JSX } from "react";
 import { useSeatSnapshot } from "@/hooks/use-seat-snapshot";
 import type { Seat as SeatType } from "@/types";
 
+import { HoldTimer } from "./HoldTimer";
 import { SeatMap } from "./SeatMap";
 
 interface SeatMapContainerProps {
@@ -18,5 +19,10 @@ export function SeatMapContainer({
 }: SeatMapContainerProps): JSX.Element {
   useSeatSnapshot(sessionId);
 
-  return <SeatMap seats={seats} sessionId={sessionId} />;
+  return (
+    <>
+      <SeatMap seats={seats} sessionId={sessionId} />
+      <HoldTimer />
+    </>
+  );
 }
