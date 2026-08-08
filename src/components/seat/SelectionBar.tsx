@@ -1,22 +1,18 @@
 "use client";
 
-// 의도적 안티패턴: Day 4에서 atom 기반 상태로 리팩토링할 before 대조군.
+import { useAtomValue, useSetAtom } from "jotai";
 import type { JSX } from "react";
 
+import { selectedSeatIdsAtom } from "@/atoms/seat";
 import {
   MAX_SEATS_PER_HOLD,
   validateSelection,
 } from "@/lib/seat-rules";
 
-interface SelectionBarProps {
-  selected: readonly string[];
-  onClear: () => void;
-}
+export function SelectionBar(): JSX.Element | null {
+  const selected = useAtomValue(selectedSeatIdsAtom);
+  const setSelected = useSetAtom(selectedSeatIdsAtom);
 
-export function SelectionBar({
-  selected,
-  onClear,
-}: SelectionBarProps): JSX.Element {
   function completeSelection(): void {
     const validation = validateSelection(selected);
 
@@ -26,6 +22,10 @@ export function SelectionBar({
     }
 
     alert(`선택 오류: ${validation.reason}`);
+  }
+
+  if (selected.length === 0) {
+    return null;
   }
 
   return (
@@ -52,7 +52,7 @@ export function SelectionBar({
           </button>
           <button
             className="rounded-sm px-1 py-1 text-sm font-medium text-neutral-400 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-neutral-950 disabled:text-neutral-600"
-            onClick={onClear}
+            onClick={() => setSelected([])}
             type="button"
           >
             초기화
