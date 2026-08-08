@@ -2,12 +2,43 @@
   "project": "ticket-mvp",
   "phase": "4-server-hold",
   "steps": [
-    { "step": 0, "name": "hold-logic", "status": "pending" },
-    { "step": 1, "name": "cookie-helper", "status": "pending" },
-    { "step": 2, "name": "seat-store-impl", "status": "pending" },
-    { "step": 3, "name": "middleware-cookie", "status": "pending" },
-    { "step": 4, "name": "zod-install", "status": "pending" },
-    { "step": 5, "name": "api-holds", "status": "pending" },
-    { "step": 6, "name": "api-snapshot", "status": "pending" }
-  ]
+    {
+      "step": 0,
+      "name": "hold-logic",
+      "status": "completed",
+      "started_at": "2026-08-08T15:22:45+0900",
+      "summary": "5분 hold TTL 상수와 경계값을 포함한 만료·만료시각 순수 함수 및 테스트 7건 구현"
+    },
+    {
+      "step": 1,
+      "name": "cookie-helper",
+      "status": "pending"
+    },
+    {
+      "step": 2,
+      "name": "seat-store-impl",
+      "status": "pending"
+    },
+    {
+      "step": 3,
+      "name": "middleware-cookie",
+      "status": "pending"
+    },
+    {
+      "step": 4,
+      "name": "zod-install",
+      "status": "pending"
+    },
+    {
+      "step": 5,
+      "name": "api-holds",
+      "status": "pending"
+    },
+    {
+      "step": 6,
+      "name": "api-snapshot",
+      "status": "pending"
+    }
+  ],
+  "created_at": "2026-08-08T15:22:45+0900"
 }
