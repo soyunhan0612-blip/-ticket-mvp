@@ -74,7 +74,7 @@ export const myHoldExpiresAtAtom = atom<number | null>(null);
 
 export const serverNowAtom = atom<number>(0);
 
-export const trackedSeatIdsAtom = atom<Set<string>>(new Set());
+export const trackedSeatIdsAtom = atom<Set<string>>(new Set<string>());
 
 export const syncSnapshotAtom = atom(
   null,
