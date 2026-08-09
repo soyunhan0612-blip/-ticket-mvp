@@ -5,18 +5,12 @@
     {
       "step": 0,
       "name": "seat-layout-lib",
-      "status": "completed",
-      "started_at": "2026-08-09T19:27:19+0900",
-      "summary": "프리셋 구역 수에 맞춘 좌석 좌표·레이아웃 박스·초기 확대 viewBox 순수 함수와 회귀 테스트를 추가",
-      "completed_at": "2026-08-09T19:29:37+0900"
+      "status": "pending"
     },
     {
       "step": 1,
       "name": "zoom-pan-svg",
-      "status": "blocked",
-      "started_at": "2026-08-09T19:29:37+0900",
-      "blocked_reason": "npm run build가 이전 Step 0의 src/lib/seat-layout.ts:28에서 Section[]에 string 타입인 seat.section을 indexOf 인자로 전달하는 strict 타입 오류로 실패합니다. 이번 Step 1은 ZoomPanSvg.tsx만 새로 만들고 추가 파일을 수정하지 말라고 명시되어 있어, seat-layout.ts의 최소 타입 수정까지 허용되는지 확인이 필요합니다.",
-      "blocked_at": "2026-08-09T19:31:57+0900"
+      "status": "pending"
     },
     {
       "step": 2,

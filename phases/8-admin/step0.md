@@ -52,7 +52,6 @@ const sectionRow = Math.floor(sectionIndex / 2);
 ### 2. 구현 (`src/lib/seat-layout.ts`)
 
 ```typescript
-import type { Section } from "@/lib/seat-map";
 import type { Seat } from "@/types";
 
 export const SEAT_PITCH: number;
@@ -73,10 +72,10 @@ export interface ViewBox {
 
 export function getSeatPosition(
   seat: Seat,
-  sections: readonly Section[],
+  sections: readonly string[],
 ): { x: number; y: number };
 
-export function getLayoutBox(sections: readonly Section[]): LayoutBox;
+export function getLayoutBox(sections: readonly string[]): LayoutBox;
 
 export function getInitialViewBox(box: LayoutBox): ViewBox;
 ```
@@ -85,6 +84,7 @@ export function getInitialViewBox(box: LayoutBox): ViewBox;
 
 - **`sections` 인자의 순서와 길이로 그리드를 결정하라.** 구역 개수가 1이면 1열, 2면 2열, 3~4면 2열(2행). 즉 열 개수는 `Math.min(sections.length, 2)`.
 - 좌석의 구역 인덱스는 `sections.indexOf(seat.section)`으로 구한다. `["A","B","C","D"]`를 함수 안에 하드코딩하지 마라.
+- **`sections`를 `readonly string[]`으로 받는 것은 의도적이다.** `seat-map.ts`의 `Section`(`"A"|"B"|"C"|"D"` 리터럴 유니온)으로 좁히지 마라. `src/types/index.ts`의 `Seat.section`이 `string`이라, 좁은 타입으로 받으면 `sections.indexOf(seat.section)`이 strict 모드에서 컴파일되지 않는다. 또한 이 함수의 책임은 "배열에서 인덱스를 찾아 격자 좌표를 계산"하는 것이지 구역 값의 유효성 검증이 아니다 — 그건 `seat-map.ts`의 `isSection`/`toSeatId`가 맡고, 이 함수는 `sections`에 없으면 `RangeError`로 방어한다.
 - `sections`에 없는 구역의 좌석이 들어오면 `RangeError`를 던져라. `seat-map.ts`의 `toSeatId`가 범위 밖 입력에 `RangeError`를 던지는 것과 같은 규약이다.
 - `getInitialViewBox`는 ARCHITECTURE.md의 지침대로 **전관이 아니라 무대 앞 중앙부**를 반환한다. 무대는 좌석 영역 위쪽(y가 작은 쪽)에 있다. 전체 폭의 약 절반 정도를 보여주는 배율이면 충분하다 — 정확한 비율은 재량이되, 좌석 하나가 클릭 가능한 크기가 되어야 한다는 목적을 지켜라.
 

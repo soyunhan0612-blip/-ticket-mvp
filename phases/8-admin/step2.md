@@ -24,7 +24,7 @@ Step 0의 레이아웃 함수와 Step 1의 `ZoomPanSvg`를 실제 좌석맵에 �
 ### 1. `src/components/seat/SeatMap.tsx` 수정
 
 - 파일 안에 있는 `getSeatPosition`, `SEAT_PITCH`, `SECTION_WIDTH`, `SECTION_HEIGHT`, `SECTION_GAP`, `SEAT_AREA_TOP`, `MAP_WIDTH`, `MAP_HEIGHT` 정의를 **삭제하고** `@/lib/seat-layout`의 것을 import해 사용한다. 좌표 계산 로직을 두 곳에 두지 마라.
-- `sections: readonly Section[]` prop을 추가한다.
+- `sections: readonly string[]` prop을 추가한다. Step 0의 `getSeatPosition`/`getLayoutBox`와 같은 타입이다 — `Section`으로 좁히지 마라(사유는 `step0.md`의 동작 규칙 참고). `getPreset(...).sections`는 `Section[]`이므로 그대로 넘길 수 있다.
 - 기존 `<svg viewBox=...>`를 `ZoomPanSvg`로 교체한다. `box`는 `getLayoutBox(sections)` 결과를 넘긴다.
 - STAGE 텍스트는 유지한다. 레이아웃 박스 상단 중앙에 오도록 배치하라.
 - `SelectionBar`는 지금처럼 SVG 바깥에 유지한다.
@@ -35,7 +35,7 @@ Step 0의 레이아웃 함수와 Step 1의 `ZoomPanSvg`를 실제 좌석맵에 �
 interface SeatMapProps {
   seats: readonly SeatType[];
   sessionId: string;
-  sections: readonly Section[];
+  sections: readonly string[];
 }
 ```
 
