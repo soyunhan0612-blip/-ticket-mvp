@@ -32,7 +32,7 @@
       "status": "completed",
       "started_at": "2026-08-09T14:04:06+0900",
       "summary": "Basic Auth 검증·보호 경로 판정과 userId 쿠키 발급을 유지하는 미들웨어 접근 제어를 검증",
-      "completed_at": "2026-08-09T14:04:40+0900"
+      "completed_at": "2026-08-09T14:05:45+0900"
     },
     {
       "step": 4,
