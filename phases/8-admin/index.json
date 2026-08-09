@@ -7,7 +7,8 @@
       "name": "seat-layout-lib",
       "status": "completed",
       "started_at": "2026-08-09T19:27:19+0900",
-      "summary": "프리셋 구역 수에 맞춘 좌석 좌표·레이아웃 박스·초기 확대 viewBox 순수 함수와 회귀 테스트를 추가"
+      "summary": "프리셋 구역 수에 맞춘 좌석 좌표·레이아웃 박스·초기 확대 viewBox 순수 함수와 회귀 테스트를 추가",
+      "completed_at": "2026-08-09T19:29:37+0900"
     },
     {
       "step": 1,
