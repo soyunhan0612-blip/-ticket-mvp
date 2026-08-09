@@ -45,6 +45,15 @@ export function getReservationStore(): ReservationStore;
 - 같은 함수를 두 번 호출하면 같은 인스턴스가 반환된다 (싱글턴)
 - 세 store가 같은 백엔드 계열에서 나온다
 
+**싱글턴과 테스트 격리의 충돌을 해결하라.** 현재 `index.ts`는 모듈 스코프 변수(`instance`, `seatInstance`, `reservationInstance`)에 캐시한다. 한 테스트 파일 안에서 memory 분기와 redis 분기를 **둘 다** 검증하려면, 먼저 만들어진 인스턴스가 캐시에 고정되므로 그대로는 불가능하다.
+
+해결 방향은 다음 둘 중 하나다. **프로덕션 코드에 테스트 전용 리셋 함수를 export하지 마라** — 후자를 권한다:
+
+- 각 테스트에서 `vi.resetModules()`로 모듈 캐시를 비우고 `await import("./index")`로 다시 로드한다. 환경변수는 `vi.stubEnv`로 import **이전에** 설정해야 한다
+- 또는 분기 검증과 싱글턴 검증을 별도 파일로 분리한다
+
+`vitest.setup.ts`가 `UPSTASH_*`를 삭제하므로 기본 상태는 memory 분기다. redis 분기를 검증할 때만 `vi.stubEnv`로 가짜 값을 주입하라. **가짜 값이므로 실제 네트워크 호출이 일어나는 메서드를 호출하면 안 된다** — 반환된 인스턴스의 정체만 확인하라 (예: `getSeatStore()`가 memory 인스턴스와 다른 객체인지).
+
 ## 이 커밋의 diff 제약 — 반드시 지켜라
 
 **다음 경로를 이 step에서 일절 수정하지 마라:**
@@ -54,6 +63,8 @@ export function getReservationStore(): ReservationStore;
 - `src/hooks/**`
 - `src/atoms/**`
 - `src/app/**/page.tsx`, `src/app/**/layout.tsx`
+
+`src/app/api/admin/stats/route.test.ts`와 `src/app/api/sessions/[id]/snapshot/route.test.ts`는 팩토리를 직접 호출한다. 이들이 깨진다면 **테스트 파일을 고치지 마라** — Step 1이 `vitest.setup.ts`에 넣은 `UPSTASH_*` 삭제가 동작하지 않는다는 뜻이므로, 그 격리를 먼저 확인하라. `vitest.setup.ts` 수정은 이 제약에 걸리지 않는다.
 
 만약 이들 중 하나를 고쳐야만 동작한다면, 그것은 **Step 2~4의 구현이 인터페이스 계약을 지키지 못했다는 신호다.** 그 경우 여기서 우회하지 말고 해당 store 구현체로 돌아가 계약을 맞춰라. 구체적으로는 다음을 의심하라:
 
@@ -100,6 +111,8 @@ summary에는 **변경된 파일 목록을 명시하라.** 이 커밋의 범위�
 
 - `src/app/**`, `src/components/**`, `src/hooks/**`, `src/atoms/**`를 수정하지 마라. 이유: 이 커밋의 diff 범위가 곧 "API route만 갈아끼우면 프론트는 그대로"라는 주장의 증거다. 프론트 수정이 섞이면 증거가 아니라 반증이 된다
 - 인터페이스 불일치를 route handler 수정으로 우회하지 마라. 이유: 문제의 원인은 store 구현체이고, 우회하면 추상화가 실패했다는 사실만 감춰진다. Step 2~4로 돌아가 고쳐라
+- 기존 route 테스트가 실제 Upstash에 붙어 깨진다고 해서 그 테스트를 수정하지 마라. 이유: 원인은 `vitest.setup.ts`의 환경변수 격리 실패다. 거기를 고쳐라. 테스트를 손대면 이 커밋의 diff 증거가 오염된다
+- 프로덕션 코드에 테스트 전용 싱글턴 리셋 함수(`__resetStores()` 등)를 export하지 마라. 이유: 테스트 편의를 위해 프로덕션 API를 넓히는 것이다. `vi.resetModules()`로 해결된다
 - 환경변수가 없을 때 throw하게 만들지 마라. 이유: 키 없는 환경(CI, 심사자 로컬)에서도 앱이 인메모리로 떠야 한다
 - seat과 reservation이 서로 다른 백엔드를 쓰는 상태를 허용하지 마라. 이유: `ReservationStore`가 `SeatStore`를 호출하는 구조라 백엔드가 갈리면 좌석과 예약이 다른 저장소에 흩어진다
 - 이 step에서 실제 Upstash에 연결해 검증하려 하지 마라. 이유: Step 6의 스코프다. 여기서는 분기 로직과 타입만 맞춘다

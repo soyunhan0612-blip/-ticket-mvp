@@ -11,6 +11,9 @@
 - `/src/services/seat-store-memory.ts` — `globalThis` 싱글톤 패턴 참조
 - `/.env.example` — `UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN`
 - `/package.json` — `@upstash/redis`가 설치돼 있는지 확인
+- `/vitest.setup.ts` — 현재 `@testing-library/jest-dom` import만 있다
+- `/src/app/api/admin/stats/route.test.ts` — `getSeatStore()`/`getShowStore()`를 직접 호출한다
+- `/src/app/api/sessions/[id]/snapshot/route.test.ts` — `getSeatStore()`를 직접 호출한다
 
 이전 step에서 만들어진 코드를 꼼꼼히 읽고, 설계 의도를 이해한 뒤 작업하라.
 
@@ -44,6 +47,28 @@ export function getRedisClient(): Redis;
 - `getRedisClient()`는 싱글톤을 반환한다. `globalThis` 캐싱 패턴은 `seat-store-memory.ts`를 참조하라 — Next.js HMR에서 연결이 중복 생성되는 것을 막는다.
 - 설정이 없는 상태에서 `getRedisClient()`가 호출되면 명확한 에러 메시지와 함께 throw하라. 이 함수는 `hasRedisConfig()`가 `true`일 때만 호출되어야 한다.
 
+### 3. 테스트 환경 격리 (`vitest.setup.ts`) — 반드시 하라
+
+`vitest.setup.ts`에 **Upstash 환경변수를 테스트 실행 시 무조건 제거하는 코드를 추가하라.**
+
+```typescript
+// 기존 import 유지
+delete process.env.UPSTASH_REDIS_REST_URL;
+delete process.env.UPSTASH_REDIS_REST_TOKEN;
+```
+
+이유를 정확히 이해하라. 다음 기존 테스트들이 `@/services`의 팩토리를 **직접 호출**한다:
+
+- `src/app/api/admin/stats/route.test.ts` — `getSeatStore().hold(...)`, `getShowStore().create(...)`
+- `src/app/api/sessions/[id]/snapshot/route.test.ts` — `getSeatStore().hold(...)`
+- `src/services/index.test.ts`
+
+Step 5에서 팩토리가 환경변수 유무로 분기하게 되면, 셸에 `UPSTASH_*`가 export된 상태(Step 6에서 자격증명을 다루다 보면 흔히 발생한다)에서 이 테스트들이 **실제 Upstash에 네트워크 연결을 시도하다 깨진다.** 그리고 Step 5는 `src/app/**` 수정을 금지하므로 그 시점에는 손쓸 방법이 없다.
+
+`vitest.setup.ts`는 `src/app/**`가 아니므로 Step 5의 diff 제약과 무관하다. **이 격리를 지금 넣어두는 것이 그 교착을 막는 유일한 지점이다.**
+
+단, 개별 테스트가 `vi.stubEnv`로 키를 주입하는 것은 막지 않아야 한다. setup은 프로세스 시작 시 1회만 삭제하면 된다.
+
 ## Acceptance Criteria
 
 ```bash
@@ -73,4 +98,6 @@ npm run build
 - 실제 Upstash에 연결하는 테스트를 작성하지 마라. 이유: CI에 키가 없고, 네트워크 의존 테스트는 불안정하다. 실제 연결 검증은 Step 6에서 한다
 - store 구현체를 이 step에서 만들지 마라. 이유: Step 2~4의 스코프다
 - `src/services/index.ts`를 수정하지 마라. 이유: 팩토리 교체는 Step 5의 단일 커밋이어야 한다
+- `vitest.setup.ts`의 환경변수 격리를 생략하지 마라. 이유: Step 5 이후 셸에 `UPSTASH_*`가 있으면 route 테스트가 실제 Upstash에 붙어 깨지는데, Step 5는 `src/app/**` 수정이 금지돼 있어 그 시점에는 고칠 수 없다
+- `src/app/**`의 기존 테스트 파일을 수정하지 마라. 이유: 환경변수 격리로 해결되는 문제다. 테스트를 고치면 Step 5의 diff 증거가 오염된다
 - 기존 테스트를 깨뜨리지 마라
