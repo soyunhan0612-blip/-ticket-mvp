@@ -2,10 +2,13 @@
 
 import { useQuery } from "@tanstack/react-query";
 import type { JSX } from "react";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 
 import { AdminSeatMap } from "@/components/admin/AdminSeatMap";
 import { OccupancyStats } from "@/components/admin/OccupancyStats";
+import { generateSeats } from "@/lib/mock-data";
+import { SECTIONS } from "@/lib/seat-map";
+import { generateSeatsForPreset, getPreset } from "@/lib/seat-preset";
 import type { Session, Show } from "@/types";
 
 interface ShowsResponse {
@@ -42,8 +45,18 @@ export default function AdminPage(): JSX.Element {
   });
 
   const selectedShow = detailQuery.data?.show;
-  const canShowDashboard =
-    sessionId !== "" && selectedShow?.presetId !== undefined;
+  // Seeded shows carry no presetId, so fall back to the full map exactly as the
+  // viewer seat page does — and as /api/admin/stats does for its total.
+  const presetId = selectedShow?.presetId;
+  const seats = useMemo(
+    () => (presetId ? generateSeatsForPreset(presetId) : generateSeats()),
+    [presetId],
+  );
+  const sections = useMemo(
+    () => (presetId ? getPreset(presetId).sections : SECTIONS),
+    [presetId],
+  );
+  const canShowDashboard = sessionId !== "" && selectedShow !== undefined;
 
   return (
     <main className="min-h-screen bg-neutral-950 py-12 sm:py-16">
@@ -116,11 +129,12 @@ export default function AdminPage(): JSX.Element {
           </p>
         )}
 
-        {canShowDashboard && selectedShow.presetId && (
+        {canShowDashboard && (
           <div className="space-y-8">
             <OccupancyStats sessionId={sessionId} />
             <AdminSeatMap
-              presetId={selectedShow.presetId}
+              seats={seats}
+              sections={sections}
               sessionId={sessionId}
             />
           </div>

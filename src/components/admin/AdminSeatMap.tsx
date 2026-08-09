@@ -1,29 +1,25 @@
 "use client";
 
 import { useSetAtom } from "jotai";
-import { type JSX, useEffect, useMemo } from "react";
+import { type JSX, useEffect } from "react";
 
 import { seatMapReadOnlyAtom } from "@/atoms/seat";
 import { SeatMap } from "@/components/seat/SeatMap";
 import { useSeatSnapshot } from "@/hooks/use-seat-snapshot";
-import {
-  generateSeatsForPreset,
-  getPreset,
-  type SeatPresetId,
-} from "@/lib/seat-preset";
+import type { Seat } from "@/types";
 
 interface AdminSeatMapProps {
   sessionId: string;
-  presetId: SeatPresetId;
+  seats: readonly Seat[];
+  sections: readonly string[];
 }
 
 export function AdminSeatMap({
   sessionId,
-  presetId,
+  seats,
+  sections,
 }: AdminSeatMapProps): JSX.Element {
   const setReadOnly = useSetAtom(seatMapReadOnlyAtom);
-  const preset = getPreset(presetId);
-  const seats = useMemo(() => generateSeatsForPreset(presetId), [presetId]);
 
   useSeatSnapshot(sessionId);
 
@@ -36,7 +32,7 @@ export function AdminSeatMap({
     <SeatMap
       readOnly
       seats={seats}
-      sections={preset.sections}
+      sections={sections}
       sessionId={sessionId}
     />
   );
