@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type FormEvent, type JSX } from "react";
+import { type FormEvent, useState } from "react";
 
 import { AiDescriptionGenerator } from "@/components/seller/AiDescriptionGenerator";
 import { PosterPresetSelector } from "@/components/seller/PosterPresetSelector";
@@ -10,137 +10,170 @@ import { useCreateShow } from "@/hooks/use-create-show";
 import { POSTER_PRESETS } from "@/lib/poster-preset";
 import type { SeatPresetId } from "@/lib/seat-preset";
 
-const INPUT_CLASS =
-  "w-full rounded-md border border-neutral-700 bg-neutral-950 px-4 py-3 text-neutral-100 placeholder:text-neutral-500 focus-visible:border-neutral-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70 disabled:border-neutral-800 disabled:text-neutral-500";
-
-export default function NewShowPage(): JSX.Element {
+export default function SellerNewPage() {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
-  const [presetId, setPresetId] = useState<SeatPresetId>("small");
-  const [posterId, setPosterId] = useState(POSTER_PRESETS[0].id);
-  const [sessions, setSessions] = useState([""]);
-  const createShow = useCreateShow();
-  const genre = POSTER_PRESETS.find((preset) => preset.id === posterId)?.label ?? "";
+  const [presetId, setPresetId] = useState<SeatPresetId | null>(null);
+  const [posterPresetId, setPosterPresetId] = useState<string | null>(null);
+  const [sessionDates, setSessionDates] = useState<string[]>([""]);
 
-  function updateSession(index: number, value: string) {
-    setSessions((current) =>
-      current.map((session, sessionIndex) =>
-        sessionIndex === index ? value : session,
-      ),
-    );
+  const { mutate, isPending } = useCreateShow();
+
+  const genre =
+    POSTER_PRESETS.find((p) => p.id === posterPresetId)?.label ?? "";
+
+  function addSession() {
+    if (sessionDates.length >= 10) return;
+    setSessionDates((prev) => [...prev, ""]);
   }
 
   function removeSession(index: number) {
-    setSessions((current) => current.filter((_, sessionIndex) => sessionIndex !== index));
+    if (sessionDates.length <= 1) return;
+    setSessionDates((prev) => prev.filter((_, i) => i !== index));
   }
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    createShow.mutate({
+  function updateSession(index: number, value: string) {
+    setSessionDates((prev) => prev.map((v, i) => (i === index ? value : v)));
+  }
+
+  function handleSubmit(e: FormEvent) {
+    e.preventDefault();
+
+    if (!title.trim() || !description.trim() || !presetId || !posterPresetId)
+      return;
+
+    const filledSessions = sessionDates.filter((d) => d.trim() !== "");
+    if (filledSessions.length === 0) return;
+
+    mutate({
       title,
       description,
-      posterUrl: posterId,
+      posterUrl: posterPresetId,
       presetId,
-      sessions: sessions.map((startsAt) => new Date(startsAt).toISOString()),
+      sessions: filledSessions.map((d) => new Date(d).toISOString()),
     });
   }
 
-  return (
-    <div className="mx-auto w-full max-w-5xl px-4 sm:px-6 lg:px-8">
-      <form className="space-y-8" onSubmit={handleSubmit}>
-        <header>
-          <h1 className="text-3xl font-semibold tracking-tight text-white sm:text-4xl">
-            공연 등록
-          </h1>
-          <p className="mt-3 text-sm leading-6 text-neutral-300">
-            공연 정보와 회차를 입력해 예매 페이지를 만드세요.
-          </p>
-        </header>
+  const canSubmit =
+    title.trim() &&
+    description.trim() &&
+    presetId &&
+    posterPresetId &&
+    sessionDates.some((d) => d.trim() !== "") &&
+    !isPending;
 
+  return (
+    <div className="mx-auto w-full max-w-5xl space-y-8 px-4 sm:px-6 lg:px-8">
+      <header>
+        <h1 className="text-3xl font-semibold tracking-tight text-white sm:text-4xl">
+          공연 등록
+        </h1>
+        <p className="mt-3 text-sm leading-6 text-neutral-300">
+          새 공연을 등록하고 회차를 설정하세요.
+        </p>
+      </header>
+
+      <form onSubmit={handleSubmit} className="space-y-8">
         <div className="space-y-2">
-          <label className="text-sm font-medium text-white" htmlFor="title">
+          <label
+            htmlFor="title"
+            className="block text-sm font-medium text-neutral-300"
+          >
             공연명
           </label>
           <input
-            className={INPUT_CLASS}
             id="title"
+            type="text"
             maxLength={100}
-            onChange={(event) => setTitle(event.target.value)}
             placeholder="공연 이름을 입력하세요"
-            required
             value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            className="w-full rounded-md border border-neutral-700 bg-neutral-950 px-4 py-3 text-neutral-100 placeholder:text-neutral-500 focus-visible:border-neutral-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70 disabled:border-neutral-800 disabled:text-neutral-500"
           />
         </div>
 
-        <div className="space-y-4">
-          <div className="space-y-2">
-            <label className="text-sm font-medium text-white" htmlFor="description">
-              공연 설명
-            </label>
-            <textarea
-              className={`${INPUT_CLASS} min-h-40 resize-y`}
-              id="description"
-              maxLength={2000}
-              onChange={(event) => setDescription(event.target.value)}
-              required
-              value={description}
-            />
-          </div>
+        <div className="space-y-2">
+          <label
+            htmlFor="description"
+            className="block text-sm font-medium text-neutral-300"
+          >
+            공연 설명
+          </label>
+          <textarea
+            id="description"
+            maxLength={2000}
+            rows={5}
+            placeholder="공연 설명을 입력하세요"
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            className="w-full rounded-md border border-neutral-700 bg-neutral-950 px-4 py-3 text-neutral-100 placeholder:text-neutral-500 focus-visible:border-neutral-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70 disabled:border-neutral-800 disabled:text-neutral-500"
+          />
           <AiDescriptionGenerator
-            genre={genre}
-            onUse={setDescription}
             title={title}
+            genre={genre}
+            onApply={setDescription}
           />
         </div>
 
-        <SeatPresetSelector onChange={setPresetId} value={presetId} />
-        <PosterPresetSelector onChange={setPosterId} value={posterId} />
+        <div className="space-y-2">
+          <label className="block text-sm font-medium text-neutral-300">
+            좌석 프리셋
+          </label>
+          <SeatPresetSelector value={presetId} onChange={setPresetId} />
+        </div>
 
-        <fieldset>
-          <legend className="text-sm font-medium text-white">회차</legend>
-          <div className="mt-3 space-y-4">
-            {sessions.map((session, index) => (
-              <div className="flex items-center gap-4" key={index}>
-                <label className="sr-only" htmlFor={`session-${index}`}>
-                  회차 {index + 1}
-                </label>
+        <div className="space-y-2">
+          <label className="block text-sm font-medium text-neutral-300">
+            포스터
+          </label>
+          <PosterPresetSelector
+            value={posterPresetId}
+            onChange={setPosterPresetId}
+          />
+        </div>
+
+        <div className="space-y-2">
+          <label className="block text-sm font-medium text-neutral-300">
+            회차
+          </label>
+          <div className="space-y-3">
+            {sessionDates.map((date, index) => (
+              <div key={index} className="flex items-center gap-3">
                 <input
-                  className={INPUT_CLASS}
-                  id={`session-${index}`}
-                  onChange={(event) => updateSession(index, event.target.value)}
-                  required
                   type="datetime-local"
-                  value={session}
+                  value={date}
+                  onChange={(e) => updateSession(index, e.target.value)}
+                  className="flex-1 rounded-md border border-neutral-700 bg-neutral-950 px-4 py-3 text-neutral-100 placeholder:text-neutral-500 focus-visible:border-neutral-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70 disabled:border-neutral-800 disabled:text-neutral-500"
                 />
-                {sessions.length > 1 ? (
+                {sessionDates.length > 1 && (
                   <button
-                    className="shrink-0 rounded-sm px-1 py-1 text-sm font-medium text-red-500 hover:text-red-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-neutral-950"
-                    onClick={() => removeSession(index)}
                     type="button"
+                    onClick={() => removeSession(index)}
+                    className="rounded-sm px-1 py-1 text-sm font-medium text-neutral-400 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-neutral-950 disabled:text-neutral-600"
                   >
                     삭제
                   </button>
-                ) : null}
+                )}
               </div>
             ))}
-            {sessions.length < 10 ? (
-              <button
-                className="rounded-sm px-1 py-1 text-sm font-medium text-neutral-400 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-neutral-950"
-                onClick={() => setSessions((current) => [...current, ""])}
-                type="button"
-              >
-                회차 추가
-              </button>
-            ) : null}
           </div>
-        </fieldset>
+          {sessionDates.length < 10 && (
+            <button
+              type="button"
+              onClick={addSession}
+              className="rounded-sm px-1 py-1 text-sm font-medium text-neutral-400 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-neutral-950 disabled:text-neutral-600"
+            >
+              + 회차 추가
+            </button>
+          )}
+        </div>
 
         <button
-          className="rounded-md bg-white px-4 py-2.5 text-sm font-medium text-neutral-950 hover:bg-neutral-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-neutral-950 disabled:bg-neutral-700 disabled:text-neutral-400"
-          disabled={createShow.isPending}
           type="submit"
+          disabled={!canSubmit}
+          className="rounded-md bg-white px-4 py-2.5 text-sm font-medium text-neutral-950 hover:bg-neutral-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-neutral-950 disabled:bg-neutral-700 disabled:text-neutral-400"
         >
-          {createShow.isPending ? "등록 중..." : "공연 등록"}
+          {isPending ? "등록 중..." : "공연 등록"}
         </button>
       </form>
       <Toast />

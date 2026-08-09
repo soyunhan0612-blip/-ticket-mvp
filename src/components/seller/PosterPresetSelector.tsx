@@ -1,51 +1,44 @@
 "use client";
 
 import Image from "next/image";
-import type { JSX } from "react";
 
 import { POSTER_PRESETS } from "@/lib/poster-preset";
 
 interface PosterPresetSelectorProps {
-  value: string;
-  onChange: (value: string) => void;
+  value: string | null;
+  onChange: (id: string) => void;
 }
 
 export function PosterPresetSelector({
   value,
   onChange,
-}: PosterPresetSelectorProps): JSX.Element {
+}: PosterPresetSelectorProps) {
   return (
-    <fieldset>
-      <legend className="text-sm font-medium text-white">포스터</legend>
-      <div className="mt-3 grid gap-4 sm:grid-cols-3">
-        {POSTER_PRESETS.map((preset) => (
-          <label
-            className={`cursor-pointer rounded-lg border bg-neutral-900 p-4 transition-colors duration-150 ${
-              value === preset.id ? "border-white" : "border-neutral-800"
-            }`}
-            key={preset.id}
-          >
-            <input
-              checked={value === preset.id}
-              className="sr-only"
-              name="posterPreset"
-              onChange={() => onChange(preset.id)}
-              type="radio"
-              value={preset.id}
-            />
+    <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+      {POSTER_PRESETS.map((preset) => (
+        <button
+          key={preset.id}
+          type="button"
+          className={`rounded-lg border p-4 text-left transition-colors duration-150 ${
+            value === preset.id
+              ? "border-white bg-neutral-900"
+              : "border-neutral-800 bg-neutral-900 hover:border-neutral-700"
+          }`}
+          onClick={() => onChange(preset.id)}
+        >
+          <div className="relative mx-auto aspect-[3/4] w-full max-w-[120px]">
             <Image
-              alt={`${preset.label} 포스터`}
-              className="h-auto w-full rounded-md"
-              height={600}
               src={preset.url}
-              width={400}
+              alt={preset.label}
+              fill
+              className="object-contain"
             />
-            <span className="mt-3 block text-sm font-medium text-white">
-              {preset.label}
-            </span>
-          </label>
-        ))}
-      </div>
-    </fieldset>
+          </div>
+          <p className="mt-3 text-center text-sm font-medium text-white">
+            {preset.label}
+          </p>
+        </button>
+      ))}
+    </div>
   );
 }

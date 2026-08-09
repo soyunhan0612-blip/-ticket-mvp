@@ -45,12 +45,18 @@
     {
       "step": 5,
       "name": "ai-description-api",
-      "status": "pending"
+      "status": "completed",
+      "started_at": "2026-08-09T14:07:47+0900",
+      "summary": "IP별 슬라이딩 윈도우 제한과 안전한 프롬프트, Anthropic·fallback 스트리밍 설명 API를 검증",
+      "completed_at": "2026-08-09T14:08:43+0900"
     },
     {
       "step": 6,
       "name": "seller-ui",
-      "status": "pending"
+      "status": "completed",
+      "started_at": "2026-08-09T14:20:00+0900",
+      "summary": "셀러 등록 폼·AI 설명 스트리밍·프리셋 선택·useCreateShow mutation을 포함한 seller-ui 전체 구현",
+      "completed_at": "2026-08-09T14:25:00+0900"
     }
   ],
   "created_at": "2026-08-09T13:56:20+0900"
