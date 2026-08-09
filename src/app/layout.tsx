@@ -27,12 +27,20 @@ export default function RootLayout({
             >
               티켓 MVP
             </Link>
-            <Link
-              className="text-sm text-neutral-400 hover:text-white"
-              href="/reservations"
-            >
-              내 예매
-            </Link>
+            <div className="flex items-center gap-4">
+              <Link
+                className="text-sm text-neutral-400 hover:text-white"
+                href="/seller/new"
+              >
+                공연 등록
+              </Link>
+              <Link
+                className="text-sm text-neutral-400 hover:text-white"
+                href="/reservations"
+              >
+                내 예매
+              </Link>
+            </div>
           </div>
         </nav>
         <Providers>{children}</Providers>

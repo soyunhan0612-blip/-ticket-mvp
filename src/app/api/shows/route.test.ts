@@ -1,4 +1,10 @@
-import { describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+
+const { revalidatePathMock } = vi.hoisted(() => ({
+  revalidatePathMock: vi.fn(),
+}));
+
+vi.mock("next/cache", () => ({ revalidatePath: revalidatePathMock }));
 
 import { GET, POST } from "./route";
 
@@ -35,6 +41,10 @@ describe("GET /api/shows", () => {
 });
 
 describe("POST /api/shows", () => {
+  beforeEach(() => {
+    revalidatePathMock.mockClear();
+  });
+
   it("creates a show with resolved poster URL and matching sessions", async () => {
     const response = await POST(
       makePostRequest(validInput, "seller-api-success"),
@@ -54,6 +64,7 @@ describe("POST /api/shows", () => {
     });
     expect(body.show).not.toHaveProperty("userId");
     expect(body.sessions).toHaveLength(validInput.sessions.length);
+    expect(revalidatePathMock).toHaveBeenCalledWith("/shows");
   });
 
   it("returns 401 without a userId cookie", async () => {

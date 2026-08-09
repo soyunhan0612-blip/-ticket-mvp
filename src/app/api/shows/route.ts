@@ -1,3 +1,5 @@
+import { revalidatePath } from "next/cache";
+
 import { getUserIdFromRequest } from "@/lib/cookie";
 import {
   getPosterUrl,
@@ -52,6 +54,8 @@ export async function POST(request: Request): Promise<Response> {
     ...input,
     posterUrl,
   });
+
+  revalidatePath("/shows");
 
   return Response.json({ show, sessions }, { status: 201 });
 }
