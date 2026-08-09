@@ -56,7 +56,7 @@
       "status": "completed",
       "started_at": "2026-08-09T22:37:58+0900",
       "summary": "1 연결·기능 통과(PING PONG, 직접 snapshot 200, /shows HTML 9개 공연, hold→예매→취소→재hold); 2 영속성 통과(서버 재시작 후 예약·등록 공연·만료 전 hold 유지, 시드 8개+등록 1개로 중복 없음); 3 동시성 통과(3석 hold 반영, 겹침 포함 요청 409, 비겹침 좌석 부분 hold 없음); 4 Upstash 콘솔 커맨드 실측 미확인(코드상 일반 snapshot은 HGETALL 뒤 version GET도 호출); 5 보안 통과(userId 비노출, 10석 400, 타인 release/cancel 403, admin/seller Basic Auth 401, 클라이언트 번들 환경변수 표식 없음); lint·324 tests·build 통과",
-      "completed_at": "2026-08-09T22:41:44+0900"
+      "completed_at": "2026-08-09T22:42:48+0900"
     },
     {
       "step": 7,
