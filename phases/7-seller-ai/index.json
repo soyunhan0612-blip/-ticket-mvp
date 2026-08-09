@@ -21,7 +21,10 @@
     {
       "step": 2,
       "name": "poster-preset",
-      "status": "pending"
+      "status": "completed",
+      "started_at": "2026-08-09T13:59:45+0900",
+      "summary": "장르별 로컬 포스터 프리셋 3종과 ID 검증·URL 조회 로직 및 플레이스홀더 SVG를 검증",
+      "completed_at": "2026-08-09T14:00:20+0900"
     },
     {
       "step": 3,
