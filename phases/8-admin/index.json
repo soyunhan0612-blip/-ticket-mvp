@@ -40,7 +40,7 @@
       "status": "completed",
       "started_at": "2026-08-09T20:20:43+0900",
       "summary": "좌석 스냅샷 기반 Admin 집계 API와 /api/admin 보호 경로를 테스트 우선으로 추가했다.",
-      "completed_at": "2026-08-09T20:23:05+0900"
+      "completed_at": "2026-08-09T20:23:43+0900"
     },
     {
       "step": 5,
