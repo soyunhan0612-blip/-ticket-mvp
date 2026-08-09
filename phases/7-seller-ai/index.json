@@ -15,7 +15,8 @@
       "name": "show-store-create",
       "status": "completed",
       "started_at": "2026-08-09T13:58:03+0900",
-      "summary": "공연 생성 입력 검증과 메모리 ShowStore의 공연·회차 생성 및 영속 조회를 검증"
+      "summary": "공연 생성 입력 검증과 메모리 ShowStore의 공연·회차 생성 및 영속 조회를 검증",
+      "completed_at": "2026-08-09T13:59:45+0900"
     },
     {
       "step": 2,
