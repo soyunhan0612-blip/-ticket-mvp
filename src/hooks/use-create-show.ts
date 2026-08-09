@@ -12,8 +12,6 @@ import { toastMessageAtom } from "@/atoms/toast";
 import type { CreateShowInput } from "@/lib/show-validation";
 import type { Session, Show } from "@/types";
 
-export const showsQueryKey = ["shows"] as const;
-
 interface CreateShowResponse {
   show: Show;
   sessions: Session[];
@@ -37,19 +35,21 @@ export function useCreateShow(): UseMutationResult<
       });
 
       if (!response.ok) {
-        const body = await response.json().catch(() => ({})) as {
+        const body = (await response.json().catch(() => ({}))) as {
           error?: string;
           message?: string;
         };
-        throw new Error(body.message ?? body.error ?? "공연 등록에 실패했습니다.");
+        throw new Error(
+          body.message ?? body.error ?? "공연 등록에 실패했습니다.",
+        );
       }
 
       return (await response.json()) as CreateShowResponse;
     },
-    onSuccess: async ({ show }) => {
-      await queryClient.invalidateQueries({ queryKey: showsQueryKey });
-      setToast({ text: "공연이 등록되었습니다.", type: "success" });
-      router.push(`/shows/${show.id}`);
+    onSuccess: async (data) => {
+      setToast({ text: "공연이 등록되었습니다!", type: "success" });
+      await queryClient.invalidateQueries({ queryKey: ["shows"] });
+      router.push(`/shows/${data.show.id}`);
     },
     onError: (error) => {
       setToast({ text: error.message, type: "error" });
