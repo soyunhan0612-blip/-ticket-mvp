@@ -40,7 +40,7 @@
       "status": "completed",
       "started_at": "2026-08-09T22:19:02+0900",
       "summary": "SeatStore 추상화를 유지하는 confirm 후 보상 롤백을 선택하고 예약·사용자 인덱스는 Lua로 함께 기록했으며, 롤백 자체 실패와 cancel 기록 실패의 잔여 창을 명시함",
-      "completed_at": "2026-08-09T22:21:59+0900"
+      "completed_at": "2026-08-09T22:22:40+0900"
     },
     {
       "step": 5,
