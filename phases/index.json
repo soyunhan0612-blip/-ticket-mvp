@@ -43,7 +43,8 @@
     },
     {
       "dir": "8-admin",
-      "status": "pending"
+      "status": "completed",
+      "completed_at": "2026-08-09T20:32:40+0900"
     },
     {
       "dir": "9-redis",
