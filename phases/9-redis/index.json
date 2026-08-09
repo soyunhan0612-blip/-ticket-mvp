@@ -56,7 +56,8 @@
       "status": "blocked",
       "started_at": "2026-08-09T22:25:37+0900",
       "summary": "로컬 Upstash 자격증명 존재와 실제 PING 연결 성공만 확인했으며, Vercel 인증 부재로 수동 시나리오 1~7과 AC는 미수행함",
-      "blocked_reason": "Vercel CLI 인증 확인(vercel whoami)에서 'Not authorized'가 반환되어 프로젝트 환경변수 설정과 재배포 검증을 진행할 수 없음. 사용자가 Vercel CLI 인증을 완료해야 함"
+      "blocked_reason": "Vercel CLI 인증 확인(vercel whoami)에서 'Not authorized'가 반환되어 프로젝트 환경변수 설정과 재배포 검증을 진행할 수 없음. 사용자가 Vercel CLI 인증을 완료해야 함",
+      "blocked_at": "2026-08-09T22:27:59+0900"
     }
   ],
   "created_at": "2026-08-09T22:03:23+0900"
