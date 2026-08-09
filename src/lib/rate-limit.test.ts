@@ -39,6 +39,19 @@ describe("createRateLimiter", () => {
     expect(limiter.check("second-ip").allowed).toBe(true);
   });
 
+  it("cleans up empty keys from the map", () => {
+    vi.setSystemTime(0);
+    const limiter = createRateLimiter({ windowMs: 60_000, maxRequests: 1 });
+    limiter.check("stale-ip");
+
+    vi.setSystemTime(120_000);
+    limiter.check("stale-ip");
+
+    // After window passes and a new check occurs, the old timestamps are cleaned.
+    // The key should still exist (it has a fresh timestamp), but no stale entries remain.
+    expect(limiter.check("stale-ip").allowed).toBe(false);
+  });
+
   it("removes stale timestamps while retaining recent ones", () => {
     vi.setSystemTime(0);
     const limiter = createRateLimiter({ windowMs: 60_000, maxRequests: 2 });

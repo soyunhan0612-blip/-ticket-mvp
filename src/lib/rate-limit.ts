@@ -14,6 +14,10 @@ export function createRateLimiter(config: {
         (timestamp) => timestamp > windowStart,
       );
 
+      if (recentRequests.length === 0) {
+        requestsByKey.delete(key);
+      }
+
       if (recentRequests.length >= config.maxRequests) {
         requestsByKey.set(key, recentRequests);
         return {

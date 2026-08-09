@@ -30,6 +30,21 @@ describe("ShowStoreMemory", () => {
     await expect(store.get("nonexistent-id")).resolves.toBeNull();
   });
 
+  it("finds a show by session ID", async () => {
+    const store = createShowStoreMemory();
+
+    const result = await store.getBySessionId("session-01");
+
+    expect(result?.show.id).toBe("show-01");
+    expect(result?.session.id).toBe("session-01");
+  });
+
+  it("returns null for an unknown session ID", async () => {
+    const store = createShowStoreMemory();
+
+    await expect(store.getBySessionId("nonexistent")).resolves.toBeNull();
+  });
+
   it("creates and persists a show with its generated sessions", async () => {
     const store = createShowStoreMemory();
     const startsAtList = [

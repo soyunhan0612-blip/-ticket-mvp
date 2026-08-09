@@ -21,16 +21,11 @@ interface PageProps {
 
 export default async function SeatSelectionPage(props: PageProps) {
   const { id } = await props.params;
-  const showStore = getShowStore();
-  const shows = await showStore.list();
-  const results = await Promise.all(shows.map((show) => showStore.get(show.id)));
-  const result = results.find((candidate) =>
-    candidate?.sessions.some((session) => session.id === id),
-  );
-  const session = result?.sessions.find((candidate) => candidate.id === id);
-  const show = result?.show;
+  const result = await getShowStore().getBySessionId(id);
 
-  if (!session || !show) notFound();
+  if (!result) notFound();
+
+  const { show, session } = result;
 
   const cookieStore = await cookies();
   const userId = cookieStore.get(USER_ID_COOKIE_NAME)?.value ?? "";

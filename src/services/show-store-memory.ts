@@ -29,6 +29,14 @@ function makeShowStoreMemory(): ShowStore {
       };
     },
 
+    async getBySessionId(sessionId) {
+      const session = sessions.find((candidate) => candidate.id === sessionId);
+      if (!session) return null;
+      const show = shows.find((candidate) => candidate.id === session.showId);
+      if (!show) return null;
+      return { show, session };
+    },
+
     async create(input) {
       const parsedInput = createShowInputSchema.parse(input);
       const show: Show = {
