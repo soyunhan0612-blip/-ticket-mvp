@@ -2,12 +2,43 @@
   "project": "티켓 예매 MVP",
   "phase": "7-seller-ai",
   "steps": [
-    { "step": 0, "name": "seat-preset", "status": "pending" },
-    { "step": 1, "name": "show-store-create", "status": "pending" },
-    { "step": 2, "name": "poster-preset", "status": "pending" },
-    { "step": 3, "name": "basic-auth", "status": "pending" },
-    { "step": 4, "name": "show-create-api", "status": "pending" },
-    { "step": 5, "name": "ai-description-api", "status": "pending" },
-    { "step": 6, "name": "seller-ui", "status": "pending" }
-  ]
+    {
+      "step": 0,
+      "name": "seat-preset",
+      "status": "completed",
+      "started_at": "2026-08-09T11:24:16+0900",
+      "summary": "Small·Medium·Large 좌석 프리셋과 프리셋별 좌석·공연 회차 생성 로직을 TDD로 구현"
+    },
+    {
+      "step": 1,
+      "name": "show-store-create",
+      "status": "pending"
+    },
+    {
+      "step": 2,
+      "name": "poster-preset",
+      "status": "pending"
+    },
+    {
+      "step": 3,
+      "name": "basic-auth",
+      "status": "pending"
+    },
+    {
+      "step": 4,
+      "name": "show-create-api",
+      "status": "pending"
+    },
+    {
+      "step": 5,
+      "name": "ai-description-api",
+      "status": "pending"
+    },
+    {
+      "step": 6,
+      "name": "seller-ui",
+      "status": "pending"
+    }
+  ],
+  "created_at": "2026-08-09T11:24:16+0900"
 }
