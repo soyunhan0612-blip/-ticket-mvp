@@ -21,7 +21,10 @@
     {
       "step": 2,
       "name": "seatmap-zoom-integrate",
-      "status": "pending"
+      "status": "completed",
+      "started_at": "2026-08-09T19:50:15+0900",
+      "summary": "seat-layout 좌표와 ZoomPanSvg를 실제 SeatMap에 연결하고 프리셋별 sections를 동일 분기로 전달; lint·234 tests·build 통과, 브라우저 육안 조작은 미실행",
+      "completed_at": "2026-08-09T19:51:49+0900"
     },
     {
       "step": 3,
