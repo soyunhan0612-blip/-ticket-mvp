@@ -2,12 +2,43 @@
   "project": "티켓 예매 MVP",
   "phase": "8-admin",
   "steps": [
-    { "step": 0, "name": "seat-layout-lib", "status": "pending" },
-    { "step": 1, "name": "zoom-pan-svg", "status": "pending" },
-    { "step": 2, "name": "seatmap-zoom-integrate", "status": "pending" },
-    { "step": 3, "name": "ai-model-fix", "status": "pending" },
-    { "step": 4, "name": "admin-stats-api", "status": "pending" },
-    { "step": 5, "name": "admin-page", "status": "pending" },
-    { "step": 6, "name": "progress-backfill", "status": "pending" }
-  ]
+    {
+      "step": 0,
+      "name": "seat-layout-lib",
+      "status": "completed",
+      "started_at": "2026-08-09T19:27:19+0900",
+      "summary": "프리셋 구역 수에 맞춘 좌석 좌표·레이아웃 박스·초기 확대 viewBox 순수 함수와 회귀 테스트를 추가"
+    },
+    {
+      "step": 1,
+      "name": "zoom-pan-svg",
+      "status": "pending"
+    },
+    {
+      "step": 2,
+      "name": "seatmap-zoom-integrate",
+      "status": "pending"
+    },
+    {
+      "step": 3,
+      "name": "ai-model-fix",
+      "status": "pending"
+    },
+    {
+      "step": 4,
+      "name": "admin-stats-api",
+      "status": "pending"
+    },
+    {
+      "step": 5,
+      "name": "admin-page",
+      "status": "pending"
+    },
+    {
+      "step": 6,
+      "name": "progress-backfill",
+      "status": "pending"
+    }
+  ],
+  "created_at": "2026-08-09T19:27:19+0900"
 }
