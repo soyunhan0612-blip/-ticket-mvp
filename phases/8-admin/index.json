@@ -1,0 +1,13 @@
+{
+  "project": "티켓 예매 MVP",
+  "phase": "8-admin",
+  "steps": [
+    { "step": 0, "name": "seat-layout-lib", "status": "pending" },
+    { "step": 1, "name": "zoom-pan-svg", "status": "pending" },
+    { "step": 2, "name": "seatmap-zoom-integrate", "status": "pending" },
+    { "step": 3, "name": "ai-model-fix", "status": "pending" },
+    { "step": 4, "name": "admin-stats-api", "status": "pending" },
+    { "step": 5, "name": "admin-page", "status": "pending" },
+    { "step": 6, "name": "progress-backfill", "status": "pending" }
+  ]
+}

@@ -40,6 +40,14 @@
       "dir": "7-seller-ai",
       "status": "completed",
       "completed_at": "2026-08-09T11:48:27+0900"
+    },
+    {
+      "dir": "8-admin",
+      "status": "pending"
+    },
+    {
+      "dir": "9-redis",
+      "status": "pending"
     }
   ]
 }
