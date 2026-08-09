@@ -13,7 +13,9 @@
     {
       "step": 1,
       "name": "show-store-create",
-      "status": "pending"
+      "status": "completed",
+      "started_at": "2026-08-09T13:58:03+0900",
+      "summary": "공연 생성 입력 검증과 메모리 ShowStore의 공연·회차 생성 및 영속 조회를 검증"
     },
     {
       "step": 2,
