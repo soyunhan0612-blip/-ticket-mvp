@@ -48,7 +48,7 @@
       "status": "completed",
       "started_at": "2026-08-09T11:36:47+0900",
       "summary": "IP별 슬라이딩 윈도우 제한과 안전한 프롬프트, Anthropic·fallback 스트리밍 AI 설명 API를 TDD로 구현",
-      "completed_at": "2026-08-09T11:40:06+0900"
+      "completed_at": "2026-08-09T11:40:59+0900"
     },
     {
       "step": 6,
