@@ -13,7 +13,10 @@
     {
       "step": 1,
       "name": "zoom-pan-svg",
-      "status": "pending"
+      "status": "blocked",
+      "started_at": "2026-08-09T19:29:37+0900",
+      "blocked_reason": "npm run build가 이전 Step 0의 src/lib/seat-layout.ts:28에서 Section[]에 string 타입인 seat.section을 indexOf 인자로 전달하는 strict 타입 오류로 실패합니다. 이번 Step 1은 ZoomPanSvg.tsx만 새로 만들고 추가 파일을 수정하지 말라고 명시되어 있어, seat-layout.ts의 최소 타입 수정까지 허용되는지 확인이 필요합니다.",
+      "blocked_at": "2026-08-09T19:31:57+0900"
     },
     {
       "step": 2,
