@@ -13,7 +13,10 @@
     {
       "step": 1,
       "name": "show-store-create",
-      "status": "pending"
+      "status": "completed",
+      "started_at": "2026-08-09T11:26:41+0900",
+      "summary": "공연 생성 입력 검증과 프리셋·회차를 저장하는 인메모리 ShowStore.create를 TDD로 구현",
+      "completed_at": "2026-08-09T11:28:20+0900"
     },
     {
       "step": 2,
