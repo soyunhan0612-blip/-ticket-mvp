@@ -5,7 +5,9 @@
     {
       "step": 0,
       "name": "seat-layout-lib",
-      "status": "pending"
+      "status": "completed",
+      "started_at": "2026-08-09T19:58:56+0900",
+      "summary": "프리셋 구역 수에 맞춘 좌석 좌표·레이아웃 박스·무대 앞 초기 viewBox 순수 함수와 회귀 테스트를 추가했다."
     },
     {
       "step": 1,
