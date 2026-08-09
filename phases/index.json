@@ -48,7 +48,8 @@
     },
     {
       "dir": "9-redis",
-      "status": "pending"
+      "status": "blocked",
+      "blocked_at": "2026-08-09T22:48:00+0900"
     }
   ]
 }

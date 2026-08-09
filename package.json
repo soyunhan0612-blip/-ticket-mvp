@@ -17,6 +17,7 @@
   "dependencies": {
     "@anthropic-ai/sdk": "^0.116.0",
     "@tanstack/react-query": "^5.101.4",
+    "@upstash/redis": "^1.38.2",
     "jotai": "^2.20.2",
     "next": "^15.5.22",
     "react": "^19.2.8",

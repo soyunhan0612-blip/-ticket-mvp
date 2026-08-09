@@ -43,9 +43,16 @@ create(input: unknown): Promise<{ show: Show; sessions: Session[] }>
 
 `MOCK_SHOWS` 8개와 `MOCK_SESSIONS` 24개를 Redis에 시드해야 한다. 인메모리 구현은 배열을 복사해 시작했지만, Redis는 영속적이라 **매번 시드하면 재배포마다 공연이 중복 생성된다.**
 
-- 시드가 이미 주입됐는지 표시하는 플래그 키를 두거나, 고정 ID로 덮어쓰기(upsert)하라. `MOCK_SHOWS`의 ID는 `show-01`~`show-08`로 고정돼 있으므로 후자가 자연스럽다
+- 시드가 이미 주입됐는지 표시하는 플래그 키를 두거나, 고정 ID로 덮어쓰기(upsert)하라. `MOCK_SHOWS`의 ID는 `show-01`~`show-08`, `MOCK_SESSIONS`의 ID는 `session-01`~`session-24`로 고정돼 있으므로 후자가 자연스럽다
 - 시드 주입은 여러 번 호출돼도 결과가 같아야 한다
 - **셀러가 등록한 공연을 시드가 지우면 안 된다.** 시드는 자기 ID 범위만 건드려야 한다. 이것을 테스트로 검증하라
+
+**시드 주입 시점을 명확히 정하라.** 인메모리 구현은 생성자에서 배열을 복사하므로 시점 문제가 없지만, Redis는 비동기라 그럴 수 없다. 다음 제약을 만족해야 한다:
+
+- `list()`, `get()`, `getBySessionId()` **어느 것이 첫 호출이든** 시드가 보장돼야 한다. Step 6이 좌석 페이지(`getBySessionId` 경유)와 `/api/sessions/session-01/snapshot`을 직접 `curl`로 치는데, `/shows`를 먼저 방문하지 않은 상태에서도 `session-01`이 존재해야 한다
+- 팩토리 함수(`createShowStoreRedis()`)는 동기 시그니처를 유지해야 한다. Step 5의 팩토리가 `await` 없이 호출한다. 따라서 **생성자에서 시드를 await할 수 없다**
+- 권장: 각 읽기 메서드 진입부에서 "시드 완료" Promise를 `await`하는 지연 초기화. 그 Promise는 인스턴스당 1회만 생성해 동시 호출이 시드를 중복 실행하지 않게 하라
+- 시드 자체도 멱등하므로 중복 실행이 데이터를 깨지는 않지만, 매 요청 시드를 다시 쓰면 커맨드 비용이 낭비된다
 
 ### create의 검증 유지
 
@@ -61,6 +68,8 @@ create(input: unknown): Promise<{ show: Show; sessions: Session[] }>
 - `create` 후 `list()`에 새 공연이 포함된다
 - `create` 후 `getBySessionId`로 생성된 회차를 찾을 수 있다
 - 잘못된 입력(`title` 빈 문자열, 101자, 잘못된 `presetId`)이면 throw
+- **`list()`를 한 번도 호출하지 않은 새 store 인스턴스에서 `getBySessionId("session-01")`이 회차를 반환한다** (시드 지연 초기화가 모든 읽기 경로에서 동작하는지 검증)
+- **동시에 여러 읽기를 호출해도 시드가 중복 실행되지 않는다**
 
 Step 2와 마찬가지로 **인메모리 fake Redis 또는 모킹으로 테스트하라.** 실제 Upstash 연결에 의존하지 마라.
 
@@ -90,6 +99,8 @@ npm run build
 - 시드를 무조건 주입하는 코드를 쓰지 마라. 이유: 재배포마다 공연이 중복 생성되고, 셀러가 등록한 공연이 사라질 수 있다. Redis는 영속적이라는 것이 인메모리와의 결정적 차이다
 - `KEYS` 명령을 쓰지 마라. 이유: 전체 키스페이스를 스캔한다. 프로덕션 금기이며 Upstash 커맨드 비용이 예측 불가능해진다
 - `getBySessionId`를 전체 회차 스캔으로 구현하지 마라. 이유: 좌석 페이지 RSC가 매 요청 호출한다
+- `createShowStoreRedis()`를 `async` 함수로 만들지 마라. 이유: Step 5의 팩토리가 `await` 없이 동기 호출한다. 시드는 읽기 메서드 안에서 지연 초기화하라
+- 시드를 `list()`에서만 보장하지 마라. 이유: Step 6이 `/shows` 방문 없이 좌석 페이지와 snapshot API를 직접 친다. 그 경로는 `getBySessionId`만 지난다
 - `ShowStore` 인터페이스의 시그니처를 바꾸지 마라. 이유: Step 5의 팩토리 교체가 프론트 수정 없이 성립해야 한다
 - `create()`의 zod 재검증을 제거하지 마라. 이유: store 레벨 방어 심층화다
 - `src/services/index.ts`나 route handler를 수정하지 마라. 이유: 팩토리 교체는 Step 5의 단일 커밋이다

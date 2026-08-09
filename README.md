@@ -49,6 +49,14 @@ npm run dev                  # http://localhost:3000
 - `docs/UX_PRINCIPLES.md` / `docs/UI_GUIDE.md` — UX·UI 가이드
 - `CLAUDE.md` — 개발 규칙·CRITICAL 룰
 
+## 데이터 영속성
+
+Day 9에 인메모리 저장소를 **Upstash Redis**로 교체했다. 좌석·공연·회차·예약이 모두 Redis에 저장되므로 **재배포하거나 서버가 재시작돼도 예매 내역과 셀러가 등록한 공연이 그대로 남는다.** 인메모리였다면 배포마다 전부 사라진다.
+
+- `UPSTASH_REDIS_REST_URL`과 `UPSTASH_REDIS_REST_TOKEN`이 **둘 다** 설정되면 Redis로, 아니면 인메모리로 동작한다 (`src/services/index.ts`의 팩토리 한 지점에서 분기)
+- 두 토큰은 서버에서만 읽는다. `NEXT_PUBLIC_` 접두사를 붙이지 않으므로 브라우저 번들에 포함되지 않는다
+- 좌석 상태 전환(hold/확정/취소)은 Lua 스크립트로 원자 처리해 여러 좌석이 부분만 잡히는 경우가 없다
+
 ## 배포
 
 - 프로덕션: https://ticket-mvp-eight.vercel.app

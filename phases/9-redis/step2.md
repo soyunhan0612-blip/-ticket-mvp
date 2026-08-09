@@ -51,6 +51,17 @@ Key: session:{sessionId}:version    정수. 상태가 바뀔 때마다 증가
 4. 전부 가능하면 모든 좌석을 한꺼번에 `HSET`한다
 5. `version`을 증가시킨다
 
+**충돌로 실패한 경우의 version 처리** — `seat-store-memory.ts`의 `hold`를 정확히 보라:
+
+```typescript
+if (conflict.length > 0) {
+  if (removedExpired) session.version += 1;   // ← 이 줄
+  return { conflict };
+}
+```
+
+즉 **충돌로 hold가 실패해도, 2단계에서 만료 좌석을 하나라도 지웠다면 `version`을 증가시켜야 한다.** 좌석 배정은 실패했지만 만료 정리라는 상태 변화는 실제로 일어났기 때문이다. 이걸 빠뜨리면 폴링 클라이언트가 `version`으로 갱신 여부를 판단하므로 만료 정리 결과가 화면에 전파되지 않는다. 테스트로 검증하라.
+
 **단순 `HSETNX`에 의존하지 마라.** 만료된 필드가 Hash에 남아 있으면 `HSETNX`가 실패해 좌석을 영영 다시 잡을 수 없다. 만료 정리가 hold 스크립트 안에 있어야 하는 이유가 이것이다.
 
 **만료 판정은 Redis TTL이 아니라 `expiresAt` 필드 비교로 하라.** 판정 규칙은 `src/lib/hold.ts`의 `isExpired`와 **동일해야 한다** — 즉 `expiresAt <= now`이면 만료다. Lua에는 `now`를 인자로 넘겨라 (`TIME` 명령은 스크립트 결정성 문제가 있다).
@@ -74,6 +85,18 @@ revertSold(sessionId, seatIds): Promise<void>
 
 프리픽스가 다르면 route의 `catch`가 에러를 그대로 재던져 **500**이 난다. 이것이 인메모리 구현과의 계약이다.
 
+### `release`의 예외 경로 — 참조 구현을 그대로 옮겨라
+
+`release`는 단순히 "남의 좌석이면 403"이 아니다. `seat-store-memory.ts`의 `release`를 정독하고 다음 세 가지를 정확히 재현하라:
+
+1. **만료된 held 좌석은 소유권 검사를 건너뛴다.** 참조 구현은 검증 루프에서 `if (entry?.status === "held" && isExpired(entry.expiresAt)) continue;`로 넘긴다. 즉 남의 좌석이라도 이미 만료됐다면 `FORBIDDEN`을 던지지 않고 그냥 삭제한다. 만료된 홀드는 이미 아무의 것도 아니기 때문이다.
+2. **`sold` 좌석도 소유자가 맞으면 삭제된다.** 참조 구현은 `status`로 분기하지 않고 `userId`만 비교한다.
+3. **존재하지 않는 좌석을 release해도 throw하지 않는다.** 조용히 넘어간다.
+4. **검증을 전부 마친 뒤에 삭제한다.** 참조 구현은 루프가 두 개다 — 하나라도 `FORBIDDEN`이면 아무것도 지우지 않는다. Lua에서도 이 순서를 지켜라.
+5. `version`은 마지막에 1회만 증가시킨다.
+
+이 예외 경로들을 테스트로 명시적으로 검증하라. 특히 **만료된 남의 좌석 release가 성공하는 것**은 직관에 반하므로 놓치기 쉽다.
+
 `getSnapshot` 응답 규칙:
 - `mine`은 **서버가 `userId`와 비교해 만든 불리언**이다. **스냅샷에 `userId`를 절대 싣지 마라** (CLAUDE.md CRITICAL — 좌석 탈취 경로가 된다)
 - `expiresAt`은 `held` 상태일 때만 포함한다
@@ -87,7 +110,11 @@ revertSold(sessionId, seatIds): Promise<void>
 - 하나가 충돌하면 **아무 좌석도 hold되지 않고** `conflict` 목록이 반환된다 (부분 hold 없음을 명시적으로 검증하라)
 - 만료 후 같은 좌석 재hold 성공
 - 같은 사용자가 자기 좌석을 다시 hold하면 성공한다
+- **충돌로 hold가 실패하되 만료 좌석이 정리된 경우 `version`이 증가한다**
 - 남의 좌석 `release` 시도 → `FORBIDDEN:` throw
+- **만료된 남의 좌석 `release`는 throw하지 않고 성공한다**
+- **`release`가 `FORBIDDEN`을 던질 때 다른 좌석도 삭제되지 않았다**
+- 존재하지 않는 좌석 `release`는 throw하지 않는다
 - `confirmSeats`: 소유자 불일치 → `FORBIDDEN:`, 만료·미홀드·이미 sold → `EXPIRED:`
 - `confirmSeats`가 일부만 sold로 바꾸는 일이 없다 (하나라도 실패하면 전부 그대로)
 - `releaseSold` 소유권 검증, `revertSold`는 소유권 검사 없음
@@ -125,6 +152,8 @@ npm run build
 - 좌석마다 Redis 키를 하나씩 만들지 마라. 이유: ADR-004가 계산한 대로 폴링 1회가 2000 커맨드가 되어 Free 한도를 8배 초과한다. 세션당 Hash 하나가 확정 설계다
 - 만료를 Redis TTL로 처리하지 마라. 반드시 `expiresAt` 필드 비교로 하라. 이유: Hash 필드에는 개별 TTL이 없고, 만료 필드가 남으면 `HSETNX`가 재hold를 막는다
 - `SeatStore` 인터페이스의 시그니처를 바꾸지 마라. 이유: Step 5의 팩토리 교체가 프론트 수정 없이 성립해야 한다. 인터페이스가 바뀌면 route handler를 고쳐야 하고, 그러면 이 phase의 핵심 주장이 무너진다
+- `release`를 "남의 좌석이면 무조건 403"으로 단순화하지 마라. 이유: 참조 구현은 만료된 홀드에 대해 소유권 검사를 건너뛴다. 단순화하면 만료된 좌석을 아무도 정리할 수 없게 된다
+- 동작이 인메모리 구현과 다르다고 판단되면 인메모리 쪽을 고치지 마라. 이유: 인메모리가 기준이고 26개 테스트가 그 동작을 고정하고 있다. Redis 구현이 맞춰야 한다
 - 에러 프리픽스 규약(`FORBIDDEN:`, `EXPIRED:`)을 바꾸지 마라. 이유: route handler가 이 문자열로 403/410을 가른다. 다르면 500이 난다
 - 스냅샷에 `userId`를 싣지 마라. 이유: 남의 `userId`를 알면 그 사람 행세를 할 수 있는 구조다 (CLAUDE.md CRITICAL)
 - `sessionId`를 검증 없이 키에 넣지 마라. 이유: `session:{sessionId}:seats` 키 인젝션 경로다. route에서 zod로 검증하고 있으나 store도 방어하라

@@ -1,6 +1,10 @@
 import { createReservationStoreMemory } from "./reservation-store-memory";
+import { createReservationStoreRedis } from "./reservation-store-redis";
+import { hasRedisConfig } from "./redis-client";
 import { createSeatStoreMemory } from "./seat-store-memory";
+import { createSeatStoreRedis } from "./seat-store-redis";
 import { createShowStoreMemory } from "./show-store-memory";
+import { createShowStoreRedis } from "./show-store-redis";
 import type { ReservationStore } from "./reservation-store";
 import type { SeatStore } from "./seat-store";
 import type { ShowStore } from "./show-store";
@@ -12,18 +16,28 @@ export type { ShowStore } from "./show-store";
 let instance: ShowStore | null = null;
 let seatInstance: SeatStore | null = null;
 let reservationInstance: ReservationStore | null = null;
+const useRedis = hasRedisConfig();
 
 export function getShowStore(): ShowStore {
-  if (!instance) instance = createShowStoreMemory();
+  if (!instance) {
+    instance = useRedis ? createShowStoreRedis() : createShowStoreMemory();
+  }
   return instance;
 }
 
 export function getSeatStore(): SeatStore {
-  if (!seatInstance) seatInstance = createSeatStoreMemory();
+  if (!seatInstance) {
+    seatInstance = useRedis ? createSeatStoreRedis() : createSeatStoreMemory();
+  }
   return seatInstance;
 }
 
 export function getReservationStore(): ReservationStore {
-  if (!reservationInstance) reservationInstance = createReservationStoreMemory(getSeatStore());
+  if (!reservationInstance) {
+    const seatStore = getSeatStore();
+    reservationInstance = useRedis
+      ? createReservationStoreRedis(seatStore)
+      : createReservationStoreMemory(seatStore);
+  }
   return reservationInstance;
 }
