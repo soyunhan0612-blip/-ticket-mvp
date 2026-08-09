@@ -9,8 +9,9 @@ import { notFound } from "next/navigation";
 import { SeatMapContainer } from "@/components/seat/SeatMapContainer";
 import { SNAPSHOT_QUERY_KEY } from "@/hooks/use-seat-snapshot";
 import { USER_ID_COOKIE_NAME } from "@/lib/cookie";
-import { generateSeats, MOCK_SESSIONS, MOCK_SHOWS } from "@/lib/mock-data";
-import { getSeatStore } from "@/services";
+import { generateSeats } from "@/lib/mock-data";
+import { generateSeatsForPreset } from "@/lib/seat-preset";
+import { getSeatStore, getShowStore } from "@/services";
 
 export const dynamic = "force-dynamic";
 
@@ -20,13 +21,16 @@ interface PageProps {
 
 export default async function SeatSelectionPage(props: PageProps) {
   const { id } = await props.params;
-  const session = MOCK_SESSIONS.find((candidate) => candidate.id === id);
+  const showStore = getShowStore();
+  const shows = await showStore.list();
+  const results = await Promise.all(shows.map((show) => showStore.get(show.id)));
+  const result = results.find((candidate) =>
+    candidate?.sessions.some((session) => session.id === id),
+  );
+  const session = result?.sessions.find((candidate) => candidate.id === id);
+  const show = result?.show;
 
-  if (!session) notFound();
-
-  const show = MOCK_SHOWS.find((candidate) => candidate.id === session.showId);
-
-  if (!show) notFound();
+  if (!session || !show) notFound();
 
   const cookieStore = await cookies();
   const userId = cookieStore.get(USER_ID_COOKIE_NAME)?.value ?? "";
@@ -37,7 +41,9 @@ export default async function SeatSelectionPage(props: PageProps) {
     queryFn: () => getSeatStore().getSnapshot(id, userId),
   });
 
-  const seats = generateSeats();
+  const seats = show.presetId
+    ? generateSeatsForPreset(show.presetId)
+    : generateSeats();
   const sessionTime = new Date(session.startsAt).toLocaleString("ko-KR", {
     dateStyle: "medium",
     timeStyle: "short",

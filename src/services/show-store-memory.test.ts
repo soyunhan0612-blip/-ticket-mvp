@@ -30,11 +30,32 @@ describe("ShowStoreMemory", () => {
     await expect(store.get("nonexistent-id")).resolves.toBeNull();
   });
 
-  it("does not implement show creation before Day 8", async () => {
+  it("creates and persists a show with its generated sessions", async () => {
     const store = createShowStoreMemory();
+    const startsAtList = [
+      "2026-11-01T10:00:00.000Z",
+      "2026-11-02T10:00:00.000Z",
+    ];
 
-    await expect(store.create({})).rejects.toThrow(
-      "ShowStore.create — Day 8 스코프",
-    );
+    const result = await store.create({
+      title: "새 공연",
+      description: "새 공연 설명",
+      posterUrl: "/posters/new-show.jpg",
+      presetId: "medium",
+      sessions: startsAtList,
+    });
+
+    expect(result.show.id).toEqual(expect.any(String));
+    expect(result.show.id).not.toHaveLength(0);
+    expect(result.show.presetId).toBe("medium");
+    expect(result.sessions).toHaveLength(startsAtList.length);
+    expect(
+      result.sessions.every((session) => session.showId === result.show.id),
+    ).toBe(true);
+
+    const shows = await store.list();
+    expect(shows).toHaveLength(9);
+    expect(shows).toContainEqual(result.show);
+    await expect(store.get(result.show.id)).resolves.toEqual(result);
   });
 });

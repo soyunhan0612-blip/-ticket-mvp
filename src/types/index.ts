@@ -1,8 +1,11 @@
+import type { SeatPresetId } from "@/lib/seat-preset";
+
 export interface Show {
   id: string;
   title: string;
   description: string;
   posterUrl?: string;
+  presetId?: SeatPresetId;
 }
 
 export interface Session {

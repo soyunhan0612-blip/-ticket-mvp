@@ -1,0 +1,64 @@
+{
+  "project": "티켓 예매 MVP",
+  "phase": "7-seller-ai",
+  "steps": [
+    {
+      "step": 0,
+      "name": "seat-preset",
+      "status": "completed",
+      "started_at": "2026-08-09T11:24:16+0900",
+      "summary": "Small·Medium·Large 좌석 프리셋과 프리셋별 좌석·공연 회차 생성 로직을 TDD로 구현",
+      "completed_at": "2026-08-09T11:26:41+0900"
+    },
+    {
+      "step": 1,
+      "name": "show-store-create",
+      "status": "completed",
+      "started_at": "2026-08-09T11:26:41+0900",
+      "summary": "공연 생성 입력 검증과 프리셋·회차를 저장하는 인메모리 ShowStore.create를 TDD로 구현",
+      "completed_at": "2026-08-09T11:29:01+0900"
+    },
+    {
+      "step": 2,
+      "name": "poster-preset",
+      "status": "completed",
+      "started_at": "2026-08-09T11:29:01+0900",
+      "summary": "콘서트·뮤지컬·연극 로컬 포스터 프리셋과 400x600 SVG 플레이스홀더를 TDD로 구현",
+      "completed_at": "2026-08-09T11:31:03+0900"
+    },
+    {
+      "step": 3,
+      "name": "basic-auth",
+      "status": "completed",
+      "started_at": "2026-08-09T11:31:03+0900",
+      "summary": "Basic Auth 검증·보호 경로 판정 로직과 기존 익명 userId 쿠키 흐름을 유지한 페이지 접근 제어를 구현",
+      "completed_at": "2026-08-09T11:34:27+0900"
+    },
+    {
+      "step": 4,
+      "name": "show-create-api",
+      "status": "completed",
+      "started_at": "2026-08-09T11:34:28+0900",
+      "summary": "쿠키 인증과 좌석·포스터 프리셋 검증을 적용한 공연 생성 API를 TDD로 구현",
+      "completed_at": "2026-08-09T11:36:47+0900"
+    },
+    {
+      "step": 5,
+      "name": "ai-description-api",
+      "status": "completed",
+      "started_at": "2026-08-09T11:36:47+0900",
+      "summary": "IP별 슬라이딩 윈도우 제한과 안전한 프롬프트, Anthropic·fallback 스트리밍 AI 설명 API를 TDD로 구현",
+      "completed_at": "2026-08-09T11:40:59+0900"
+    },
+    {
+      "step": 6,
+      "name": "seller-ui",
+      "status": "completed",
+      "started_at": "2026-08-09T11:40:59+0900",
+      "summary": "셀러 공연 등록 폼과 AI 스트리밍 설명 생성, 프리셋 선택, 생성 mutation 및 회차별 좌석 프리셋 연동을 구현",
+      "completed_at": "2026-08-09T11:48:27+0900"
+    }
+  ],
+  "created_at": "2026-08-09T11:24:16+0900",
+  "completed_at": "2026-08-09T11:48:27+0900"
+}
