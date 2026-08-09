@@ -7,7 +7,8 @@
       "name": "upstash-install",
       "status": "completed",
       "started_at": "2026-08-09T22:03:23+0900",
-      "summary": "@upstash/redis를 런타임 의존성으로 추가하고 lint, test, build 검증을 완료함"
+      "summary": "@upstash/redis를 런타임 의존성으로 추가하고 lint, test, build 검증을 완료함",
+      "completed_at": "2026-08-09T22:05:37+0900"
     },
     {
       "step": 1,
