@@ -1,4 +1,8 @@
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import {
+  QueryClient,
+  QueryClientProvider,
+  type QueryObserverOptions,
+} from "@tanstack/react-query";
 import { render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
@@ -43,6 +47,7 @@ describe("OccupancyStats", () => {
     const query = queryClient.getQueryCache().find({
       queryKey: ["admin-stats", "session-01"],
     });
-    expect(query?.options.refetchInterval).toBe(SNAPSHOT_REFETCH_INTERVAL);
+    const options = query?.options as QueryObserverOptions | undefined;
+    expect(options?.refetchInterval).toBe(SNAPSHOT_REFETCH_INTERVAL);
   });
 });
