@@ -37,7 +37,10 @@
     {
       "step": 4,
       "name": "show-create-api",
-      "status": "pending"
+      "status": "completed",
+      "started_at": "2026-08-09T11:34:28+0900",
+      "summary": "쿠키 인증과 좌석·포스터 프리셋 검증을 적용한 공연 생성 API를 TDD로 구현",
+      "completed_at": "2026-08-09T11:36:11+0900"
     },
     {
       "step": 5,
