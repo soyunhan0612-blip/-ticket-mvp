@@ -1,6 +1,12 @@
 import { describe, expect, it } from "vitest";
 
-import { buildDescriptionPrompt } from "./ai-prompt";
+import { AI_MODEL, buildDescriptionPrompt } from "./ai-prompt";
+
+describe("AI_MODEL", () => {
+  it("uses the real Claude Haiku 4.5 model ID", () => {
+    expect(AI_MODEL).toBe("claude-haiku-4-5-20251001");
+  });
+});
 
 describe("buildDescriptionPrompt", () => {
   it("wraps the title in user-input delimiters", () => {
