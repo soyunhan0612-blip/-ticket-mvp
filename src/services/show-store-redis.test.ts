@@ -88,6 +88,18 @@ describe("ShowStoreRedis", () => {
     expect(shows).toHaveLength(8);
   });
 
+  it("skips seed writes when Redis already holds the seeded shows", async () => {
+    await createShowStoreRedis().list();
+    expect(seedShowWrites).toBe(1);
+
+    // A fresh instance stands in for a new serverless container: the in-memory
+    // seedPromise is gone, but Redis already carries the seed.
+    const shows = await createShowStoreRedis().list();
+
+    expect(seedShowWrites).toBe(1);
+    expect(shows).toHaveLength(8);
+  });
+
   it("does not remove seller-created shows when another instance seeds", async () => {
     const created = await createShowStoreRedis().create(validInput);
 

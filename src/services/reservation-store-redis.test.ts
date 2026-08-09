@@ -5,6 +5,7 @@ import { HOLD_TTL_MS } from "@/lib/hold";
 const hashes = new Map<string, Map<string, unknown>>();
 const sets = new Map<string, Set<string>>();
 let failNextReservationWrite = false;
+let readCalls = 0;
 
 function hash(key: string): Map<string, unknown> {
   let value = hashes.get(key);
@@ -17,7 +18,17 @@ function hash(key: string): Map<string, unknown> {
 
 const redis = {
   async hget<T>(key: string, field: string): Promise<T | null> {
+    readCalls += 1;
     return (hash(key).get(field) as T | undefined) ?? null;
+  },
+  // Mirrors @upstash/redis: an object keyed by field, null when nothing matched.
+  async hmget<T>(key: string, ...fields: string[]): Promise<T | null> {
+    readCalls += 1;
+    const target = hash(key);
+    const entries = fields
+      .filter((field) => target.has(field))
+      .map((field) => [field, target.get(field)] as const);
+    return (entries.length === 0 ? null : Object.fromEntries(entries)) as T | null;
   },
   async hset(key: string, values: Record<string, unknown>): Promise<number> {
     const target = hash(key);
@@ -71,6 +82,7 @@ describe("ReservationStore Redis", () => {
     hashes.clear();
     sets.clear();
     failNextReservationWrite = false;
+    readCalls = 0;
   });
 
   afterEach(() => vi.useRealTimers());
@@ -144,6 +156,21 @@ describe("ReservationStore Redis", () => {
 
     expect(reservations).toHaveLength(1);
     expect(reservations[0]?.userId).toBe("user-a");
+  });
+
+  it("reads every reservation in one batched call instead of one per id", async () => {
+    const seatStore = createSeatStoreMemory();
+    const store = createReservationStoreRedis(seatStore);
+    for (const seatId of ["A-1-1", "A-1-2", "A-1-3"]) {
+      await seatStore.hold("redis-batch", [seatId], "user-a");
+      await store.create("redis-batch", [seatId], "user-a");
+    }
+
+    readCalls = 0;
+    const reservations = await store.listByUser("user-a");
+
+    expect(reservations).toHaveLength(3);
+    expect(readCalls).toBe(1);
   });
 
   it("returns an empty list when the user has no reservation index", async () => {

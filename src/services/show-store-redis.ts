@@ -24,6 +24,11 @@ export function createShowStoreRedis(): ShowStore {
   let seedPromise: Promise<void> | undefined;
 
   async function seed(): Promise<void> {
+    // A new serverless container starts with an empty seedPromise, so without this
+    // check every cold start would rewrite the same four seed hashes.
+    const seedMarker = MOCK_SHOWS[0]?.id;
+    if (seedMarker && (await redis.hget(SHOWS_KEY, seedMarker)) !== null) return;
+
     const sessionsByShow = Object.fromEntries(
       MOCK_SHOWS.map((show) => [
         show.id,

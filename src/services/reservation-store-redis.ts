@@ -61,14 +61,16 @@ export function createReservationStoreRedis(seatStore: SeatStore): ReservationSt
       const reservationIds = await redis.smembers(userReservationsKey(userId));
       if (reservationIds.length === 0) return [];
 
-      const values = await Promise.all(
-        reservationIds.map((reservationId) =>
-          redis.hget<unknown>(RESERVATIONS_KEY, reservationId),
-        ),
+      // One batched read instead of one per id; hmget returns a field-keyed object.
+      const values = await redis.hmget<Record<string, unknown>>(
+        RESERVATIONS_KEY,
+        ...reservationIds,
       );
+      if (values === null) return [];
 
-      return values
-        .filter((value): value is Exclude<typeof value, null> => value !== null)
+      return reservationIds
+        .map((reservationId) => values[reservationId])
+        .filter((value) => value !== null && value !== undefined)
         .map(parseReservation)
         .filter((reservation) => reservation.userId === userId);
     },
