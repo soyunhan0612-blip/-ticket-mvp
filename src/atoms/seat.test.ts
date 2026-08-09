@@ -1,9 +1,12 @@
 import { createStore } from "jotai";
 import { describe, expect, it } from "vitest";
 
+import type { SeatSnapshot } from "@/types";
+
 import {
   conflictSeatIdsAtom,
   myHoldExpiresAtAtom,
+  seatMapReadOnlyAtom,
   seatStatusAtomFamily,
   seatVisualStateAtomFamily,
   selectedSeatIdsAtom,
@@ -11,7 +14,18 @@ import {
   snapshotVersionAtom,
   syncSnapshotAtom,
   toggleSeatAtom,
+  trackedSeatIdsAtom,
 } from "./seat";
+
+type Store = ReturnType<typeof createStore>;
+
+function sync(
+  store: Store,
+  snapshot: SeatSnapshot,
+  sessionId = "session-01",
+): void {
+  store.set(syncSnapshotAtom, { sessionId, snapshot });
+}
 
 describe("conflictSeatIdsAtom", () => {
   it("starts empty", () => {
@@ -33,11 +47,7 @@ describe("syncSnapshotAtom", () => {
   it("updates version and serverNow for an empty snapshot", () => {
     const store = createStore();
 
-    store.set(syncSnapshotAtom, {
-      version: 1,
-      serverNow: 1_000,
-      seats: {},
-    });
+    sync(store, { version: 1, serverNow: 1_000, seats: {} });
 
     expect(store.get(snapshotVersionAtom)).toBe(1);
     expect(store.get(serverNowAtom)).toBe(1_000);
@@ -46,7 +56,7 @@ describe("syncSnapshotAtom", () => {
   it("syncs a held seat to seatStatusAtomFamily", () => {
     const store = createStore();
 
-    store.set(syncSnapshotAtom, {
+    sync(store, {
       version: 1,
       serverNow: 1_000,
       seats: {
@@ -61,15 +71,15 @@ describe("syncSnapshotAtom", () => {
     });
   });
 
-  it("does not update atoms for a snapshot with the same version", () => {
+  it("does not update atoms for a same-version snapshot in the same session", () => {
     const store = createStore();
-    store.set(syncSnapshotAtom, {
+    sync(store, {
       version: 1,
       serverNow: 1_000,
       seats: { "A-1-1": { s: "sold" } },
     });
 
-    store.set(syncSnapshotAtom, {
+    sync(store, {
       version: 1,
       serverNow: 2_000,
       seats: { "A-1-1": { s: "held", mine: true, expiresAt: 3_000 } },
@@ -80,19 +90,78 @@ describe("syncSnapshotAtom", () => {
     expect(store.get(myHoldExpiresAtAtom)).toBeNull();
   });
 
+  it("fully resyncs when the session changes even at the same version", () => {
+    const store = createStore();
+    sync(
+      store,
+      { version: 0, serverNow: 1_000, seats: { "A-1-1": { s: "sold" } } },
+      "session-A",
+    );
+
+    sync(
+      store,
+      { version: 0, serverNow: 2_000, seats: { "B-2-2": { s: "sold" } } },
+      "session-B",
+    );
+
+    expect(store.get(seatStatusAtomFamily("A-1-1"))).toBeNull();
+    expect(store.get(seatStatusAtomFamily("B-2-2"))).toEqual({ s: "sold" });
+    expect(store.get(serverNowAtom)).toBe(2_000);
+    expect(store.get(trackedSeatIdsAtom)).toEqual(new Set(["B-2-2"]));
+  });
+
+  it("clears a previous session's hold expiry when switching sessions", () => {
+    const store = createStore();
+    sync(
+      store,
+      {
+        version: 0,
+        serverNow: 1_000,
+        seats: { "A-1-1": { s: "held", mine: true, expiresAt: 9_000 } },
+      },
+      "session-A",
+    );
+    expect(store.get(myHoldExpiresAtAtom)).toBe(9_000);
+
+    sync(store, { version: 0, serverNow: 2_000, seats: {} }, "session-B");
+
+    expect(store.get(myHoldExpiresAtAtom)).toBeNull();
+  });
+
+  it("clears the previous session's selection when switching sessions", () => {
+    const store = createStore();
+    sync(store, { version: 0, serverNow: 1_000, seats: {} }, "session-A");
+    store.set(selectedSeatIdsAtom, ["A-1-1"]);
+    store.set(conflictSeatIdsAtom, ["A-1-2"]);
+
+    sync(store, { version: 0, serverNow: 2_000, seats: {} }, "session-B");
+
+    expect(store.get(selectedSeatIdsAtom)).toEqual([]);
+    expect(store.get(conflictSeatIdsAtom)).toEqual([]);
+  });
+
+  it("applies a first snapshot that legitimately reports version 0", () => {
+    const store = createStore();
+
+    sync(
+      store,
+      { version: 0, serverNow: 1_234, seats: { "A-1-1": { s: "sold" } } },
+      "session-A",
+    );
+
+    expect(store.get(serverNowAtom)).toBe(1_234);
+    expect(store.get(seatStatusAtomFamily("A-1-1"))).toEqual({ s: "sold" });
+  });
+
   it("restores a seat omitted from the new snapshot to available", () => {
     const store = createStore();
-    store.set(syncSnapshotAtom, {
+    sync(store, {
       version: 1,
       serverNow: 1_000,
       seats: { "A-1-1": { s: "sold" } },
     });
 
-    store.set(syncSnapshotAtom, {
-      version: 2,
-      serverNow: 2_000,
-      seats: {},
-    });
+    sync(store, { version: 2, serverNow: 2_000, seats: {} });
 
     expect(store.get(seatStatusAtomFamily("A-1-1"))).toBeNull();
   });
@@ -100,7 +169,7 @@ describe("syncSnapshotAtom", () => {
   it("tracks expiresAt for a held seat owned by the current user", () => {
     const store = createStore();
 
-    store.set(syncSnapshotAtom, {
+    sync(store, {
       version: 1,
       serverNow: 1_000,
       seats: {
@@ -114,7 +183,7 @@ describe("syncSnapshotAtom", () => {
   it("does not track expiresAt for a held seat owned by another user", () => {
     const store = createStore();
 
-    store.set(syncSnapshotAtom, {
+    sync(store, {
       version: 1,
       serverNow: 1_000,
       seats: {
@@ -147,6 +216,15 @@ describe("selectedSeatIdsAtom", () => {
 });
 
 describe("toggleSeatAtom", () => {
+  it("does nothing while the seat map is read-only", () => {
+    const store = createStore();
+    store.set(seatMapReadOnlyAtom, true);
+
+    store.set(toggleSeatAtom, "A-1-1");
+
+    expect(store.get(selectedSeatIdsAtom)).toEqual([]);
+  });
+
   it("adds a valid seat", () => {
     const store = createStore();
 
@@ -215,6 +293,22 @@ describe("toggleSeatAtom", () => {
 });
 
 describe("seatVisualStateAtomFamily", () => {
+  it("ignores local selection while the seat map is read-only", () => {
+    const store = createStore();
+    store.set(selectedSeatIdsAtom, ["A-1-1"]);
+    store.set(seatMapReadOnlyAtom, true);
+
+    expect(store.get(seatVisualStateAtomFamily("A-1-1"))).toBe("available");
+  });
+
+  it("renders an owned hold as held-other while the seat map is read-only", () => {
+    const store = createStore();
+    store.set(seatStatusAtomFamily("A-1-1"), { s: "held", mine: true });
+    store.set(seatMapReadOnlyAtom, true);
+
+    expect(store.get(seatVisualStateAtomFamily("A-1-1"))).toBe("held-other");
+  });
+
   it("returns available for a seat without server or local state", () => {
     const store = createStore();
 

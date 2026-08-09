@@ -9,8 +9,9 @@ import { notFound } from "next/navigation";
 import { SeatMapContainer } from "@/components/seat/SeatMapContainer";
 import { SNAPSHOT_QUERY_KEY } from "@/hooks/use-seat-snapshot";
 import { USER_ID_COOKIE_NAME } from "@/lib/cookie";
+import { SECTIONS } from "@/lib/seat-map";
 import { generateSeats } from "@/lib/mock-data";
-import { generateSeatsForPreset } from "@/lib/seat-preset";
+import { generateSeatsForPreset, getPreset } from "@/lib/seat-preset";
 import { getSeatStore, getShowStore } from "@/services";
 
 export const dynamic = "force-dynamic";
@@ -39,6 +40,9 @@ export default async function SeatSelectionPage(props: PageProps) {
   const seats = show.presetId
     ? generateSeatsForPreset(show.presetId)
     : generateSeats();
+  const sections = show.presetId
+    ? getPreset(show.presetId).sections
+    : SECTIONS;
   const sessionTime = new Date(session.startsAt).toLocaleString("ko-KR", {
     dateStyle: "medium",
     timeStyle: "short",
@@ -61,7 +65,11 @@ export default async function SeatSelectionPage(props: PageProps) {
       </header>
 
       <HydrationBoundary state={dehydrate(queryClient)}>
-        <SeatMapContainer seats={seats} sessionId={id} />
+        <SeatMapContainer
+          seats={seats}
+          sections={sections}
+          sessionId={id}
+        />
       </HydrationBoundary>
     </main>
   );

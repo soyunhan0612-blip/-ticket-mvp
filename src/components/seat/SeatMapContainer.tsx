@@ -13,17 +13,19 @@ import { SeatMap } from "./SeatMap";
 interface SeatMapContainerProps {
   sessionId: string;
   seats: readonly SeatType[];
+  sections: readonly string[];
 }
 
 export function SeatMapContainer({
   sessionId,
   seats,
+  sections,
 }: SeatMapContainerProps): JSX.Element {
   useSeatSnapshot(sessionId);
 
   return (
     <>
-      <SeatMap seats={seats} sessionId={sessionId} />
+      <SeatMap seats={seats} sections={sections} sessionId={sessionId} />
       <HoldTimer />
       <ConfirmBar sessionId={sessionId} />
       <Toast />

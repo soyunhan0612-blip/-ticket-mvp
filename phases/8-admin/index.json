@@ -1,0 +1,64 @@
+{
+  "project": "티켓 예매 MVP",
+  "phase": "8-admin",
+  "steps": [
+    {
+      "step": 0,
+      "name": "seat-layout-lib",
+      "status": "completed",
+      "started_at": "2026-08-09T19:58:56+0900",
+      "summary": "프리셋 구역 수에 맞춘 좌석 좌표·레이아웃 박스·무대 앞 초기 viewBox 순수 함수와 회귀 테스트를 추가했다.",
+      "completed_at": "2026-08-09T20:01:31+0900"
+    },
+    {
+      "step": 1,
+      "name": "zoom-pan-svg",
+      "status": "completed",
+      "started_at": "2026-08-09T20:01:32+0900",
+      "summary": "SVG viewBox 기반의 제한된 줌·팬, 드래그 클릭 차단, 전체 보기 기능을 갖춘 ZoomPanSvg 래퍼를 추가했다.",
+      "completed_at": "2026-08-09T20:11:08+0900"
+    },
+    {
+      "step": 2,
+      "name": "seatmap-zoom-integrate",
+      "status": "completed",
+      "started_at": "2026-08-09T20:11:08+0900",
+      "summary": "프리셋별 sections와 공통 좌석 레이아웃을 ZoomPanSvg에 연결했고 자동 AC 및 개발 서버 렌더를 통과했다(포인터 동작 육안 확인은 미실행).",
+      "completed_at": "2026-08-09T20:19:08+0900"
+    },
+    {
+      "step": 3,
+      "name": "ai-model-fix",
+      "status": "completed",
+      "started_at": "2026-08-09T20:19:08+0900",
+      "summary": "Haiku 4.5 모델 ID를 실재하는 버전으로 교체하고 상수 회귀 테스트를 추가했다.",
+      "completed_at": "2026-08-09T20:20:43+0900"
+    },
+    {
+      "step": 4,
+      "name": "admin-stats-api",
+      "status": "completed",
+      "started_at": "2026-08-09T20:20:43+0900",
+      "summary": "좌석 스냅샷 기반 Admin 집계 API와 /api/admin 보호 경로를 테스트 우선으로 추가했다.",
+      "completed_at": "2026-08-09T20:23:43+0900"
+    },
+    {
+      "step": 5,
+      "name": "admin-page",
+      "status": "completed",
+      "started_at": "2026-08-09T20:23:43+0900",
+      "summary": "기존 3초 폴링·좌석맵을 재사용한 회차별 Admin 카드 4종과 읽기 전용 점유 지도를 구현했다(nav는 관람객의 인증 프롬프트 노출을 피하려고 추가하지 않았고, 브라우저 두 탭 육안 확인은 미실행).",
+      "completed_at": "2026-08-09T20:29:09+0900"
+    },
+    {
+      "step": 6,
+      "name": "progress-backfill",
+      "status": "completed",
+      "started_at": "2026-08-09T20:29:10+0900",
+      "summary": "실제 phase 기록과 구현을 근거로 Day 5~9 서사를 보강하고 Redis 미완료·성능 재측정 필요를 명시했다.",
+      "completed_at": "2026-08-09T20:32:40+0900"
+    }
+  ],
+  "created_at": "2026-08-09T19:27:19+0900",
+  "completed_at": "2026-08-09T20:32:40+0900"
+}

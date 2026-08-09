@@ -1,0 +1,13 @@
+{
+  "project": "티켓 예매 MVP",
+  "phase": "9-redis",
+  "steps": [
+    { "step": 0, "name": "upstash-install", "status": "pending" },
+    { "step": 1, "name": "redis-client", "status": "pending" },
+    { "step": 2, "name": "seat-store-redis", "status": "pending" },
+    { "step": 3, "name": "show-store-redis", "status": "pending" },
+    { "step": 4, "name": "reservation-store-redis", "status": "pending" },
+    { "step": 5, "name": "factory-swap", "status": "pending" },
+    { "step": 6, "name": "redis-verify-deploy", "status": "pending" }
+  ]
+}

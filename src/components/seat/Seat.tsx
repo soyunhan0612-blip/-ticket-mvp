@@ -3,7 +3,11 @@
 import { useAtomValue, useSetAtom } from "jotai";
 import { memo, type JSX } from "react";
 
-import { seatVisualStateAtomFamily, toggleSeatAtom } from "@/atoms/seat";
+import {
+  seatMapReadOnlyAtom,
+  seatVisualStateAtomFamily,
+  toggleSeatAtom,
+} from "@/atoms/seat";
 import type { Seat as SeatType, SeatVisualState } from "@/types";
 
 interface SeatProps {
@@ -21,8 +25,10 @@ const STATE_CLASS_NAMES: Record<SeatVisualState, string> = {
 
 export const Seat = memo(function Seat({ seat, x, y }: SeatProps): JSX.Element {
   const state = useAtomValue(seatVisualStateAtomFamily(seat.id));
+  const readOnly = useAtomValue(seatMapReadOnlyAtom);
   const toggle = useSetAtom(toggleSeatAtom);
-  const isInteractive = state === "available" || state === "selected";
+  const isInteractive =
+    !readOnly && (state === "available" || state === "selected");
 
   return (
     <rect

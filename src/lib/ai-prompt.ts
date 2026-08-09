@@ -1,5 +1,5 @@
 export const AI_MAX_TOKENS = 600;
-export const AI_MODEL = "claude-haiku-4-5-20241022";
+export const AI_MODEL = "claude-haiku-4-5-20251001";
 
 export function buildDescriptionPrompt(input: {
   title: string;
