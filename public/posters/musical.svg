@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="400" height="600" viewBox="0 0 400 600" role="img" aria-labelledby="title">
+  <title id="title">뮤지컬 포스터</title>
+  <rect width="400" height="600" fill="#262626"/>
+  <rect x="32" y="32" width="336" height="536" fill="none" stroke="#525252" stroke-width="2"/>
+  <text x="200" y="300" fill="#ffffff" font-family="sans-serif" font-size="36" text-anchor="middle">MUSICAL</text>
+  <text x="200" y="340" fill="#a3a3a3" font-family="sans-serif" font-size="18" text-anchor="middle">뮤지컬</text>
+</svg>

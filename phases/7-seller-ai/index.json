@@ -21,7 +21,10 @@
     {
       "step": 2,
       "name": "poster-preset",
-      "status": "pending"
+      "status": "completed",
+      "started_at": "2026-08-09T11:29:01+0900",
+      "summary": "콘서트·뮤지컬·연극 로컬 포스터 프리셋과 400x600 SVG 플레이스홀더를 TDD로 구현",
+      "completed_at": "2026-08-09T11:30:08+0900"
     },
     {
       "step": 3,
