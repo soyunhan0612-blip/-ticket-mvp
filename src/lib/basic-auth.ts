@@ -33,6 +33,8 @@ export function isProtectedPath(pathname: string): boolean {
   return (
     pathname === "/admin" ||
     pathname.startsWith("/admin/") ||
+    pathname === "/api/admin" ||
+    pathname.startsWith("/api/admin/") ||
     pathname === "/seller" ||
     pathname.startsWith("/seller/")
   );

@@ -44,11 +44,17 @@ describe("verifyBasicAuth", () => {
 });
 
 describe("isProtectedPath", () => {
-  it.each(["/seller/new", "/admin", "/admin/dashboard"])("%s를 보호한다", (pathname) => {
+  it.each([
+    "/seller/new",
+    "/admin",
+    "/admin/dashboard",
+    "/api/admin",
+    "/api/admin/stats",
+  ])("%s를 보호한다", (pathname) => {
     expect(isProtectedPath(pathname)).toBe(true);
   });
 
-  it.each(["/shows", "/api/shows", "/api/admin/something"])(
+  it.each(["/shows", "/api/shows", "/api/holds"])(
     "%s를 보호하지 않는다",
     (pathname) => {
       expect(isProtectedPath(pathname)).toBe(false);
