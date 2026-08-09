@@ -45,7 +45,10 @@
     {
       "step": 5,
       "name": "factory-swap",
-      "status": "pending"
+      "status": "completed",
+      "started_at": "2026-08-09T22:22:41+0900",
+      "summary": "src/services/index.ts에서 환경변수 기반 memory/Redis 싱글턴 팩토리를 전환하고 src/services/index.test.ts에서 동일 백엔드 계열과 싱글턴을 검증했으며 phases/9-redis/index.json에 완료 상태를 기록함",
+      "completed_at": "2026-08-09T22:24:52+0900"
     },
     {
       "step": 6,
