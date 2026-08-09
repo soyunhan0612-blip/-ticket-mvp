@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 import { getUserIdFromRequest } from "@/lib/cookie";
-import { TOTAL_SEATS } from "@/lib/seat-map";
+import { parseSeatId, SECTIONS, TOTAL_SEATS } from "@/lib/seat-map";
 import { getPreset } from "@/lib/seat-preset";
 import { getSeatStore, getShowStore } from "@/services";
 
@@ -27,17 +27,27 @@ export async function GET(request: Request): Promise<Response> {
   }
 
   const snapshot = await getSeatStore().getSnapshot(sessionId, userId);
+
+  // Seat ids validate against the global A-D map, so a session can carry seats
+  // outside its own preset. Counting those against a preset-sized total is what
+  // drove `available` negative, so aggregate only the preset's own sections.
+  const { presetId } = showSession.show;
+  const preset = presetId ? getPreset(presetId) : undefined;
+  const total = preset ? preset.totalSeats : TOTAL_SEATS;
+  const sections: ReadonlySet<string> = new Set(
+    preset ? preset.sections : SECTIONS,
+  );
+
   let held = 0;
   let sold = 0;
 
-  for (const seat of Object.values(snapshot.seats)) {
-    if (seat.s === "held") held += 1;
-    if (seat.s === "sold") sold += 1;
-  }
+  for (const [seatId, seat] of Object.entries(snapshot.seats)) {
+    const parsed = parseSeatId(seatId);
+    if (!parsed || !sections.has(parsed.section)) continue;
 
-  const total = showSession.show.presetId
-    ? getPreset(showSession.show.presetId).totalSeats
-    : TOTAL_SEATS;
+    if (seat.s === "held") held += 1;
+    else if (seat.s === "sold") sold += 1;
+  }
 
   return Response.json({
     total,

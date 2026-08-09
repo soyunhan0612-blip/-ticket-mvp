@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 
+import { TOTAL_SEATS } from "@/lib/seat-map";
 import { getSeatStore, getShowStore } from "@/services";
 
 import { GET } from "./route";
@@ -78,15 +79,47 @@ describe("GET /api/admin/stats", () => {
     expect(body.sold).toBe(2);
   });
 
-  it("keeps available, held, and sold equal to total", async () => {
-    const sessionId = await createSession("medium");
-    await getSeatStore().hold(sessionId, ["A-2-1"], "held-owner");
-    await getSeatStore().hold(sessionId, ["A-2-2"], "sold-owner");
-    await getSeatStore().confirmSeats(sessionId, ["A-2-2"], "sold-owner");
+  it("excludes seats outside the show's preset sections", async () => {
+    const sessionId = await createSession("small");
+    await getSeatStore().hold(sessionId, ["A-5-1"], "in-preset-owner");
+    await getSeatStore().hold(sessionId, ["B-1-1", "C-1-1"], "out-of-preset-owner");
+    await getSeatStore().hold(sessionId, ["D-1-1"], "out-of-preset-sold-owner");
+    await getSeatStore().confirmSeats(
+      sessionId,
+      ["D-1-1"],
+      "out-of-preset-sold-owner",
+    );
 
     const { body } = await getStats(sessionId);
 
-    expect(body.available + body.held + body.sold).toBe(body.total);
+    expect(body.total).toBe(500);
+    expect(body.held).toBe(1);
+    expect(body.sold).toBe(0);
+    expect(body.available).toBe(499);
+  });
+
+  it("never reports negative availability when out-of-preset seats are held", async () => {
+    const sessionId = await createSession("small");
+    const outOfPresetSeatIds = Array.from(
+      { length: 16 },
+      (_, index) => `B-${index + 1}-1`,
+    );
+    await getSeatStore().hold(sessionId, outOfPresetSeatIds, "flood-owner");
+
+    const { body } = await getStats(sessionId);
+
+    expect(body.held).toBe(0);
+    expect(body.available).toBe(500);
+    expect(body.available).toBeGreaterThanOrEqual(0);
+  });
+
+  it("counts every section for a show without a presetId", async () => {
+    await getSeatStore().hold("session-01", ["D-25-20"], "fallback-owner");
+
+    const { body } = await getStats("session-01");
+
+    expect(body.total).toBe(TOTAL_SEATS);
+    expect(body.held).toBe(1);
   });
 
   it("returns 404 for an unknown session", async () => {
