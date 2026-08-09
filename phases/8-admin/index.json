@@ -13,7 +13,10 @@
     {
       "step": 1,
       "name": "zoom-pan-svg",
-      "status": "pending"
+      "status": "completed",
+      "started_at": "2026-08-09T20:01:32+0900",
+      "summary": "SVG viewBox 기반의 제한된 줌·팬, 드래그 클릭 차단, 전체 보기 기능을 갖춘 ZoomPanSvg 래퍼를 추가했다.",
+      "completed_at": "2026-08-09T20:10:22+0900"
     },
     {
       "step": 2,
