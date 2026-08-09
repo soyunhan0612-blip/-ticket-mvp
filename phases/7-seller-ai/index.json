@@ -1,0 +1,13 @@
+{
+  "project": "티켓 예매 MVP",
+  "phase": "7-seller-ai",
+  "steps": [
+    { "step": 0, "name": "seat-preset", "status": "pending" },
+    { "step": 1, "name": "show-store-create", "status": "pending" },
+    { "step": 2, "name": "poster-preset", "status": "pending" },
+    { "step": 3, "name": "basic-auth", "status": "pending" },
+    { "step": 4, "name": "show-create-api", "status": "pending" },
+    { "step": 5, "name": "ai-description-api", "status": "pending" },
+    { "step": 6, "name": "seller-ui", "status": "pending" }
+  ]
+}

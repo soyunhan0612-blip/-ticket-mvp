@@ -33,6 +33,11 @@
     },
     {
       "dir": "6-reservation",
+      "status": "completed",
+      "completed_at": "2026-08-09T00:00:00+0900"
+    },
+    {
+      "dir": "7-seller-ai",
       "status": "pending"
     }
   ]
