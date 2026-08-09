@@ -138,4 +138,149 @@ Day별 진행 결과와 결정 근거. 서사 문서.
 - 이 phase 커밋: `feat(3-seat-perf): ...`
 - ADR-002: "클릭당 리렌더 2000 → 1~2"로 한정. 초기 마운트 비용은 별도 수치로 정직 병기
 
-## Day 5~9 — (예정)
+## Day 5 — 서버 hold (인메모리)
+
+### 기능적 관점
+- `POST /api/holds`로 최대 4석을 한 번에 5분간 hold하고, `DELETE /api/holds`로 내가 잡은 좌석만 해제
+- `GET /api/sessions/[id]/snapshot`에서 점유 좌석만 반환하며, 요청 쿠키 기준으로 내 좌석을 `mine: true`로 표시
+- 최초 요청에 익명 UUID 쿠키를 발급해 별도 로그인 없이 브라우저 단위 좌석 소유권을 유지
+
+### 기술적 관점
+- `lib/hold.ts`: 5분 TTL 상수와 `expiresAt <= now` 경계의 만료 판정·만료 시각 생성 순수 함수
+- `lib/cookie.ts`: Request의 Cookie 헤더에서 `userId`를 추출하는 서버 헬퍼
+- `services/seat-store-memory.ts`: `globalThis` 싱글톤으로 세션별 점유 좌석과 `version`을 관리하고, 대상 전체를 먼저 검증한 뒤 다중 좌석을 일괄 hold
+- zod로 요청 형태를 검증하고 `seat-rules.ts`·`seat-map.ts`를 route에서도 재사용해 최대 매수·중복·좌석 ID를 서버에서 재검증
+- middleware가 `httpOnly`·`sameSite: "lax"`·프로덕션 `secure` 속성의 UUID 쿠키를 발급
+
+### 아키텍처 관점
+- Route handler는 쿠키에서 읽은 `userId`만 Store에 전달하며 요청 본문·쿼리에는 사용자 식별자를 두지 않음
+- 스냅샷은 점유 좌석만 담고 소유자 ID 대신 `mine` 불리언으로 환원해 신원 노출과 페이로드 크기를 함께 제한
+- hold 충돌 시 변경 전에 전체 좌석을 검사해 일부 좌석만 잡히는 중간 상태를 만들지 않음
+- 만료 좌석 정리와 hold/release마다 세션 `version`을 증가시켜 이후 폴링 diff의 기준을 마련
+
+### 결정 근거
+- **왜 최초 요청에서 쿠키를 발급하나**: API 호출 뒤에 발급하면 RSC prefetch 시점에는 내 좌석을 판정할 신원이 없으므로 요청 진입점에서 먼저 보장해야 함
+- **왜 다중 좌석을 먼저 전부 검사하나**: 한 좌석이라도 충돌할 때 전체 요청을 실패시켜야 사용자가 선택한 묶음과 서버 점유 상태가 어긋나지 않음
+- **왜 스냅샷에 점유 좌석만 싣나**: 3초마다 2,000석의 available 상태를 반복 전송하지 않고, 클라이언트가 누락된 좌석을 available로 해석하도록 하기 위해
+
+### 참조
+- phase `4-server-hold` step 0~6 완료
+- 핵심 회귀: TTL 경계, 만료 후 재hold, 다중 좌석 충돌 전체 실패, 타인 release 403, 스냅샷 userId 비노출
+
+## Day 6 — 폴링 + 낙관적 업데이트 + 롤백
+
+### 기능적 관점
+- 좌석 화면이 3초마다 서버 스냅샷을 갱신해 다른 탭의 hold·판매 상태를 반영
+- `선택 완료` 시 선택 좌석 전체를 즉시 내 hold처럼 표시하고, 409 충돌 또는 네트워크 실패 시 전체 상태를 이전 값으로 복원
+- 충돌 좌석은 하단 토스트로 5초간 알리고, 내 hold 남은 시간은 서버 시각을 기준으로 카운트다운
+
+### 기술적 관점
+- `syncSnapshotAtom`이 같은 `version`이면 atom 갱신을 생략하고, 버전이 바뀐 경우 점유 좌석 집합의 추가·변경·제거만 반영
+- `useSeatSnapshot`은 TanStack Query `refetchInterval: 3000`으로 폴링하고 Jotai 동기화 진입점을 호출
+- `useHoldMutation`은 mutation 전 좌석 상태·선택 목록·만료 시각을 백업한 뒤 낙관적으로 일괄 변경하고 409·오류 시 모두 롤백
+- 좌석 RSC가 초기 스냅샷을 prefetch해 `HydrationBoundary`로 전달하며 `dynamic = "force-dynamic"`을 유지
+- `HoldTimer`는 `Date.now() - serverNow` 오프셋으로 클라이언트 시계를 보정해 `expiresAt`까지의 남은 시간을 계산
+
+### 아키텍처 관점
+- TanStack Query는 서버 스냅샷의 수명주기·폴링·mutation을, Jotai는 좌석별 구독과 로컬 선택·타이머를 담당
+- 쿼리 데이터 전체를 2,000개 좌석 prop으로 전파하지 않고 스냅샷 diff를 `seatStatusAtomFamily`에 반영해 좌석 단위 렌더 격리를 유지
+- RSC 초기 데이터와 클라이언트 폴링이 같은 query key를 사용해 첫 화면과 이후 갱신 경로를 하나로 연결
+
+### 결정 근거
+- **왜 같은 version이면 `serverNow`까지 갱신하지 않나**: 점유 상태가 그대로인 폴링마다 atom 구독자를 깨우지 않고, 상태 변경이 있을 때 받은 서버 시각으로 타이머를 다시 보정하기 위해
+- **왜 409도 예외 대신 결과로 처리하나**: 예상 가능한 좌석 경합을 네트워크 장애와 구분하면서 동일한 전체 롤백 뒤 충돌 좌석 정보를 UI에 전달하기 위해
+- **왜 RSC에서 먼저 prefetch하나**: 빈 좌석맵을 보여준 뒤 첫 client fetch를 기다리지 않고도 서버가 판정한 최신 점유 상태로 시작하기 위해
+
+### 참조
+- phase `5-polling-optimistic` step 0~6 완료
+- 브라우저 두 탭의 실제 3~4초 반영과 동시 충돌 육안 검증은 배포 통합 시나리오에서 별도 확인 대상
+
+## Day 7 — 예매 확정 / 내역 / 취소
+
+### 기능적 관점
+- 내가 hold한 좌석을 예매로 확정하고 `/reservations`에서 익명 쿠키 사용자 본인의 예매만 조회
+- 예매 취소 시 판매 좌석을 다시 available로 반환하며 중복 취소는 409, 타인 취소는 403으로 거절
+- 좌석 화면의 `ConfirmBar`, 예매 생성·목록·취소 hooks, 범용 Toast와 예매 내역 카드 UI를 연결
+
+### 기술적 관점
+- `SeatStore`에 held→sold `confirmSeats`, 소유권을 재검증하는 `releaseSold`, 예약 레코드 생성 실패 전용 `revertSold` 추가
+- `ReservationStore` 메모리 구현이 좌석 확정 후 예약 레코드를 생성하고, 레코드 저장 실패 시 sold 좌석을 롤백
+- `POST/GET /api/reservations`, `DELETE /api/reservations/[id]`에서 쿠키 신원만 사용하고 응답 전에 `userId`를 제거
+- API가 타인 소유권 403, 중복 취소 409, 만료 hold 확정 410을 구분해 클라이언트가 실패 원인을 처리할 수 있게 함
+
+### 아키텍처 관점
+- 예약 Store가 좌석 상태 전환을 SeatStore 인터페이스에 위임해 Route와 UI에 점유 구현 세부사항이 새지 않음
+- 확정·취소 모두 검증을 먼저 끝낸 뒤 좌석 묶음을 한꺼번에 바꾸고 세션 `version`을 증가
+- 사용자별 조회는 Store 내부에서 쿠키 `userId`로 필터링하고 외부 응답은 소유자 식별자를 제거해 IDOR 경계를 유지
+
+### 결정 근거
+- **왜 `revertSold`를 별도 메서드로 두나**: 일반 취소의 소유권 검사와 예약 생성 실패 복구라는 내부 보상 작업의 권한을 섞지 않기 위해
+- **왜 예약 생성이 SeatStore 확정을 호출하나**: 예약 레코드만 생기거나 sold 좌석만 남는 불일치를 한 작업 경계에서 보상할 수 있도록 하기 위해
+- **왜 403·409·410을 나누나**: 소유권 위반, 이미 끝난 취소, 만료된 hold는 복구 방법이 서로 달라 UI가 같은 일반 오류로 취급하면 안 되기 때문
+
+### 참조
+- phase `6-reservation` step 0~4 완료
+- 메모리 Store 원자성·소유권·만료·롤백 테스트와 예약 API 통합테스트 통과
+
+## Day 8 — 셀러 등록 + AI 설명
+
+### 기능적 관점
+- `/seller/new`에서 공연 정보, 로컬 포스터, 500·1,000·2,000석 프리셋과 회차를 선택해 공연을 등록
+- 생성된 공연과 회차가 메모리 ShowStore에 저장되어 기존 목록·상세·좌석 흐름에서 조회 가능
+- AI 설명을 스트리밍으로 미리 보고 편집 가능한 plain text로 폼에 적용하며 API 키가 없어도 fallback 문구로 전체 흐름을 완료
+- `/seller`·`/admin` 경로를 환경변수 기반 Basic Auth로 보호
+
+### 기술적 관점
+- `SEAT_PRESETS` 3종이 사용할 구역과 총 좌석 수를 정의하고 공연 생성 시 프리셋별 좌석·회차 데이터를 결정
+- `ShowStore.create`가 zod 입력 검증 후 공연과 회차를 함께 생성해 기존 Store 조회 경로에 추가
+- 임의 외부 URL 대신 검증된 로컬 포스터 프리셋과 SVG 자산만 사용
+- `POST /api/shows`는 쿠키와 프리셋 입력을 검증하고, AI API는 IP별 분당 3회·`max_tokens` 600·공연명 100자 상한을 적용
+- AI 프롬프트는 사용자 입력을 명시적 구분자로 감싸고 내부 지시를 따르지 않도록 하며, 응답은 `text/plain` 스트림과 `whitespace-pre-wrap`으로 렌더
+
+### 아키텍처 관점
+- 공연 등록은 ShowStore 인터페이스의 `create` 계약을 통해 목록·상세 Route와 동일한 데이터 원천을 사용
+- Basic Auth 판정은 순수 헬퍼, 접근 제어는 middleware, AI 공급자 호출은 서버 Route로 분리해 자격 증명이 클라이언트 번들에 들어가지 않음
+- 좌석 배치는 편집기가 아니라 세 프리셋 ID로 제한해 Store·좌석맵·서버 검증이 공유할 수 있는 닫힌 입력 집합을 유지
+
+### 결정 근거
+- **왜 좌석 배치를 세 프리셋으로 제한하나**: MVP 밖의 배치 에디터 복잡도를 피하면서도 공연 규모별 좌석 수와 구역 차이를 실제 흐름에서 검증하기 위해
+- **왜 API 키 없는 fallback도 스트리밍하나**: 외부 자격 증명 없이 심사자가 셀러 여정을 끝까지 검증하면서 키 유무에 따른 UI 경로를 동일하게 유지하기 위해
+- **왜 AI 결과를 plain text로만 다루나**: 셀러 입력이 저장되는 경로에서 HTML·마크다운 렌더를 허용하면 저장형 XSS 표면이 생기기 때문
+
+### 참조
+- phase `7-seller-ai` step 0~6 완료
+- AI 모델 ID의 실제 Haiku 4.5 버전 교정은 다음 Admin phase에서 별도 회귀 테스트와 함께 반영
+
+## Day 9 — Admin 실시간 점유 현황 (Redis 교체 전)
+
+### 기능적 관점
+- `/admin`에서 공연·회차를 선택하면 전체·예매가능·홀드중·판매완료 숫자 카드 4개와 읽기 전용 좌석맵을 표시
+- 관람객 좌석맵의 3초 스냅샷 폴링과 동일한 `SeatMap`을 재사용해 점유 변경을 Admin 화면에 반영
+- 좌석맵에 마우스 wheel 줌, pointer drag 팬, 무대 앞 중앙 초기 화면과 `전체 보기` 동작 추가
+
+### 기술적 관점
+- `lib/seat-layout.ts`로 프리셋 구역 수에 따른 좌석 좌표·레이아웃 박스·무대 앞 초기 viewBox 계산을 추출
+- `ZoomPanSvg`가 CSS transform 없이 SVG `viewBox`만 변경하고, 4px 임계값으로 드래그 뒤 좌석 클릭을 차단
+- `AI_MODEL`을 `claude-haiku-4-5-20251001`로 교정하고 상수 회귀 테스트 추가
+- `GET /api/admin/stats`가 SeatStore 스냅샷에서 held·sold를 세고 프리셋 총 좌석 수로 available을 파생하며 `/api/admin`도 Basic Auth 보호 경로에 포함
+- `AdminSeatMap`은 `seatMapReadOnlyAtom`으로 선택 변경을 막고 기존 `useSeatSnapshot`·`SeatMap`을 그대로 사용
+
+### 아키텍처 관점
+- 좌석 배치 계산을 순수 `lib/` 함수로 분리해 관람객·Admin이 프리셋별 동일 좌표계와 테스트된 viewBox 규칙을 공유
+- Admin 집계는 별도 점유 상태를 만들지 않고 기존 SeatStore 스냅샷에서 파생해 좌석맵과 숫자의 데이터 원천을 일치
+- Admin 전용 UI도 기존 polling hook과 좌석 컴포넌트를 재사용하며 차트 라이브러리나 별도 실시간 채널을 추가하지 않음
+- Redis Store 교체와 배포 영속성 검증은 아직 완료되지 않았으며 phase 9의 남은 작업
+
+### 결정 근거
+- **왜 줌/팬을 `viewBox`로 구현하나**: 화면 좌표와 SVG 좌석 히트 영역을 같은 좌표계에 유지해 CSS transform에서 생기는 클릭 계산 불일치를 피하기 위해
+- **왜 드래그 뒤 클릭을 별도로 차단하나**: 좌석 위에서 팬을 시작한 동작이 pointer up 뒤 좌석 선택으로 오인되지 않도록 하기 위해
+- **왜 Admin 통계를 스냅샷에서 파생하나**: 별도 카운터가 좌석 상태 전환과 불일치하는 이중 기록을 피하고 동일한 만료 정리·version 규칙을 따르기 위해
+- **왜 글로벌 nav에 Admin 링크를 넣지 않았나**: 일반 관람객 탐색 중 Basic Auth 프롬프트가 노출되는 흐름을 만들지 않기 위해
+
+### 성능 측정 후속
+- `ZoomPanSvg` 도입으로 좌석맵 컴포넌트 구조가 바뀌었으므로 클릭당 리렌더 수를 React DevTools Profiler로 재측정해야 함
+- 측정값은 아직 없으며 Day 3·Day 4의 기존 플레이스홀더와 함께 사람이 실제 브라우저에서 측정한 뒤 기록
+
+### 참조
+- phase `8-admin` step 0~5 완료
+- 자동 AC와 개발 서버 렌더는 통과했으며 pointer 동작 및 관람객/Admin 두 탭 반영은 배포 통합 시나리오에서 육안 확인 필요
