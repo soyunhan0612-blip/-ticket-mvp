@@ -29,7 +29,10 @@
     {
       "step": 3,
       "name": "basic-auth",
-      "status": "pending"
+      "status": "completed",
+      "started_at": "2026-08-09T11:31:03+0900",
+      "summary": "Basic Auth 검증·보호 경로 판정 로직과 기존 익명 userId 쿠키 흐름을 유지한 페이지 접근 제어를 구현",
+      "completed_at": "2026-08-09T11:32:21+0900"
     },
     {
       "step": 4,
