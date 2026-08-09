@@ -87,7 +87,11 @@ export const myHeldSeatIdsAtom = atom<string[]>((get) => {
   return result;
 });
 
-export const snapshotVersionAtom = atom<number>(0);
+// `null` means "never synced" — a session's first snapshot legitimately reports
+// version 0, so 0 cannot double as the unset sentinel.
+export const snapshotVersionAtom = atom<number | null>(null);
+
+export const syncedSessionIdAtom = atom<string | null>(null);
 
 export const myHoldExpiresAtAtom = atom<number | null>(null);
 
@@ -95,13 +99,27 @@ export const serverNowAtom = atom<number>(0);
 
 export const trackedSeatIdsAtom = atom<Set<string>>(new Set<string>());
 
+export interface SyncSnapshotPayload {
+  sessionId: string;
+  snapshot: SeatSnapshot;
+}
+
 export const syncSnapshotAtom = atom(
   null,
-  (get, set, snapshot: SeatSnapshot) => {
-    if (snapshot.version === get(snapshotVersionAtom)) {
+  (get, set, { sessionId, snapshot }: SyncSnapshotPayload) => {
+    // Version counters restart per session, so the version alone cannot tell a
+    // poll of the same session apart from a switch to a different one.
+    const sameSession = get(syncedSessionIdAtom) === sessionId;
+    if (sameSession && snapshot.version === get(snapshotVersionAtom)) {
       return;
     }
 
+    if (!sameSession) {
+      set(selectedSeatIdsAtom, []);
+      set(conflictSeatIdsAtom, []);
+    }
+
+    set(syncedSessionIdAtom, sessionId);
     set(snapshotVersionAtom, snapshot.version);
     set(serverNowAtom, snapshot.serverNow);
 

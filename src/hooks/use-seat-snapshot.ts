@@ -30,11 +30,13 @@ export function useSeatSnapshot(
 
   useEffect(() => {
     if (query.data) {
-      syncSnapshot(query.data);
+      syncSnapshot({ sessionId, snapshot: query.data });
     }
-    // serverNow changes on every poll; synchronize only when the snapshot version changes.
+    // serverNow changes on every poll; synchronize only when the snapshot
+    // version or the session changes. Versions restart per session, so
+    // sessionId must be a dependency for a switch to resync at all.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [query.data?.version, syncSnapshot]);
+  }, [sessionId, query.data?.version, syncSnapshot]);
 
   return query;
 }
