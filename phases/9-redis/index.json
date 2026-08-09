@@ -61,7 +61,9 @@
     {
       "step": 7,
       "name": "redis-deploy",
-      "status": "pending"
+      "status": "blocked",
+      "started_at": "2026-08-09T22:42:48+0900",
+      "blocked_reason": "Vercel CLI가 Not authorized를 반환함. 배포를 진행하려면 사용자가 vercel login으로 직접 인증해야 함"
     }
   ],
   "created_at": "2026-08-09T22:03:23+0900"
