@@ -4,6 +4,7 @@ import { describe, expect, it } from "vitest";
 import {
   conflictSeatIdsAtom,
   myHoldExpiresAtAtom,
+  seatMapReadOnlyAtom,
   seatStatusAtomFamily,
   seatVisualStateAtomFamily,
   selectedSeatIdsAtom,
@@ -147,6 +148,15 @@ describe("selectedSeatIdsAtom", () => {
 });
 
 describe("toggleSeatAtom", () => {
+  it("does nothing while the seat map is read-only", () => {
+    const store = createStore();
+    store.set(seatMapReadOnlyAtom, true);
+
+    store.set(toggleSeatAtom, "A-1-1");
+
+    expect(store.get(selectedSeatIdsAtom)).toEqual([]);
+  });
+
   it("adds a valid seat", () => {
     const store = createStore();
 
@@ -215,6 +225,22 @@ describe("toggleSeatAtom", () => {
 });
 
 describe("seatVisualStateAtomFamily", () => {
+  it("ignores local selection while the seat map is read-only", () => {
+    const store = createStore();
+    store.set(selectedSeatIdsAtom, ["A-1-1"]);
+    store.set(seatMapReadOnlyAtom, true);
+
+    expect(store.get(seatVisualStateAtomFamily("A-1-1"))).toBe("available");
+  });
+
+  it("renders an owned hold as held-other while the seat map is read-only", () => {
+    const store = createStore();
+    store.set(seatStatusAtomFamily("A-1-1"), { s: "held", mine: true });
+    store.set(seatMapReadOnlyAtom, true);
+
+    expect(store.get(seatVisualStateAtomFamily("A-1-1"))).toBe("held-other");
+  });
+
   it("returns available for a seat without server or local state", () => {
     const store = createStore();
 

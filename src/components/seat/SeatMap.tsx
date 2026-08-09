@@ -13,12 +13,14 @@ interface SeatMapProps {
   seats: readonly SeatType[];
   sessionId: string;
   sections: readonly string[];
+  readOnly?: boolean;
 }
 
 export function SeatMap({
   seats,
   sessionId,
   sections,
+  readOnly = false,
 }: SeatMapProps): JSX.Element {
   const box = getLayoutBox(sections);
 
@@ -44,7 +46,7 @@ export function SeatMap({
         })}
       </ZoomPanSvg>
 
-      <SelectionBar sessionId={sessionId} />
+      {!readOnly && <SelectionBar sessionId={sessionId} />}
     </div>
   );
 }

@@ -10,12 +10,18 @@ export const seatStatusAtomFamily = atomFamily((_seatId: string) =>
 
 export const selectedSeatIdsAtom = atom<string[]>([]);
 
+export const seatMapReadOnlyAtom = atom(false);
+
 // 충돌 좌석 ID 목록 (409 수신 후 일시적 표시용)
 export const conflictSeatIdsAtom = atom<string[]>([]);
 
 export const toggleSeatAtom = atom(
   null,
   (get, set, seatId: string) => {
+    if (get(seatMapReadOnlyAtom)) {
+      return;
+    }
+
     const selectedSeatIds = get(selectedSeatIdsAtom);
 
     if (selectedSeatIds.includes(seatId)) {
@@ -47,8 +53,9 @@ export const seatVisualStateAtomFamily = atomFamily((seatId: string) =>
   atom<SeatVisualState>((get) => {
     const status = get(seatStatusAtomFamily(seatId));
     const selectedSeatIds = get(selectedSeatIdsAtom);
+    const readOnly = get(seatMapReadOnlyAtom);
 
-    if (selectedSeatIds.includes(seatId)) {
+    if (!readOnly && selectedSeatIds.includes(seatId)) {
       return "selected";
     }
 
@@ -57,7 +64,7 @@ export const seatVisualStateAtomFamily = atomFamily((seatId: string) =>
     }
 
     if (status.s === "held") {
-      return status.mine ? "selected" : "held-other";
+      return !readOnly && status.mine ? "selected" : "held-other";
     }
 
     if (status.s === "sold") {
