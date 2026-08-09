@@ -13,18 +13,15 @@
     {
       "step": 1,
       "name": "zoom-pan-svg",
-      "status": "completed",
+      "status": "blocked",
       "started_at": "2026-08-09T19:29:37+0900",
-      "summary": "viewBox 조작 기반 줌/팬 SVG 래퍼를 추가. 줌 상·하한, 팬 범위 제한, 4px 임계값 기반 드래그/클릭 구분(Seat.tsx 무수정), 전체 보기 버튼 포함",
-      "completed_at": "2026-08-09T19:31:57+0900"
+      "blocked_reason": "npm run build가 이전 Step 0의 src/lib/seat-layout.ts:28에서 Section[]에 string 타입인 seat.section을 indexOf 인자로 전달하는 strict 타입 오류로 실패합니다. 이번 Step 1은 ZoomPanSvg.tsx만 새로 만들고 추가 파일을 수정하지 말라고 명시되어 있어, seat-layout.ts의 최소 타입 수정까지 허용되는지 확인이 필요합니다.",
+      "blocked_at": "2026-08-09T19:31:57+0900"
     },
     {
       "step": 2,
       "name": "seatmap-zoom-integrate",
-      "status": "completed",
-      "started_at": "2026-08-09T19:50:15+0900",
-      "summary": "seat-layout 좌표와 ZoomPanSvg를 실제 SeatMap에 연결하고 프리셋별 sections를 동일 분기로 전달; lint·234 tests·build 통과, 브라우저 육안 조작은 미실행",
-      "completed_at": "2026-08-09T19:51:49+0900"
+      "status": "pending"
     },
     {
       "step": 3,

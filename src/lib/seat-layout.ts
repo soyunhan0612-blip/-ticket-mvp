@@ -25,9 +25,7 @@ export function getSeatPosition(
   seat: Seat,
   sections: readonly Section[],
 ): { x: number; y: number } {
-  const sectionIndex = sections.findIndex(
-    (section) => section === seat.section,
-  );
+  const sectionIndex = sections.indexOf(seat.section);
   if (sectionIndex === -1) {
     throw new RangeError(`Seat section is not in the layout: ${seat.section}`);
   }
