@@ -53,7 +53,8 @@
     },
     {
       "dir": "10-release",
-      "status": "pending"
+      "status": "blocked",
+      "blocked_at": "2026-08-10T11:06:56+0900"
     }
   ]
 }
