@@ -1,0 +1,9 @@
+{
+  "project": "티켓 예매 MVP",
+  "phase": "10-release",
+  "steps": [
+    { "step": 0, "name": "auth-hardening", "status": "pending" },
+    { "step": 1, "name": "readme-rewrite", "status": "pending" },
+    { "step": 2, "name": "metrics-docs", "status": "pending" }
+  ]
+}
