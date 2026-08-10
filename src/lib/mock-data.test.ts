@@ -16,6 +16,18 @@ describe("mock shows", () => {
       expect(show.description).not.toMatch(/[<>]/);
     }
   });
+
+  it("points every show at a local seed poster", () => {
+    for (const show of MOCK_SHOWS) {
+      expect(show.posterUrl).toMatch(/^\/posters\/[a-z0-9-]+\.jpg$/);
+    }
+  });
+
+  it("gives each show its own poster so no image repeats", () => {
+    const posterUrls = MOCK_SHOWS.map((show) => show.posterUrl);
+
+    expect(new Set(posterUrls).size).toBe(MOCK_SHOWS.length);
+  });
 });
 
 describe("mock sessions", () => {

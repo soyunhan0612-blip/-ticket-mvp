@@ -6,54 +6,73 @@ import {
 } from "@/lib/seat-map";
 import type { Seat, Session, Show } from "@/types";
 
+/*
+ * posterUrl은 /posters/{slug}.jpg 형식의 로컬 썸네일(3:4)이다. 대응하는 히어로
+ * 와이드(16:9)는 lib/poster-image.ts가 경로에서 유도한다 — 두 파일이 늘 짝을
+ * 이뤄야 하므로 하나만 추가하지 않는다.
+ *
+ * 셀러 등록 포스터(/posters/*.svg)와는 별개 레인이다. lib/poster-preset.ts의
+ * 프리셋 목록에 이 사진들을 넣지 않는다 — 등록 폼의 선택지가 늘어나 점진적 공개
+ * 원칙(UX_PRINCIPLES.md)을 깬다.
+ *
+ * 사진 출처와 선정 기준은 public/posters/CREDITS.md 참조.
+ */
 export const MOCK_SHOWS: readonly Show[] = [
   {
     id: "show-01",
     title: "여름밤 시티 팝 콘서트",
     description:
       "도시의 야경과 어울리는 시티 팝 명곡을 밴드의 풍성한 라이브 사운드로 만나는 공연입니다.",
+    posterUrl: "/posters/city-pop.jpg",
   },
   {
     id: "show-02",
     title: "뮤지컬 별을 걷는 사람들",
     description:
       "서로 다른 꿈을 품은 청춘들이 작은 극장에서 만나 함께 무대를 완성해 가는 창작 뮤지컬입니다.",
+    posterUrl: "/posters/musical-stars.jpg",
   },
   {
     id: "show-03",
     title: "서울 심포니 마스터피스",
     description:
       "웅장한 관현악의 매력을 한자리에서 느낄 수 있도록 시대를 대표하는 교향곡을 선보입니다.",
+    posterUrl: "/posters/symphony.jpg",
   },
   {
     id: "show-04",
     title: "오늘의 재즈 쿼텟",
     description:
       "네 명의 연주자가 섬세한 호흡과 자유로운 즉흥 연주로 완성하는 친밀한 재즈 무대입니다.",
+    posterUrl: "/posters/jazz.jpg",
   },
   {
     id: "show-05",
     title: "연극 마지막 편지",
     description:
       "오래된 편지 한 통을 계기로 다시 마주한 가족의 기억과 화해를 담담하게 그린 연극입니다.",
+    posterUrl: "/posters/letter.jpg",
   },
   {
     id: "show-06",
     title: "우리 소리 한마당",
     description:
       "판소리와 사물놀이의 힘찬 울림을 현대적인 무대 구성으로 풀어낸 전통 예술 공연입니다.",
+    posterUrl: "/posters/gugak.jpg",
   },
   {
     id: "show-07",
     title: "컨템포러리 댄스 흐름",
     description:
       "움직임과 빛이 만들어 내는 변화에 집중하며 몸의 언어로 관계와 시간을 탐구하는 무용 공연입니다.",
+    posterUrl: "/posters/dance.jpg",
   },
   {
     id: "show-08",
     title: "인디 밴드 라이브 스테이지",
     description:
       "개성 있는 세 팀의 인디 밴드가 선명한 기타 사운드와 새로운 노래를 들려주는 합동 공연입니다.",
+    posterUrl: "/posters/indie.jpg",
   },
 ];
 
