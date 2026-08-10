@@ -1,7 +1,12 @@
 import { describe, expect, it } from "vitest";
 
 import { isValidSeatId, TOTAL_SEATS } from "./seat-map";
-import { generateSeats, MOCK_SESSIONS, MOCK_SHOWS } from "./mock-data";
+import {
+  compareShowOrder,
+  generateSeats,
+  MOCK_SESSIONS,
+  MOCK_SHOWS,
+} from "./mock-data";
 
 describe("mock shows", () => {
   it("contains exactly eight shows with unique IDs", () => {
@@ -27,6 +32,39 @@ describe("mock shows", () => {
     const posterUrls = MOCK_SHOWS.map((show) => show.posterUrl);
 
     expect(new Set(posterUrls).size).toBe(MOCK_SHOWS.length);
+  });
+});
+
+describe("compareShowOrder", () => {
+  it("keeps seeded shows in their authored order", () => {
+    const ids = [...MOCK_SHOWS].reverse().sort(compareShowOrder).map((show) => show.id);
+
+    expect(ids).toEqual(MOCK_SHOWS.map((show) => show.id));
+  });
+
+  it("puts seller-created shows after every seeded show", () => {
+    // 셀러 공연 ID는 UUID다. 단순 문자열 정렬이면 UUID가 "show-"보다 앞서서
+    // 임의 등록물이 랜딩 카드 세 자리를 통째로 차지한다.
+    const seller = {
+      id: "a1b2c3d4-0000-4000-8000-000000000000",
+      title: "셀러 공연",
+      description: "설명",
+    };
+
+    const ids = [seller, ...MOCK_SHOWS].sort(compareShowOrder).map((show) => show.id);
+
+    expect(ids.at(-1)).toBe(seller.id);
+    expect(ids[0]).toBe("show-01");
+  });
+
+  it("orders seller-created shows among themselves by ID", () => {
+    const first = { id: "aaaa", title: "A", description: "설명" };
+    const second = { id: "bbbb", title: "B", description: "설명" };
+
+    expect([second, first].sort(compareShowOrder).map((show) => show.id)).toEqual([
+      "aaaa",
+      "bbbb",
+    ]);
   });
 });
 

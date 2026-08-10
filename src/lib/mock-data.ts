@@ -76,6 +76,30 @@ export const MOCK_SHOWS: readonly Show[] = [
   },
 ];
 
+const SEED_SHOW_ORDER = new Map(
+  MOCK_SHOWS.map((show, index) => [show.id, index]),
+);
+
+/**
+ * 공연 목록의 표시 순서를 정한다. 시드 공연이 작성 순서대로 먼저 오고,
+ * 셀러가 등록한 공연이 그 뒤에 ID 순으로 붙는다.
+ *
+ * Redis `hgetall`은 필드 순서를 보장하지 않으므로 호출자가 정렬해야 한다.
+ * 단순 문자열 정렬로는 부족하다 — 셀러 공연 ID는 UUID이고 소문자 16진수로
+ * 시작해 "show-"보다 앞서므로, 임의 등록물이 랜딩 카드 세 자리를 통째로
+ * 차지하게 된다.
+ */
+export function compareShowOrder(a: Show, b: Show): number {
+  const aSeed = SEED_SHOW_ORDER.get(a.id);
+  const bSeed = SEED_SHOW_ORDER.get(b.id);
+
+  if (aSeed !== undefined && bSeed !== undefined) return aSeed - bSeed;
+  if (aSeed !== undefined) return -1;
+  if (bSeed !== undefined) return 1;
+
+  return a.id.localeCompare(b.id);
+}
+
 export const MOCK_SESSIONS: readonly Session[] = [
   { id: "session-01", showId: "show-01", startsAt: "2026-09-04T10:30:00.000Z" },
   { id: "session-02", showId: "show-01", startsAt: "2026-09-05T09:00:00.000Z" },

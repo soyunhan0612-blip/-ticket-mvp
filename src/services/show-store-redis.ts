@@ -1,4 +1,4 @@
-import { MOCK_SESSIONS, MOCK_SHOWS } from "@/lib/mock-data";
+import { compareShowOrder, MOCK_SESSIONS, MOCK_SHOWS } from "@/lib/mock-data";
 import { generateSessionsForShow } from "@/lib/seat-preset";
 import { createShowInputSchema } from "@/lib/show-validation";
 import type { Session, Show } from "@/types";
@@ -54,7 +54,16 @@ export function createShowStoreRedis(): ShowStore {
     async list() {
       await ensureSeeded();
       const values = (await redis.hgetall<Record<string, unknown>>(SHOWS_KEY)) ?? {};
-      return Object.values(values).map((value) => parseValue<Show>(value));
+
+      /*
+       * hgetall은 해시 필드 순서를 보장하지 않는다. 정렬하지 않으면 랜딩
+       * 히어로와 카드에 노출되는 공연이 배포마다 달라져, 마케팅 표면의
+       * 첫인상이 저장소 구현에 흔들린다. compareShowOrder가 메모리 스토어와
+       * 같은 순서(시드 먼저, 셀러 등록물은 뒤)를 재현한다.
+       */
+      return Object.values(values)
+        .map((value) => parseValue<Show>(value))
+        .sort(compareShowOrder);
     },
 
     async get(id) {
