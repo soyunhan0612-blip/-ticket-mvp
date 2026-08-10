@@ -1,4 +1,4 @@
-import { existsSync } from "node:fs";
+import { existsSync, statSync } from "node:fs";
 import { join } from "node:path";
 
 import { describe, expect, it } from "vitest";
@@ -98,6 +98,30 @@ describe("seed poster assets", () => {
 
       expect(heroUrl).not.toBeNull();
       expect(existsSync(join(publicDir, heroUrl as string))).toBe(true);
+    }
+  });
+
+  /*
+   * docs/UI_GUIDE.md "포스터 이미지"의 파일당 상한을 강제한다. 존재 여부만
+   * 확인하면 상한이 문서에만 남아, 자산을 추가하는 사람이 실효 없는 값으로
+   * 취급하고 초과가 누적된다. 히어로는 랜딩 LCP를 직접 좌우한다.
+   */
+  const THUMBNAIL_LIMIT_BYTES = 150 * 1024;
+  const HERO_LIMIT_BYTES = 220 * 1024;
+
+  it("keeps every thumbnail within the documented budget", () => {
+    for (const show of MOCK_SHOWS) {
+      const path = join(publicDir, show.posterUrl as string);
+
+      expect(statSync(path).size).toBeLessThanOrEqual(THUMBNAIL_LIMIT_BYTES);
+    }
+  });
+
+  it("keeps every hero image within the documented budget", () => {
+    for (const show of MOCK_SHOWS) {
+      const path = join(publicDir, toHeroImageUrl(show.posterUrl) as string);
+
+      expect(statSync(path).size).toBeLessThanOrEqual(HERO_LIMIT_BYTES);
     }
   });
 });

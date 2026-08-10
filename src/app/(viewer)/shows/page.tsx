@@ -34,6 +34,8 @@ export default async function ShowsPage() {
                 <li key={show.id}>
                   {/* 그리드가 1/2/3열로 바뀌므로 sizes도 그에 맞춘다. */}
                   <ShowCard
+                    // 목록은 공연을 고르는 화면이라 랜딩보다 설명을 한 줄 더 준다.
+                    descriptionLines={4}
                     headingLevel={2}
                     show={show}
                     sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"

@@ -24,9 +24,28 @@ interface ShowCardProps {
    * 하나로 고정하면 한쪽에서 헤딩 레벨이 건너뛴다.
    */
   headingLevel: 2 | 3;
+  /**
+   * 설명을 몇 줄까지 보여줄지. 기본 3줄이고, 공연을 고르는 것이 유일한 목적인
+   * `/shows`만 4줄로 넓힌다 — 랜딩은 카드가 헤드라인의 보조라 더 짧아야 한다.
+   */
+  descriptionLines?: 3 | 4;
 }
 
-export function ShowCard({ show, sizes, headingLevel }: ShowCardProps) {
+/*
+ * Tailwind는 클래스 이름을 정적으로 스캔하므로 `line-clamp-${n}`으로 조립하면
+ * 빌드에서 누락된다. 허용값을 리터럴로 적어 둔다.
+ */
+const DESCRIPTION_CLAMP = {
+  3: "line-clamp-3",
+  4: "line-clamp-4",
+} as const;
+
+export function ShowCard({
+  show,
+  sizes,
+  headingLevel,
+  descriptionLines = 3,
+}: ShowCardProps) {
   const Heading = headingLevel === 2 ? "h2" : "h3";
 
   return (
@@ -76,7 +95,9 @@ export function ShowCard({ show, sizes, headingLevel }: ShowCardProps) {
         <Heading className="text-display-xs text-ink">{show.title}</Heading>
       )}
 
-      <p className="line-clamp-3 text-body-sm text-body-aa">
+      <p
+        className={`${DESCRIPTION_CLAMP[descriptionLines]} text-body-sm text-body-aa`}
+      >
         {show.description}
       </p>
     </Link>

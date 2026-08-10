@@ -62,6 +62,30 @@ describe("ShowCard", () => {
     expect(screen.getByRole("heading")).toHaveClass("line-clamp-2");
   });
 
+  it("clamps the description to three lines by default", () => {
+    renderCard();
+
+    expect(screen.getByText(SHOW.description)).toHaveClass("line-clamp-3");
+  });
+
+  it("lets a screen widen the description clamp", () => {
+    /*
+     * `/shows`는 공연을 고르는 것이 유일한 목적이라 랜딩보다 설명을 한 줄 더
+     * 보여 준다. 공유 컴포넌트로 묶으면서 이 차이가 조용히 사라졌던 자리다 —
+     * sizes·headingLevel과 같은 화면별 prop으로 되돌린다.
+     */
+    render(
+      <ShowCard
+        descriptionLines={4}
+        headingLevel={2}
+        show={SHOW}
+        sizes={SIZES}
+      />,
+    );
+
+    expect(screen.getByText(SHOW.description)).toHaveClass("line-clamp-4");
+  });
+
   it("keeps the poster alt empty because the title sits beside it", () => {
     const { container } = renderCard();
 
