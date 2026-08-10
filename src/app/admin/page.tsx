@@ -6,6 +6,7 @@ import { useMemo, useState } from "react";
 
 import { AdminSeatMap } from "@/components/admin/AdminSeatMap";
 import { OccupancyStats } from "@/components/admin/OccupancyStats";
+import { Band } from "@/components/ui/Band";
 import { generateSeats } from "@/lib/mock-data";
 import { SECTIONS } from "@/lib/seat-map";
 import { generateSeatsForPreset, getPreset } from "@/lib/seat-preset";
@@ -19,6 +20,11 @@ interface ShowDetailResponse {
   show: Show;
   sessions: Session[];
 }
+
+/* dark 밴드용 select. TextInput의 라이트 필드 스타일과 극성만 다르다 */
+const ADMIN_LABEL_CLASS_NAMES = "block text-caption-upper uppercase text-on-dark";
+const ADMIN_SELECT_CLASS_NAMES =
+  "w-full rounded-card border border-hairline-on-dark bg-ink px-lg py-md text-body-sm text-on-dark transition-colors duration-150 focus-visible:border-on-dark focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-on-dark focus-visible:ring-offset-2 focus-visible:ring-offset-ink disabled:text-mute";
 
 async function fetchJson<T>(url: string, message: string): Promise<T> {
   const response = await fetch(url);
@@ -59,87 +65,88 @@ export default function AdminPage(): JSX.Element {
   const canShowDashboard = sessionId !== "" && selectedShow !== undefined;
 
   return (
-    <main className="min-h-screen bg-neutral-950 py-12 sm:py-16">
-      <div className="mx-auto w-full max-w-5xl space-y-8 px-4 sm:px-6 lg:px-8">
-        <header>
-          <h1 className="text-3xl font-semibold tracking-tight text-white sm:text-4xl">
-            실시간 점유 현황
-          </h1>
-          <p className="mt-3 text-sm leading-6 text-neutral-300">
-            공연과 회차를 선택해 좌석 상태를 확인하세요.
-          </p>
-        </header>
+    <main>
+      {/* 도구 화면이라 dark 밴드 (docs/UI_GUIDE.md 밴드 정책) */}
+      <Band fill tone="dark" width="tool">
+        <div className="space-y-2xl">
+          <header className="space-y-sm">
+            <h1 className="text-display-sm">실시간 점유 현황</h1>
+            <p className="text-body-sm text-mute">
+              공연과 회차를 선택해 좌석 상태를 확인하세요.
+            </p>
+          </header>
 
-        <div className="grid gap-4 sm:grid-cols-2">
-          <div className="space-y-2">
-            <label
-              className="block text-sm font-medium text-neutral-300"
-              htmlFor="admin-show"
-            >
-              공연
-            </label>
-            <select
-              className="w-full rounded-md border border-neutral-700 bg-neutral-950 px-4 py-3 text-neutral-100 focus-visible:border-neutral-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70 disabled:border-neutral-800 disabled:text-neutral-500"
-              disabled={showsQuery.isLoading || showsQuery.isError}
-              id="admin-show"
-              onChange={(event) => {
-                setShowId(event.target.value);
-                setSessionId("");
-              }}
-              value={showId}
-            >
-              <option value="">공연 선택</option>
-              {showsQuery.data?.shows.map((show) => (
-                <option key={show.id} value={show.id}>
-                  {show.title}
-                </option>
-              ))}
-            </select>
+          <div className="grid gap-lg sm:grid-cols-2">
+            <div className="space-y-xs">
+              <label className={ADMIN_LABEL_CLASS_NAMES} htmlFor="admin-show">
+                공연
+              </label>
+              <select
+                className={ADMIN_SELECT_CLASS_NAMES}
+                disabled={showsQuery.isLoading || showsQuery.isError}
+                id="admin-show"
+                onChange={(event) => {
+                  setShowId(event.target.value);
+                  setSessionId("");
+                }}
+                value={showId}
+              >
+                <option value="">공연 선택</option>
+                {showsQuery.data?.shows.map((show) => (
+                  <option key={show.id} value={show.id}>
+                    {show.title}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="space-y-xs">
+              <label
+                className={ADMIN_LABEL_CLASS_NAMES}
+                htmlFor="admin-session"
+              >
+                회차
+              </label>
+              <select
+                className={ADMIN_SELECT_CLASS_NAMES}
+                disabled={!detailQuery.data || detailQuery.isLoading}
+                id="admin-session"
+                onChange={(event) => setSessionId(event.target.value)}
+                value={sessionId}
+              >
+                <option value="">회차 선택</option>
+                {detailQuery.data?.sessions.map((session) => (
+                  <option key={session.id} value={session.id}>
+                    {new Date(session.startsAt).toLocaleString("ko-KR", {
+                      timeZone: "Asia/Seoul",
+                    })}
+                  </option>
+                ))}
+              </select>
+            </div>
           </div>
 
-          <div className="space-y-2">
-            <label
-              className="block text-sm font-medium text-neutral-300"
-              htmlFor="admin-session"
+          {(showsQuery.isError || detailQuery.isError) && (
+            <p
+              className="rounded-card bg-primary px-lg py-md text-body-sm text-on-primary"
+              role="alert"
             >
-              회차
-            </label>
-            <select
-              className="w-full rounded-md border border-neutral-700 bg-neutral-950 px-4 py-3 text-neutral-100 focus-visible:border-neutral-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70 disabled:border-neutral-800 disabled:text-neutral-500"
-              disabled={!detailQuery.data || detailQuery.isLoading}
-              id="admin-session"
-              onChange={(event) => setSessionId(event.target.value)}
-              value={sessionId}
-            >
-              <option value="">회차 선택</option>
-              {detailQuery.data?.sessions.map((session) => (
-                <option key={session.id} value={session.id}>
-                  {new Date(session.startsAt).toLocaleString("ko-KR", {
-                    timeZone: "Asia/Seoul",
-                  })}
-                </option>
-              ))}
-            </select>
-          </div>
+              공연 또는 회차 목록을 불러오지 못했습니다.
+            </p>
+          )}
+
+          {canShowDashboard && (
+            <div className="space-y-2xl">
+              <OccupancyStats sessionId={sessionId} />
+              <AdminSeatMap
+                seats={seats}
+                sections={sections}
+                sessionId={sessionId}
+              />
+            </div>
+          )}
         </div>
-
-        {(showsQuery.isError || detailQuery.isError) && (
-          <p className="text-sm leading-6 text-red-500">
-            공연 또는 회차 목록을 불러오지 못했습니다.
-          </p>
-        )}
-
-        {canShowDashboard && (
-          <div className="space-y-8">
-            <OccupancyStats sessionId={sessionId} />
-            <AdminSeatMap
-              seats={seats}
-              sections={sections}
-              sessionId={sessionId}
-            />
-          </div>
-        )}
-      </div>
+      </Band>
     </main>
   );
 }

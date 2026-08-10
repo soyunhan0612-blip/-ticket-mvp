@@ -5,6 +5,8 @@ import Link from "next/link";
 import type { JSX } from "react";
 
 import { myHeldSeatIdsAtom, myHoldExpiresAtAtom } from "@/atoms/seat";
+import { Button } from "@/components/ui/Button";
+import { Card } from "@/components/ui/Card";
 import { useCreateReservation } from "@/hooks/use-create-reservation";
 
 interface ConfirmBarProps {
@@ -21,16 +23,14 @@ export function ConfirmBar({ sessionId }: ConfirmBarProps): JSX.Element | null {
   }
 
   return (
-    <div className="rounded-lg border border-neutral-800 bg-neutral-900 p-6">
-      <div className="flex flex-wrap items-start justify-between gap-4">
-        <div className="space-y-2">
-          <p className="text-sm leading-6 text-neutral-300">
-            선택 좌석: {heldSeatIds.join(", ")}
-          </p>
+    <Card tone="dark">
+      <div className="flex flex-wrap items-start justify-between gap-lg">
+        <div className="space-y-sm">
+          <p className="text-body-sm">선택 좌석: {heldSeatIds.join(", ")}</p>
           {mutation.isSuccess && (
-            <p className="text-sm leading-6 text-neutral-300">
+            <p className="text-body-sm">
               <Link
-                className="text-white underline underline-offset-4 hover:text-neutral-200"
+                className="rounded-sm underline underline-offset-4 transition-colors duration-150 hover:text-mute focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-on-dark focus-visible:ring-offset-2 focus-visible:ring-offset-ink"
                 href="/reservations"
               >
                 예매 내역 보기
@@ -39,15 +39,18 @@ export function ConfirmBar({ sessionId }: ConfirmBarProps): JSX.Element | null {
           )}
         </div>
 
-        <button
-          className="rounded-md bg-white px-4 py-2.5 text-sm font-medium text-neutral-950 hover:bg-neutral-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-neutral-950 disabled:bg-neutral-700 disabled:text-neutral-400"
+        <Button
           disabled={mutation.isPending || mutation.isSuccess}
           onClick={() => mutation.mutate()}
-          type="button"
+          size="sm"
         >
-          {mutation.isPending ? "처리 중..." : mutation.isSuccess ? "예매 완료" : "예매 확정"}
-        </button>
+          {mutation.isPending
+            ? "처리 중..."
+            : mutation.isSuccess
+              ? "예매 완료"
+              : "예매 확정"}
+        </Button>
       </div>
-    </div>
+    </Card>
   );
 }

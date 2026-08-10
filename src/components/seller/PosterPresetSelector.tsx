@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 
+import { cardClassName } from "@/components/ui/Card";
 import { POSTER_PRESETS } from "@/lib/poster-preset";
 
 interface PosterPresetSelectorProps {
@@ -14,19 +15,19 @@ export function PosterPresetSelector({
   onChange,
 }: PosterPresetSelectorProps) {
   return (
-    <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+    <div className="grid grid-cols-1 gap-lg sm:grid-cols-3">
       {POSTER_PRESETS.map((preset) => (
         <button
           key={preset.id}
           type="button"
-          className={`rounded-lg border p-4 text-left transition-colors duration-150 ${
-            value === preset.id
-              ? "border-white bg-neutral-900"
-              : "border-neutral-800 bg-neutral-900 hover:border-neutral-700"
-          }`}
+          aria-pressed={value === preset.id}
+          className={cardClassName({
+            interactive: true,
+            className: `p-lg text-left ${value === preset.id ? "border-primary ring-1 ring-primary" : ""}`,
+          })}
           onClick={() => onChange(preset.id)}
         >
-          <div className="relative mx-auto aspect-[3/4] w-full max-w-[120px]">
+          <div className="relative mx-auto aspect-[3/4] w-full max-w-[120px] overflow-hidden rounded-card">
             <Image
               src={preset.url}
               alt={preset.label}
@@ -34,7 +35,7 @@ export function PosterPresetSelector({
               className="object-contain"
             />
           </div>
-          <p className="mt-3 text-center text-sm font-medium text-white">
+          <p className="mt-md text-center text-body-sm font-bold text-ink">
             {preset.label}
           </p>
         </button>

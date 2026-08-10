@@ -10,6 +10,7 @@ import {
   useState,
 } from "react";
 
+import { Button } from "@/components/ui/Button";
 import {
   getInitialViewBox,
   type LayoutBox,
@@ -197,14 +198,10 @@ export function ZoomPanSvg({
   }
 
   return (
-    <div className="space-y-4">
-      <button
-        className="rounded-sm px-1 py-1 text-sm font-medium text-neutral-400 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-neutral-950 disabled:text-neutral-600"
-        onClick={showFullLayout}
-        type="button"
-      >
+    <div className="space-y-lg">
+      <Button onClick={showFullLayout} size="sm" variant="outline-on-dark">
         전체 보기
-      </button>
+      </Button>
 
       <svg
         className={className}

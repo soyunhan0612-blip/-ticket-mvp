@@ -2,6 +2,8 @@
 
 import { useCallback, useState } from "react";
 
+import { Button } from "@/components/ui/Button";
+
 interface AiDescriptionGeneratorProps {
   title: string;
   genre: string;
@@ -62,37 +64,37 @@ export function AiDescriptionGenerator({
   }, [title, genre]);
 
   return (
-    <div className="space-y-3">
-      <button
-        type="button"
+    <div className="space-y-md">
+      <Button
         disabled={isGenerating}
         onClick={generate}
-        className="rounded-sm px-1 py-1 text-sm font-medium text-neutral-400 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-neutral-950 disabled:text-neutral-600"
+        size="sm"
+        variant="outline-dark"
       >
         {isGenerating ? "생성 중..." : "AI로 설명 생성"}
-      </button>
+      </Button>
 
       {error && (
-        <p className="text-sm text-red-500" role="alert">
+        <p className="text-body-sm text-primary" role="alert">
           {error}
         </p>
       )}
 
       {generated && (
-        <div className="space-y-3">
-          <div className="rounded-lg border border-neutral-800 bg-neutral-900 p-4">
-            <p className="whitespace-pre-wrap text-sm leading-6 text-neutral-300">
+        <div className="space-y-md">
+          <div className="rounded-card border border-hairline bg-canvas-soft p-lg">
+            {/* plain text + whitespace-pre-wrap. dangerouslySetInnerHTML 금지 (저장형 XSS) */}
+            <p className="whitespace-pre-wrap text-body-sm text-ink">
               {generated}
             </p>
           </div>
-          <button
-            type="button"
+          <Button
             disabled={isGenerating}
             onClick={() => onApply(generated)}
-            className="rounded-md bg-white px-4 py-2.5 text-sm font-medium text-neutral-950 hover:bg-neutral-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-neutral-950 disabled:bg-neutral-700 disabled:text-neutral-400"
+            size="sm"
           >
             이 설명 사용
-          </button>
+          </Button>
         </div>
       )}
     </div>

@@ -2,6 +2,9 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
+import { Band } from "@/components/ui/Band";
+import { buttonClassName } from "@/components/ui/Button";
+import { cardClassName } from "@/components/ui/Card";
 import { getShowStore } from "@/services";
 
 interface ShowDetailPageProps {
@@ -55,50 +58,59 @@ export default async function ShowDetailPage({ params }: ShowDetailPageProps) {
   const { show, sessions } = result;
 
   return (
-    <main className="min-h-screen bg-neutral-950 py-12 sm:py-16">
-      <div className="mx-auto w-full max-w-5xl space-y-8 px-4 sm:px-6 lg:px-8">
-        <header>
-          <h1 className="text-3xl font-semibold tracking-tight text-white sm:text-4xl">
-            {show.title}
-          </h1>
-          <p className="mt-4 max-w-3xl whitespace-pre-wrap text-sm leading-6 text-neutral-300">
-            {show.description}
-          </p>
-        </header>
+    <main>
+      <Band fill tone="light" width="tool">
+        <div className="space-y-3xl">
+          <header className="space-y-lg">
+            <h1 className="text-display-sm">{show.title}</h1>
+            {/* plain text + whitespace-pre-wrap. 마크다운·HTML 렌더 금지 (저장형 XSS) */}
+            <p className="max-w-3xl whitespace-pre-wrap text-body-sm text-body-aa">
+              {show.description}
+            </p>
+          </header>
 
-        <section aria-labelledby="sessions-heading">
-          <h2
-            className="text-lg font-semibold text-white"
-            id="sessions-heading"
-          >
-            회차 선택
-          </h2>
-          <p className="mt-2 text-sm leading-6 text-neutral-400">
-            관람할 회차를 선택해 좌석을 확인하세요.
-          </p>
+          <section aria-labelledby="sessions-heading" className="space-y-lg">
+            <div className="space-y-xs">
+              <h2 className="text-display-xs" id="sessions-heading">
+                회차 선택
+              </h2>
+              <p className="text-body-sm text-body-aa">
+                관람할 회차를 선택해 좌석을 확인하세요.
+              </p>
+            </div>
 
-          <ul className="mt-4 space-y-4">
-            {sessions.map((session) => (
-              <li key={session.id}>
-                <Link
-                  className="flex items-center justify-between gap-4 rounded-lg border border-neutral-800 bg-neutral-900 p-6 transition-colors duration-150 hover:border-neutral-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-neutral-950"
-                  href={`/sessions/${session.id}/seats`}
-                >
-                  <time
-                    className="text-sm leading-6 text-neutral-300"
-                    dateTime={session.startsAt}
+            <ul className="space-y-lg">
+              {sessions.map((session) => (
+                <li key={session.id}>
+                  <Link
+                    className={cardClassName({
+                      interactive: true,
+                      className:
+                        "flex flex-wrap items-center justify-between gap-lg",
+                    })}
+                    href={`/sessions/${session.id}/seats`}
                   >
-                    {formatSessionTime(session.startsAt)}
-                  </time>
-                  <span className="shrink-0 text-sm font-medium text-white">
-                    좌석 선택
-                  </span>
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </section>
-      </div>
+                    <time
+                      className="text-body-sm text-ink"
+                      dateTime={session.startsAt}
+                    >
+                      {formatSessionTime(session.startsAt)}
+                    </time>
+                    <span
+                      className={buttonClassName({
+                        variant: "primary",
+                        size: "sm",
+                      })}
+                    >
+                      좌석 선택
+                    </span>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </section>
+        </div>
+      </Band>
     </main>
   );
 }

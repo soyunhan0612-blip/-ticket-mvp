@@ -7,6 +7,7 @@ import { cookies } from "next/headers";
 import { notFound } from "next/navigation";
 
 import { SeatMapContainer } from "@/components/seat/SeatMapContainer";
+import { Band } from "@/components/ui/Band";
 import { SNAPSHOT_QUERY_KEY } from "@/hooks/use-seat-snapshot";
 import { USER_ID_COOKIE_NAME } from "@/lib/cookie";
 import { SECTIONS } from "@/lib/seat-map";
@@ -50,27 +51,30 @@ export default async function SeatSelectionPage(props: PageProps) {
   });
 
   return (
-    <main className="mx-auto w-full max-w-5xl space-y-8 px-4 py-12 sm:px-6 lg:px-8">
-      <header>
-        <h1 className="text-3xl font-semibold tracking-tight text-white sm:text-4xl">
-          {show.title}
-        </h1>
-        <time
-          className="mt-3 block text-sm leading-6 text-neutral-300"
-          dateTime={session.startsAt}
-        >
-          {sessionTime}
-        </time>
-        <p className="mt-1 text-sm text-neutral-400">{session.id}</p>
-      </header>
+    <main>
+      {/*
+       * 도구 화면이라 dark 밴드에 둔다 (docs/UI_GUIDE.md 밴드 정책).
+       * 이전에는 배경 클래스가 아예 없어 흰 배경에 흰 글씨로 렌더됐다.
+       */}
+      <Band fill tone="dark" width="tool">
+        <div className="space-y-3xl">
+          <header className="space-y-xs">
+            <h1 className="text-display-sm">{show.title}</h1>
+            <time className="block text-body-sm" dateTime={session.startsAt}>
+              {sessionTime}
+            </time>
+            <p className="text-caption text-mute">{session.id}</p>
+          </header>
 
-      <HydrationBoundary state={dehydrate(queryClient)}>
-        <SeatMapContainer
-          seats={seats}
-          sections={sections}
-          sessionId={id}
-        />
-      </HydrationBoundary>
+          <HydrationBoundary state={dehydrate(queryClient)}>
+            <SeatMapContainer
+              seats={seats}
+              sections={sections}
+              sessionId={id}
+            />
+          </HydrationBoundary>
+        </div>
+      </Band>
     </main>
   );
 }

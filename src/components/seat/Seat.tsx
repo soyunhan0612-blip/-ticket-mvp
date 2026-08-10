@@ -16,11 +16,13 @@ interface SeatProps {
   y: number;
 }
 
+// 모노크롬 4단계. 값은 docs/UI_GUIDE.md 좌석 시각 규칙과 globals.css --seat-* 토큰.
+// ink-deep 캔버스 위에서 명도로만 구분한다 — 색을 추가하지 않는다.
 const STATE_CLASS_NAMES: Record<SeatVisualState, string> = {
-  available: "fill-neutral-500 cursor-pointer hover:fill-neutral-400",
-  selected: "fill-white cursor-pointer",
-  "held-other": "fill-neutral-700 cursor-not-allowed",
-  sold: "fill-neutral-800 cursor-not-allowed",
+  available: "fill-seat-available cursor-pointer hover:fill-seat-available-hover",
+  selected: "fill-seat-mine cursor-pointer",
+  "held-other": "fill-seat-other cursor-not-allowed",
+  sold: "fill-seat-sold cursor-not-allowed",
 };
 
 export const Seat = memo(function Seat({ seat, x, y }: SeatProps): JSX.Element {

@@ -6,6 +6,12 @@ import { AiDescriptionGenerator } from "@/components/seller/AiDescriptionGenerat
 import { PosterPresetSelector } from "@/components/seller/PosterPresetSelector";
 import { SeatPresetSelector } from "@/components/seller/SeatPresetSelector";
 import { Toast } from "@/components/toast/Toast";
+import { Button } from "@/components/ui/Button";
+import {
+  FIELD_CLASS_NAMES,
+  FIELD_LABEL_CLASS_NAMES,
+  TextInput,
+} from "@/components/ui/TextInput";
 import { useCreateShow } from "@/hooks/use-create-show";
 import { POSTER_PRESETS } from "@/lib/poster-preset";
 import type { SeatPresetId } from "@/lib/seat-preset";
@@ -63,50 +69,38 @@ export default function SellerNewPage() {
     !isPending;
 
   return (
-    <div className="mx-auto w-full max-w-5xl space-y-8 px-4 sm:px-6 lg:px-8">
-      <header>
-        <h1 className="text-3xl font-semibold tracking-tight text-white sm:text-4xl">
-          공연 등록
-        </h1>
-        <p className="mt-3 text-sm leading-6 text-neutral-300">
+    <div className="space-y-2xl">
+      <header className="space-y-sm">
+        <p className="text-caption-upper uppercase text-primary">셀러</p>
+        <h1 className="text-display-sm">공연 등록</h1>
+        <p className="text-body-sm text-body-aa">
           새 공연을 등록하고 회차를 설정하세요.
         </p>
       </header>
 
-      <form onSubmit={handleSubmit} className="space-y-8">
-        <div className="space-y-2">
-          <label
-            htmlFor="title"
-            className="block text-sm font-medium text-neutral-300"
-          >
-            공연명
-          </label>
-          <input
-            id="title"
-            type="text"
-            maxLength={100}
-            placeholder="공연 이름을 입력하세요"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            className="w-full rounded-md border border-neutral-700 bg-neutral-950 px-4 py-3 text-neutral-100 placeholder:text-neutral-500 focus-visible:border-neutral-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70 disabled:border-neutral-800 disabled:text-neutral-500"
-          />
-        </div>
+      <form onSubmit={handleSubmit} className="space-y-2xl">
+        <TextInput
+          id="title"
+          label="공연명"
+          maxLength={100}
+          onChange={(e) => setTitle(e.target.value)}
+          placeholder="공연 이름을 입력하세요"
+          type="text"
+          value={title}
+        />
 
-        <div className="space-y-2">
-          <label
-            htmlFor="description"
-            className="block text-sm font-medium text-neutral-300"
-          >
+        <div className="space-y-xs">
+          <label className={FIELD_LABEL_CLASS_NAMES} htmlFor="description">
             공연 설명
           </label>
           <textarea
+            className={FIELD_CLASS_NAMES}
             id="description"
             maxLength={2000}
-            rows={5}
-            placeholder="공연 설명을 입력하세요"
-            value={description}
             onChange={(e) => setDescription(e.target.value)}
-            className="w-full rounded-md border border-neutral-700 bg-neutral-950 px-4 py-3 text-neutral-100 placeholder:text-neutral-500 focus-visible:border-neutral-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70 disabled:border-neutral-800 disabled:text-neutral-500"
+            placeholder="공연 설명을 입력하세요"
+            rows={5}
+            value={description}
           />
           <AiDescriptionGenerator
             title={title}
@@ -115,66 +109,53 @@ export default function SellerNewPage() {
           />
         </div>
 
-        <div className="space-y-2">
-          <label className="block text-sm font-medium text-neutral-300">
-            좌석 프리셋
-          </label>
+        <div className="space-y-sm">
+          <p className={FIELD_LABEL_CLASS_NAMES}>좌석 프리셋</p>
           <SeatPresetSelector value={presetId} onChange={setPresetId} />
         </div>
 
-        <div className="space-y-2">
-          <label className="block text-sm font-medium text-neutral-300">
-            포스터
-          </label>
+        <div className="space-y-sm">
+          <p className={FIELD_LABEL_CLASS_NAMES}>포스터</p>
           <PosterPresetSelector
             value={posterPresetId}
             onChange={setPosterPresetId}
           />
         </div>
 
-        <div className="space-y-2">
-          <label className="block text-sm font-medium text-neutral-300">
-            회차
-          </label>
-          <div className="space-y-3">
+        <div className="space-y-sm">
+          <p className={FIELD_LABEL_CLASS_NAMES}>회차</p>
+          <div className="space-y-md">
             {sessionDates.map((date, index) => (
-              <div key={index} className="flex items-center gap-3">
+              <div key={index} className="flex items-center gap-md">
                 <input
+                  aria-label={`회차 ${index + 1} 일시`}
+                  className={FIELD_CLASS_NAMES}
+                  onChange={(e) => updateSession(index, e.target.value)}
                   type="datetime-local"
                   value={date}
-                  onChange={(e) => updateSession(index, e.target.value)}
-                  className="flex-1 rounded-md border border-neutral-700 bg-neutral-950 px-4 py-3 text-neutral-100 placeholder:text-neutral-500 focus-visible:border-neutral-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70 disabled:border-neutral-800 disabled:text-neutral-500"
                 />
                 {sessionDates.length > 1 && (
-                  <button
-                    type="button"
+                  <Button
                     onClick={() => removeSession(index)}
-                    className="rounded-sm px-1 py-1 text-sm font-medium text-neutral-400 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-neutral-950 disabled:text-neutral-600"
+                    size="sm"
+                    variant="text"
                   >
                     삭제
-                  </button>
+                  </Button>
                 )}
               </div>
             ))}
           </div>
           {sessionDates.length < 10 && (
-            <button
-              type="button"
-              onClick={addSession}
-              className="rounded-sm px-1 py-1 text-sm font-medium text-neutral-400 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-neutral-950 disabled:text-neutral-600"
-            >
+            <Button onClick={addSession} size="sm" variant="outline-dark">
               + 회차 추가
-            </button>
+            </Button>
           )}
         </div>
 
-        <button
-          type="submit"
-          disabled={!canSubmit}
-          className="rounded-md bg-white px-4 py-2.5 text-sm font-medium text-neutral-950 hover:bg-neutral-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-neutral-950 disabled:bg-neutral-700 disabled:text-neutral-400"
-        >
+        <Button disabled={!canSubmit} type="submit">
           {isPending ? "등록 중..." : "공연 등록"}
-        </button>
+        </Button>
       </form>
       <Toast />
     </div>

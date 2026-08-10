@@ -42,8 +42,12 @@ export function HoldTimer(): JSX.Element | null {
   const seconds = String(remainingSeconds % 60).padStart(2, "0");
 
   return (
-    <div className="mt-4 rounded-lg bg-neutral-900 p-4 text-sm text-neutral-300">
-      남은 시간 <strong className="font-semibold text-white">{minutes}:{seconds}</strong>
+    <div className="rounded-card border border-hairline-on-dark bg-ink px-lg py-md text-body-sm text-on-dark">
+      {/* 어두운 밴드에서 primary red는 대비가 3.08:1이라 본문에 쓰지 않는다 (UI_GUIDE 토큰 편차) */}
+      남은 시간{" "}
+      <strong className="font-bold">
+        {minutes}:{seconds}
+      </strong>
     </div>
   );
 }

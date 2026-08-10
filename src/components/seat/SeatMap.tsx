@@ -28,12 +28,16 @@ export function SeatMap({
 
   return (
     <div className="space-y-8">
+      {/*
+       * 좌석 캔버스만 ink보다 어두운 ink-deep을 쓴다.
+       * sold(#262626)를 ink(#25282b) 위에 올리면 배경과 구분되지 않기 때문이다.
+       */}
       <ZoomPanSvg
         box={box}
-        className="h-auto w-full max-w-4xl bg-neutral-950"
+        className="h-auto w-full max-w-4xl rounded-card bg-ink-deep"
       >
         <text
-          className="fill-neutral-400 text-sm"
+          className="fill-mute text-caption"
           textAnchor="middle"
           x={box.width / 2}
           y={24}
