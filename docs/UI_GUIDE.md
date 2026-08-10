@@ -174,6 +174,10 @@ DS는 그림자를 쓰지 않는다. **깊이는 표면 극성 반전(dark ↔ l
 - 파일당 상한: 썸네일 150KB, 히어로 220KB. Unsplash URL의 `q` 파라미터로 맞춘다
 - 카드에서는 `object-cover`를 쓴다. 셀러 프리셋 선택 UI만 `object-contain`이다 —
   거기서는 프리셋 전체를 보여줘야 하고 SVG가 이미 3:4라 레터박스가 생기지 않는다
+- 히어로에 오르는 공연은 `ShowStore.list()` 순서의 앞 5개다. 이 순서는
+  `lib/mock-data.ts`의 `compareShowOrder`가 고정한다 — 시드가 작성 순서대로
+  먼저, 셀러 등록물은 뒤. 정렬을 빼면 Redis `hgetall`이 순서를 보장하지 않아
+  랜딩에 보이는 공연이 배포마다 달라진다
 
 ## 아이콘
 
