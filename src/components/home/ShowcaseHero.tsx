@@ -3,6 +3,7 @@
 import Autoplay from "embla-carousel-autoplay";
 import useEmblaCarousel from "embla-carousel-react";
 import Image from "next/image";
+import Link from "next/link";
 import { useEffect, useState, type ReactNode } from "react";
 
 import { Band } from "@/components/ui/Band";
@@ -104,6 +105,11 @@ export function ShowcaseHero({ slides, children }: ShowcaseHeroProps) {
   }, [emblaApi, reducedMotion]);
 
   const hasSlides = slides.length > 0;
+  /*
+   * reInit으로 슬라이드 수가 줄어드는 순간 selectedIndex가 범위를 넘을 수 있다.
+   * hasSlides 가드 안에서만 쓰므로 slides[0]은 항상 존재한다.
+   */
+  const currentSlide = slides[selectedIndex] ?? slides[0];
 
   return (
     <Band
@@ -150,6 +156,39 @@ export function ShowcaseHero({ slides, children }: ShowcaseHeroProps) {
 
       <div className="flex min-h-[420px] flex-col justify-end gap-2xl py-3xl">
         {children}
+
+        {hasSlides ? (
+          /*
+           * 배경이 5초마다 바뀌는데 무슨 공연인지 알 방법이 미리보기 버튼의
+           * alt뿐이었다. CTA 아래에 두는 이유는 헤드라인이 주인공이어야 하고
+           * (UX_PRINCIPLES), 아래 미리보기 줄과 같은 대상을 가리켜 근접성이
+           * 대응 관계를 설명해 주기 때문이다.
+           *
+           * aria-live를 붙이지 않는다. 5초마다 낭독되면 다른 콘텐츠를 덮는
+           * 소음이 된다. 공연 5개 전체의 접근 경로는 미리보기 버튼의 alt가,
+           * 상세 경로는 아래 카드 밴드가 이미 제공한다 — 알고 뺀 것이다.
+           *
+           * 전환에 페이드를 넣지 않는다. 캐러셀 예외가 허용하는 모션은 배경
+           * 이미지의 가로 슬라이드뿐이다 (UI_GUIDE).
+           */
+          <p className="text-body-md text-mute">
+            지금 보이는 공연{" "}
+            {/*
+             * pill CTA가 아니라 밑줄 텍스트다. 히어로 CTA는 2개까지이고,
+             * 형태가 다르면 그 계산에 들어가지 않는다. autoplay가
+             * stopOnMouseEnter라 마우스를 올리는 순간 롤링이 멈추므로
+             * 클릭 직전에 대상이 바뀌지 않는다. 키보드 포커스는 멈추지
+             * 않지만(embla-autoplay에 stopOnFocusIn이 없다) 5초 안에
+             * Enter를 누르는 흐름에서 실질 위험이 낮다.
+             */}
+            <Link
+              className="text-on-dark underline decoration-hairline-on-dark underline-offset-4 transition-colors duration-150 hover:decoration-on-dark focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-on-dark focus-visible:ring-offset-2 focus-visible:ring-offset-ink"
+              href={`/shows/${currentSlide.id}`}
+            >
+              {currentSlide.title}
+            </Link>
+          </p>
+        ) : null}
 
         {hasSlides ? (
           <div

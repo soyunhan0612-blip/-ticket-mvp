@@ -154,6 +154,42 @@ describe("ShowcaseHero", () => {
       screen.getByRole("heading", { name: "보고 싶은 자리, 지금 고르세요." }),
     ).toBeInTheDocument();
     expect(screen.queryAllByRole("button")).toHaveLength(0);
+    expect(screen.queryAllByRole("link")).toHaveLength(0);
+  });
+
+  it("names the show behind the current slide and links to it", () => {
+    renderHero();
+
+    expect(
+      screen.getByRole("link", { name: "여름밤 시티 팝 콘서트" }),
+    ).toHaveAttribute("href", "/shows/show-01");
+  });
+
+  it("moves the name and its link along with the background", () => {
+    renderHero();
+
+    selectedScrollSnap.mockReturnValue(2);
+    act(() => {
+      listeners.get("select")?.();
+    });
+
+    expect(
+      screen.getByRole("link", { name: "서울 심포니 마스터피스" }),
+    ).toHaveAttribute("href", "/shows/show-03");
+    expect(
+      screen.queryByRole("link", { name: "여름밤 시티 팝 콘서트" }),
+    ).not.toBeInTheDocument();
+  });
+
+  it("does not announce the rotating name through a live region", () => {
+    // 5초마다 낭독되면 스크린리더 사용자에게는 다른 콘텐츠를 덮는 소음이 된다.
+    // 5개 공연 전체에 대한 접근 경로는 미리보기 버튼의 alt와 아래 카드 밴드가
+    // 이미 제공한다 — 빼먹은 게 아니라 알고 뺀 것이므로 이 테스트가 지킨다.
+    renderHero();
+
+    const link = screen.getByRole("link", { name: "여름밤 시티 팝 콘서트" });
+
+    expect(link.closest("[aria-live]")).toBeNull();
   });
 
   it("starts autoplay when the visitor has no motion preference", () => {
