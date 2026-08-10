@@ -7,7 +7,8 @@
       "name": "auth-hardening",
       "status": "completed",
       "started_at": "2026-08-10T10:47:14+0900",
-      "summary": "빈 Basic Auth 기대 자격증명을 거부하도록 fail-closed 가드와 회귀 테스트 3개를 추가"
+      "summary": "빈 Basic Auth 기대 자격증명을 거부하도록 fail-closed 가드와 회귀 테스트 3개를 추가",
+      "completed_at": "2026-08-10T10:59:11+0900"
     },
     {
       "step": 1,
