@@ -1,10 +1,9 @@
-import Image from "next/image";
 import Link from "next/link";
 
 import { ShowcaseHero } from "@/components/home/ShowcaseHero";
+import { ShowCard } from "@/components/show/ShowCard";
 import { Band } from "@/components/ui/Band";
 import { buttonClassName } from "@/components/ui/Button";
-import { cardClassName } from "@/components/ui/Card";
 import { toHeroSlides } from "@/lib/poster-image";
 import { getShowStore } from "@/services";
 
@@ -59,35 +58,11 @@ export default async function Home() {
             <ul className="grid grid-cols-1 gap-lg md:grid-cols-3">
               {featured.map((show) => (
                 <li key={show.id}>
-                  <Link
-                    className={cardClassName({
-                      interactive: true,
-                      className: "block h-full space-y-md",
-                    })}
-                    href={`/shows/${show.id}`}
-                  >
-                    {/*
-                     * 셀러 프리셋(SVG)도 3:4라 같은 틀에 들어간다. 옛 Redis 데이터처럼
-                     * posterUrl이 없으면 이미지를 생략하고 텍스트만 남긴다.
-                     * PosterPresetSelector가 object-contain을 쓰는 것과 달리 여기는
-                     * 사진이므로 object-cover다 — 레터박스 없이 카드를 채운다.
-                     */}
-                    {show.posterUrl ? (
-                      <div className="relative aspect-[3/4] w-full overflow-hidden rounded-card bg-canvas-soft">
-                        <Image
-                          alt=""
-                          className="object-cover"
-                          fill
-                          sizes="(min-width: 768px) 33vw, 100vw"
-                          src={show.posterUrl}
-                        />
-                      </div>
-                    ) : null}
-                    <h3 className="text-display-xs">{show.title}</h3>
-                    <p className="line-clamp-3 text-body-sm text-body-aa">
-                      {show.description}
-                    </p>
-                  </Link>
+                  <ShowCard
+                    headingLevel={3}
+                    show={show}
+                    sizes="(min-width: 768px) 33vw, 100vw"
+                  />
                 </li>
               ))}
             </ul>
