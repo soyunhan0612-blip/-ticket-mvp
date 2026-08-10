@@ -1,5 +1,5 @@
 import { fireEvent, render, screen } from "@testing-library/react";
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi, type Mock } from "vitest";
 
 import { getInitialViewBox, getLayoutBox } from "@/lib/seat-layout";
 
@@ -107,7 +107,7 @@ function wheel(svg: SVGSVGElement, deltaY: number, clientX = 300): void {
   fireEvent.wheel(svg, { clientX, clientY: 390, deltaY });
 }
 
-let setPointerCapture: ReturnType<typeof vi.fn>;
+let setPointerCapture: Mock<(pointerId: number) => void>;
 
 beforeEach(() => {
   // jsdom에 포인터 캡처 API가 없어서 스파이를 심는다. 구현이 캡처를 호출하면
