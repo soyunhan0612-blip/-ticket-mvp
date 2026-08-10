@@ -58,8 +58,12 @@ export function createShowStoreRedis(): ShowStore {
       /*
        * hgetall은 해시 필드 순서를 보장하지 않는다. 정렬하지 않으면 랜딩
        * 히어로와 카드에 노출되는 공연이 배포마다 달라져, 마케팅 표면의
-       * 첫인상이 저장소 구현에 흔들린다. compareShowOrder가 메모리 스토어와
-       * 같은 순서(시드 먼저, 셀러 등록물은 뒤)를 재현한다.
+       * 첫인상이 저장소 구현에 흔들린다.
+       *
+       * compareShowOrder는 두 스토어가 공유하는 계약이다 — 메모리 구현의
+       * list()도 같은 비교자로 정렬한다. 한쪽만 정렬하면 셀러 공연이 2건 이상일
+       * 때 순서가 갈려(등록 순 vs UUID 사전순) 로컬 검증이 프로덕션을 대변하지
+       * 못한다.
        */
       return Object.values(values)
         .map((value) => parseValue<Show>(value))

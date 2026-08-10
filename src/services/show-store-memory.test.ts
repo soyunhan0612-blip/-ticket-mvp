@@ -73,4 +73,51 @@ describe("ShowStoreMemory", () => {
     expect(shows).toContainEqual(result.show);
     await expect(store.get(result.show.id)).resolves.toEqual(result);
   });
+
+  it("orders seller shows by ID so both stores agree", async () => {
+    /*
+     * Redis 경로는 hgetall 순서를 못 믿어 compareShowOrder로 정렬한다. 메모리가
+     * 등록 순서를 그대로 돌려주면 같은 데이터가 저장소에 따라 다른 순서로 보여,
+     * 로컬에서 검증한 목록 순서가 프로덕션과 어긋난다. 정렬을 두 구현이 공유하는
+     * 계약으로 둔다.
+     */
+    const store = createShowStoreMemory();
+    const sessions = ["2026-12-01T10:00:00.000Z"];
+
+    const first = await store.create({
+      title: "먼저 등록",
+      description: "먼저 등록한 공연 설명",
+      posterUrl: "/posters/first.jpg",
+      presetId: "small",
+      sessions,
+    });
+    const second = await store.create({
+      title: "나중 등록",
+      description: "나중 등록한 공연 설명",
+      posterUrl: "/posters/second.jpg",
+      presetId: "small",
+      sessions,
+    });
+
+    const shows = await store.list();
+    const sellerIds = shows
+      .map((show) => show.id)
+      .filter((id) => id === first.show.id || id === second.show.id);
+
+    expect(sellerIds).toEqual(
+      [first.show.id, second.show.id].sort((a, b) => a.localeCompare(b)),
+    );
+  });
+
+  it("keeps seed shows ahead of seller shows in authoring order", async () => {
+    const store = createShowStoreMemory();
+
+    const shows = await store.list();
+    const seedIds = shows
+      .map((show) => show.id)
+      .filter((id) => id.startsWith("show-"));
+
+    expect(seedIds).toEqual([...seedIds].sort());
+    expect(shows[0]?.id).toBe("show-01");
+  });
 });
