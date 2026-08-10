@@ -2,8 +2,23 @@
   "project": "티켓 예매 MVP",
   "phase": "10-release",
   "steps": [
-    { "step": 0, "name": "auth-hardening", "status": "pending" },
-    { "step": 1, "name": "readme-rewrite", "status": "pending" },
-    { "step": 2, "name": "metrics-docs", "status": "pending" }
-  ]
+    {
+      "step": 0,
+      "name": "auth-hardening",
+      "status": "completed",
+      "started_at": "2026-08-10T10:47:14+0900",
+      "summary": "빈 Basic Auth 기대 자격증명을 거부하도록 fail-closed 가드와 회귀 테스트 3개를 추가"
+    },
+    {
+      "step": 1,
+      "name": "readme-rewrite",
+      "status": "pending"
+    },
+    {
+      "step": 2,
+      "name": "metrics-docs",
+      "status": "pending"
+    }
+  ],
+  "created_at": "2026-08-10T10:47:14+0900"
 }

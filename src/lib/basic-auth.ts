@@ -9,7 +9,13 @@ export function verifyBasicAuth(
   expectedUser: string | undefined,
   expectedPass: string | undefined,
 ): BasicAuthResult {
-  if (!authorizationHeader || expectedUser === undefined || expectedPass === undefined) {
+  if (
+    !authorizationHeader ||
+    expectedUser === undefined ||
+    expectedUser === "" ||
+    expectedPass === undefined ||
+    expectedPass === ""
+  ) {
     return UNAUTHENTICATED;
   }
 

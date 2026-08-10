@@ -41,6 +41,22 @@ describe("verifyBasicAuth", () => {
       verifyBasicAuth(basicAuthorization("seller", "secret"), expectedUser, expectedPass),
     ).toEqual({ authenticated: false });
   });
+
+  it("expectedUser가 빈 문자열이면 거부한다", () => {
+    expect(verifyBasicAuth(basicAuthorization("", "secret"), "", "secret")).toEqual({
+      authenticated: false,
+    });
+  });
+
+  it("expectedPass가 빈 문자열이면 거부한다", () => {
+    expect(verifyBasicAuth(basicAuthorization("seller", ""), "seller", "")).toEqual({
+      authenticated: false,
+    });
+  });
+
+  it("빈 사용자명과 빈 비밀번호를 담은 Basic 인증을 거부한다", () => {
+    expect(verifyBasicAuth("Basic Og==", "", "")).toEqual({ authenticated: false });
+  });
 });
 
 describe("isProtectedPath", () => {
