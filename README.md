@@ -36,7 +36,7 @@ TanStack Query와 Jotai는 목록에 스택을 더하기 위해 선택한 것이
 | 6 폴링·롤백 | 완료 | 3초 스냅샷 폴링, 낙관적 hold, 409 전체 롤백, 충돌 토스트, 서버 시각 기반 타이머 |
 | 7 예매 | 완료 | 예매 확정·내역·취소, 사용자별 조회와 소유권 검증, 실패 시 보상 롤백 |
 | 8 셀러·AI | 완료 | 3종 좌석 프리셋 공연 등록, Haiku 4.5 설명 스트리밍과 키 없는 fallback, Basic Auth |
-| 9 Admin·Redis | 로컬 완료·재배포 대기 | 재사용 좌석맵 기반 Admin, SVG `viewBox` 줌/팬, Redis Store·Lua·팩토리 교체와 로컬 영속성/동시성 검증; Vercel 인증이 필요해 Redis 재배포는 blocked |
+| 9 Admin·Redis | 완료 | 재사용 좌석맵 기반 Admin, SVG `viewBox` 줌/팬, Redis Store·Lua·팩토리 교체; 로컬·프로덕션 양쪽에서 Redis 연결 확인 |
 
 세부 진행 기록과 아직 남은 수동 검증은 [Progress Journal](docs/PROGRESS.md)과 [`phases/`](phases/)에 있습니다.
 
@@ -109,7 +109,8 @@ Day 9에 인메모리 저장소를 **Upstash Redis**로 교체했습니다. 좌�
 ## 배포
 
 - 프로덕션: https://ticket-mvp-eight.vercel.app
-- Redis 환경변수를 적용한 Vercel 재배포는 CLI 인증이 필요해 현재 대기 중입니다. Redis 구현과 재시작 영속성 검증은 로컬 Upstash 연결에서 완료했습니다.
+- Redis 환경변수를 적용해 배포 완료. 프로덕션에서 좌석 hold를 실행하면 Upstash에 `session:<id>:seats`와 `session:<id>:version` 키가 생성되는 것으로 Redis 연결을 확인했습니다.
+- Basic Auth(`/admin`·`/seller/new`), AI 설명 생성도 프로덕션에서 동작을 확인했습니다.
 
 ## 문서
 
