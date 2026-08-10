@@ -67,6 +67,7 @@ class StepExecutor:
     MAX_RETRIES = 3
     FEAT_MSG = "feat({phase}): step {num} — {name}"
     CHORE_MSG = "chore({phase}): step {num} output"
+    STATUS_MSG = "chore({phase}): step {num} — {name} ({status})"
     TZ = timezone(timedelta(hours=9))
 
     def __init__(self, phase_dir_name: str, *, auto_push: bool = False):
@@ -213,6 +214,9 @@ class StepExecutor:
         commit_example = self.FEAT_MSG.format(
             phase=self._phase_name, num="N", name="<step-name>"
         )
+        status_commit_example = self.STATUS_MSG.format(
+            phase=self._phase_name, num="N", name="<step-name>", status="blocked"
+        )
         retry_section = ""
         if prev_error:
             retry_section = (
@@ -235,8 +239,10 @@ class StepExecutor:
             f"   - AC 통과 → \"completed\" + \"summary\" 필드에 이 step의 산출물을 한 줄로 요약\n"
             f"   - {self.MAX_RETRIES}회 수정 시도 후에도 실패 → \"error\" + \"error_message\" 기록\n"
             f"   - 사용자 개입이 필요한 경우 (API 키, 인증, 수동 설정 등) → \"blocked\" + \"blocked_reason\" 기록 후 즉시 중단\n"
-            f"6. 모든 변경사항을 커밋하라:\n"
-            f"   {commit_example}\n\n---\n\n"
+            f"6. 모든 변경사항을 커밋하라. 커밋 메시지는 이 step의 최종 status를 따른다:\n"
+            f"   - completed (코드·문서 변경이 있는 경우) → {commit_example}\n"
+            f"   - blocked·error (status만 기록하고 끝난 경우) → {status_commit_example}\n"
+            f"     'blocked' 자리에는 실제 status를 넣는다. 기능 변경이 없으므로 feat을 쓰지 마라.\n\n---\n\n"
         )
 
     # --- Codex 호출 ---
