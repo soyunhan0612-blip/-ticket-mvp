@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
 
 import { Band } from "@/components/ui/Band";
@@ -40,6 +41,18 @@ export default async function ShowsPage() {
                     })}
                     href={`/shows/${show.id}`}
                   >
+                    {/* 그리드가 1/2/3열로 바뀌므로 sizes도 그에 맞춘다. */}
+                    {show.posterUrl ? (
+                      <div className="relative aspect-[3/4] w-full overflow-hidden rounded-card bg-canvas-soft">
+                        <Image
+                          alt=""
+                          className="object-cover"
+                          fill
+                          sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
+                          src={show.posterUrl}
+                        />
+                      </div>
+                    ) : null}
                     <h2 className="text-display-xs">{show.title}</h2>
                     <p className="line-clamp-4 text-body-sm text-body-aa">
                       {show.description}
