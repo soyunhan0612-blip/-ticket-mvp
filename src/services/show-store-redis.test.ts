@@ -19,7 +19,10 @@ const redis = {
     return (hash(key).get(field) as T | undefined) ?? null;
   },
   async hgetall<T>(key: string): Promise<T | null> {
-    const entries = [...hash(key).entries()];
+    // 실제 Redis 해시는 필드 순서를 보장하지 않는다. Map의 삽입 순서를 그대로
+    // 흘려보내면 목이 우연히 정렬돼 있어 순서 의존 버그를 숨긴다. 뒤집어서
+    // 돌려줘 호출자가 스스로 정렬하도록 강제한다.
+    const entries = [...hash(key).entries()].reverse();
     return (entries.length === 0 ? null : Object.fromEntries(entries)) as T | null;
   },
   async hset(key: string, values: Record<string, unknown>): Promise<number> {
@@ -57,6 +60,38 @@ describe("ShowStoreRedis", () => {
 
     expect(shows).toHaveLength(8);
     expect(new Set(shows.map((show) => show.id)).size).toBe(8);
+  });
+
+  it("lists seeded shows in a stable ID order", async () => {
+    // hgetall은 삽입 순서를 보장하지 않는다. 정렬하지 않으면 랜딩 히어로와
+    // 카드에 노출되는 공연이 배포마다 달라진다 — 마케팅 표면의 첫인상이
+    // 저장소 구현에 흔들리면 안 된다.
+    const shows = await createShowStoreRedis().list();
+    const ids = shows.map((show) => show.id);
+
+    expect(ids).toEqual([...ids].sort());
+    expect(ids[0]).toBe("show-01");
+  });
+
+  it("keeps seeded shows ahead of seller-created ones", async () => {
+    // 셀러 공연 ID는 UUID다. 단순 문자열 정렬이면 UUID가 "show-"보다 앞서서
+    // 임의 등록물이 랜딩 카드 세 자리를 통째로 차지한다.
+    const store = createShowStoreRedis();
+    await store.create(validInput);
+
+    const shows = await store.list();
+
+    expect(shows.slice(0, 8).map((show) => show.id)).toEqual([
+      "show-01",
+      "show-02",
+      "show-03",
+      "show-04",
+      "show-05",
+      "show-06",
+      "show-07",
+      "show-08",
+    ]);
+    expect(shows.at(-1)?.title).toBe(validInput.title);
   });
 
   it("gets a show with only its sessions", async () => {

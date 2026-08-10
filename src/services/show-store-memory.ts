@@ -1,4 +1,4 @@
-import { MOCK_SESSIONS, MOCK_SHOWS } from "@/lib/mock-data";
+import { compareShowOrder, MOCK_SESSIONS, MOCK_SHOWS } from "@/lib/mock-data";
 import { generateSessionsForShow } from "@/lib/seat-preset";
 import { createShowInputSchema } from "@/lib/show-validation";
 import type { Session, Show } from "@/types";
@@ -15,7 +15,12 @@ function makeShowStoreMemory(): ShowStore {
 
   return {
     async list() {
-      return [...shows];
+      /*
+       * Redis 구현과 같은 정렬을 건다. 여기서 등록 순서를 그대로 돌려주면 같은
+       * 데이터가 저장소에 따라 다른 순서로 보여, 로컬에서 검증한 목록 순서가
+       * 프로덕션과 어긋난다 — 순서 회귀를 로컬에서 재현할 수 없게 된다.
+       */
+      return [...shows].sort(compareShowOrder);
     },
 
     async get(id) {

@@ -1,8 +1,10 @@
 import Link from "next/link";
 
+import { ShowcaseHero } from "@/components/home/ShowcaseHero";
+import { ShowCard } from "@/components/show/ShowCard";
 import { Band } from "@/components/ui/Band";
 import { buttonClassName } from "@/components/ui/Button";
-import { cardClassName } from "@/components/ui/Card";
+import { toHeroSlides } from "@/lib/poster-image";
 import { getShowStore } from "@/services";
 
 /*
@@ -13,33 +15,33 @@ import { getShowStore } from "@/services";
 export default async function Home() {
   const shows = await getShowStore().list();
   const featured = shows.slice(0, 3);
+  const heroSlides = toHeroSlides(shows);
 
   return (
     <main>
-      <Band tone="dark" width="wide">
-        <div className="flex min-h-[420px] flex-col justify-end gap-2xl py-3xl">
-          <p className="text-eyebrow tracking-wide">공연 예매</p>
-          <h1 className="max-w-4xl text-display-xl">
-            보고 싶은 자리,
-            <br />
-            지금 고르세요.
-          </h1>
-          <p className="max-w-2xl text-display-lg text-mute">
-            2,000석을 한 화면에서. 남이 잡은 좌석은 3초마다 그대로 반영됩니다.
-          </p>
-          <div className="flex flex-wrap gap-lg">
-            <Link className={buttonClassName({ variant: "primary" })} href="/shows">
-              공연 둘러보기
-            </Link>
-            <Link
-              className={buttonClassName({ variant: "outline-on-dark" })}
-              href="/seller/new"
-            >
-              공연 등록하기
-            </Link>
-          </div>
+      {/* 카피는 서버에서 조립해 넘긴다 — 클라이언트 번들에 들어가지 않는다. */}
+      <ShowcaseHero slides={heroSlides}>
+        <p className="text-eyebrow tracking-wide">공연 예매</p>
+        <h1 className="max-w-4xl text-display-xl">
+          보고 싶은 자리,
+          <br />
+          지금 고르세요.
+        </h1>
+        <p className="max-w-2xl text-display-lg text-mute">
+          2,000석을 한 화면에서. 남이 잡은 좌석은 3초마다 그대로 반영됩니다.
+        </p>
+        <div className="flex flex-wrap gap-lg">
+          <Link className={buttonClassName({ variant: "primary" })} href="/shows">
+            공연 둘러보기
+          </Link>
+          <Link
+            className={buttonClassName({ variant: "outline-on-dark" })}
+            href="/seller/new"
+          >
+            공연 등록하기
+          </Link>
         </div>
-      </Band>
+      </ShowcaseHero>
 
       <Band tone="light" width="wide">
         <div className="space-y-2xl">
@@ -56,18 +58,11 @@ export default async function Home() {
             <ul className="grid grid-cols-1 gap-lg md:grid-cols-3">
               {featured.map((show) => (
                 <li key={show.id}>
-                  <Link
-                    className={cardClassName({
-                      interactive: true,
-                      className: "block h-full space-y-md",
-                    })}
-                    href={`/shows/${show.id}`}
-                  >
-                    <h3 className="text-display-xs">{show.title}</h3>
-                    <p className="line-clamp-3 text-body-sm text-body-aa">
-                      {show.description}
-                    </p>
-                  </Link>
+                  <ShowCard
+                    headingLevel={3}
+                    show={show}
+                    sizes="(min-width: 768px) 33vw, 100vw"
+                  />
                 </li>
               ))}
             </ul>

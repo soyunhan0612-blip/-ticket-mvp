@@ -233,7 +233,8 @@ Day별 진행 결과와 결정 근거. 서사 문서.
 ### 기술적 관점
 - `SEAT_PRESETS` 3종이 사용할 구역과 총 좌석 수를 정의하고 공연 생성 시 프리셋별 좌석·회차 데이터를 결정
 - `ShowStore.create`가 zod 입력 검증 후 공연과 회차를 함께 생성해 기존 Store 조회 경로에 추가
-- 임의 외부 URL 대신 검증된 로컬 포스터 프리셋과 SVG 자산만 사용
+- 임의 외부 URL 대신 검증된 로컬 자산만 사용 — 셀러 등록은 포스터 프리셋 SVG,
+  시드 공연은 저장소에 커밋한 Unsplash 사진. `next.config.ts`에 `remotePatterns`가 없다
 - `POST /api/shows`는 쿠키와 프리셋 입력을 검증하고, AI API는 IP별 분당 3회·`max_tokens` 600·공연명 100자 상한을 적용
 - AI 프롬프트는 사용자 입력을 명시적 구분자로 감싸고 내부 지시를 따르지 않도록 하며, 응답은 `text/plain` 스트림과 `whitespace-pre-wrap`으로 렌더
 
