@@ -58,7 +58,7 @@ export default async function ShowDetailPage({ params }: ShowDetailPageProps) {
   const { show, sessions } = result;
 
   return (
-    <main>
+    <main className="flex flex-1 flex-col">
       <Band fill tone="light" width="tool">
         <div className="space-y-3xl">
           <header className="space-y-lg">

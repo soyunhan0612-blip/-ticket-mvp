@@ -14,7 +14,7 @@ export default async function ShowsPage() {
   const shows = await getShowStore().list();
 
   return (
-    <main>
+    <main className="flex flex-1 flex-col">
       <Band fill tone="light" width="wide">
         <div className="space-y-2xl">
           <header className="space-y-sm">

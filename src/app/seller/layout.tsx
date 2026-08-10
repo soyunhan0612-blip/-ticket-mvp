@@ -8,7 +8,7 @@ export default function SellerLayout({
   children: ReactNode;
 }>) {
   return (
-    <main>
+    <main className="flex flex-1 flex-col">
       <Band fill tone="light" width="tool">
         {children}
       </Band>

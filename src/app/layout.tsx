@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
-import Link from "next/link";
 import type { ReactNode } from "react";
 
+import { NavBar } from "@/components/navigation/NavBar";
 import { Providers } from "@/components/providers";
 
 import "./globals.css";
@@ -33,38 +33,10 @@ export default function RootLayout({
     <html className={inter.variable} lang="ko">
       <body className="flex min-h-screen flex-col">
         {/* DS NavBar/Footer는 ink 밴드다. nav(dark) → 콘텐츠 → footer(dark)가 DS의 밴드 리듬 */}
-        <nav className="bg-ink text-on-dark">
-          <div className="mx-auto flex w-full max-w-7xl items-center justify-between gap-2xl px-lg py-lg sm:px-2xl lg:px-3xl">
-            <Link
-              className="rounded-sm text-body-md font-extrabold tracking-tight focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-on-dark focus-visible:ring-offset-2 focus-visible:ring-offset-ink"
-              href="/"
-            >
-              티켓 MVP
-            </Link>
-            <div className="flex items-center gap-2xl">
-              <Link
-                className="rounded-sm text-body-sm text-mute transition-colors duration-150 hover:text-on-dark focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-on-dark focus-visible:ring-offset-2 focus-visible:ring-offset-ink"
-                href="/shows"
-              >
-                공연
-              </Link>
-              <Link
-                className="rounded-sm text-body-sm text-mute transition-colors duration-150 hover:text-on-dark focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-on-dark focus-visible:ring-offset-2 focus-visible:ring-offset-ink"
-                href="/seller/new"
-              >
-                공연 등록
-              </Link>
-              <Link
-                className="rounded-sm text-body-sm text-mute transition-colors duration-150 hover:text-on-dark focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-on-dark focus-visible:ring-offset-2 focus-visible:ring-offset-ink"
-                href="/reservations"
-              >
-                내 예매
-              </Link>
-            </div>
-          </div>
-        </nav>
+        <NavBar />
 
-        <div className="flex-1">
+        {/* Band fill이 flex-1로 늘어나려면 이 래퍼부터 세로 flex여야 한다 */}
+        <div className="flex flex-1 flex-col">
           <Providers>{children}</Providers>
         </div>
 

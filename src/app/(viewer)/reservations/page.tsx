@@ -10,7 +10,7 @@ export default function ReservationsPage(): JSX.Element {
   const { data, isLoading, isError, error } = useMyReservations();
 
   return (
-    <main>
+    <main className="flex flex-1 flex-col">
       <Band fill tone="light" width="tool">
         <div className="space-y-2xl">
           <header>

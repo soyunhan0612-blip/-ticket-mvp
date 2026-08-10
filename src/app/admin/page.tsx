@@ -65,7 +65,7 @@ export default function AdminPage(): JSX.Element {
   const canShowDashboard = sessionId !== "" && selectedShow !== undefined;
 
   return (
-    <main>
+    <main className="flex flex-1 flex-col">
       {/* 도구 화면이라 dark 밴드 (docs/UI_GUIDE.md 밴드 정책) */}
       <Band fill tone="dark" width="tool">
         <div className="space-y-2xl">

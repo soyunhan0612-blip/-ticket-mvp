@@ -51,7 +51,7 @@ export default async function SeatSelectionPage(props: PageProps) {
   });
 
   return (
-    <main>
+    <main className="flex flex-1 flex-col">
       {/*
        * 도구 화면이라 dark 밴드에 둔다 (docs/UI_GUIDE.md 밴드 정책).
        * 이전에는 배경 클래스가 아예 없어 흰 배경에 흰 글씨로 렌더됐다.

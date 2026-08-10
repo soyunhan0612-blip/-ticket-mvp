@@ -26,7 +26,12 @@ const WIDTH_CLASS_NAMES = {
 interface BandProps {
   tone?: BandTone;
   width?: keyof typeof WIDTH_CLASS_NAMES;
-  /** 화면 높이를 채운다. 페이지의 마지막(또는 유일한) 밴드에 쓴다. */
+  /**
+   * 남는 세로 공간을 채운다. 페이지의 마지막(또는 유일한) 밴드에 쓴다.
+   * `min-h-screen`이 아니라 `flex-1`인 이유: layout의 nav·footer가 이미 높이를 쓰므로
+   * 100vh를 강제하면 내용이 짧아도 그 둘만큼 항상 스크롤된다.
+   * 조상 체인(`layout.tsx`의 콘텐츠 래퍼 → 각 페이지의 `<main>`)이 `flex flex-col`이어야 동작한다.
+   */
   fill?: boolean;
   className?: string;
   children: ReactNode;
@@ -41,7 +46,7 @@ export function Band({
 }: BandProps): JSX.Element {
   return (
     <section
-      className={`${TONE_CLASS_NAMES[tone]} ${fill ? "min-h-screen" : ""} px-lg py-3xl sm:px-2xl lg:px-3xl ${className}`}
+      className={`${TONE_CLASS_NAMES[tone]} ${fill ? "flex-1" : ""} px-lg py-3xl sm:px-2xl lg:px-3xl ${className}`}
     >
       <div className={`mx-auto w-full ${WIDTH_CLASS_NAMES[width]}`}>
         {children}
