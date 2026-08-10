@@ -76,6 +76,14 @@ export function ShowcaseHero({ slides, children }: ShowcaseHeroProps) {
         // true면 미리보기를 한 번 누른 뒤 자동 재생이 영구 정지한다.
         stopOnInteraction: false,
         stopOnMouseEnter: true,
+        /*
+         * 기본 rootNode는 emblaRef가 걸린 -z-10 배경 div다. 공연명 링크와
+         * 미리보기 버튼은 그 div의 형제 서브트리라, 기본값이면 링크 위에
+         * 마우스를 올려도 mouseenter가 캐러셀 루트에 닿지 않는다. 히어로
+         * <section>으로 올려야 아래 주석과 ADR-006이 약속한 "클릭 직전에
+         * 대상이 바뀌지 않는다"가 실제로 성립한다.
+         */
+        rootNode: (emblaRoot) => emblaRoot.closest("section"),
       }),
     ],
   );
@@ -94,14 +102,48 @@ export function ShowcaseHero({ slides, children }: ShowcaseHeroProps) {
     };
   }, [emblaApi]);
 
+  /*
+   * 플러그인은 슬라이드가 2장 이상일 때만 초기화된다 — init()이
+   * `scrollSnapList().length <= 1`에서 내부 delay 배열을 채우기 전에 조기
+   * 반환한다. 그 상태에서 play()를 부르면 setTimer()가 delay[...]를 읽어
+   * TypeError를 던지고, useEffect 안이라 랜딩 전체가 error boundary로 떨어진다.
+   * 마운트 가드(hasSlides)는 length > 0이므로 재생 가드는 따로 둔다.
+   */
+  const canAutoplay = slides.length > 1;
+
   useEffect(() => {
     // 플러그인 배열을 조건부로 만들면 reInit이 필요하고 인덱스가 리셋된다.
     // 항상 붙여 두고 재생/정지만 제어한다.
     const autoplay = emblaApi?.plugins()?.autoplay;
     if (!autoplay) return;
 
-    if (reducedMotion) autoplay.stop();
+    // stop()은 초기화되지 않은 플러그인에서도 안전하다(autoplayActive 가드).
+    if (reducedMotion || !canAutoplay) autoplay.stop();
     else autoplay.play();
+  }, [emblaApi, reducedMotion, canAutoplay]);
+
+  useEffect(() => {
+    if (!emblaApi || !reducedMotion) return;
+
+    /*
+     * stopOnMouseEnter + stopOnInteraction:false 조합은 mouseleave 핸들러를
+     * 등록하는데, 그 핸들러는 reduced-motion을 모른 채 무조건 재생을 재개한다.
+     * 위 효과는 [emblaApi, reducedMotion]에만 의존하므로 다시 돌지 않아,
+     * 한 번 호버했다 벗어나면 정지가 영구히 풀린다. 재개를 되받아 막는다.
+     *
+     * 플러그인 옵션을 reduced-motion에 따라 바꾸는 대신 이 방식을 쓰는 이유는,
+     * 옵션 변경이 reInit을 부르고 그때 인덱스가 리셋되기 때문이다.
+     */
+    const autoplay = emblaApi.plugins()?.autoplay;
+    if (!autoplay) return;
+
+    const stopAgain = () => autoplay.stop();
+
+    emblaApi.on("autoplay:play", stopAgain);
+
+    return () => {
+      emblaApi.off("autoplay:play", stopAgain);
+    };
   }, [emblaApi, reducedMotion]);
 
   const hasSlides = slides.length > 0;
@@ -178,8 +220,10 @@ export function ShowcaseHero({ slides, children }: ShowcaseHeroProps) {
              * 형태가 다르면 그 계산에 들어가지 않는다. autoplay가
              * stopOnMouseEnter라 마우스를 올리는 순간 롤링이 멈추므로
              * 클릭 직전에 대상이 바뀌지 않는다. 키보드 포커스는 멈추지
-             * 않지만(embla-autoplay에 stopOnFocusIn이 없다) 5초 안에
-             * Enter를 누르는 흐름에서 실질 위험이 낮다.
+             * 않는다 — stopOnFocusIn은 기본 true지만 슬라이드 내부
+             * 포커스(slideFocusStart)에만 반응하고, 슬라이드는 aria-hidden
+             * 배경뿐이며 이 링크는 캐러셀 바깥이라 발화하지 않는다.
+             * 5초 안에 Tab→Enter가 겹칠 확률이 낮아 감수한다 (ADR-006).
              */}
             <Link
               className="text-on-dark underline decoration-hairline-on-dark underline-offset-4 transition-colors duration-150 hover:decoration-on-dark focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-on-dark focus-visible:ring-offset-2 focus-visible:ring-offset-ink"
@@ -211,7 +255,13 @@ export function ShowcaseHero({ slides, children }: ShowcaseHeroProps) {
                 {/*
                  * 텍스트 없는 버튼이지만 alt가 접근 가능한 이름을 준다 — 아이콘이
                  * 아니라 이름 있는 콘텐츠 이미지이므로 "아이콘만 있는 버튼 금지"에
-                 * 걸리지 않는다. 16:9 원본을 48px에서 잘라 쓰므로 추가 다운로드가 없다.
+                 * 걸리지 않는다.
+                 *
+                 * 배경과 같은 원본을 쓰지만 다운로드는 공유되지 않는다. sizes가
+                 * 다르면 next/image가 다른 폭의 URL을 만들고(여기는 imageSizes의
+                 * 48·96, 배경은 deviceSizes의 100vw) 캐시 키가 갈린다. 슬라이드당
+                 * 별도 요청이 붙는 비용을 알고 감수하는 것이다 — 48px 썸네일이라
+                 * 전송량 자체는 작다.
                  */}
                 <Image
                   alt={slide.title}

@@ -23,18 +23,33 @@ const { autoplay, emblaApi, listeners, selectedScrollSnap } = vi.hoisted(() => {
       listeners.set(event, handler);
       return emblaApi;
     }),
-    off: vi.fn(() => emblaApi),
+    /*
+     * 실제 off는 핸들러를 떼어 낸다. 무동작 스텁으로 두면 구독 해제 후에도
+     * listeners에 남아, 정리를 빠뜨린 구현이 테스트를 통과해 버린다.
+     */
+    off: vi.fn((event: string, handler: () => void) => {
+      if (listeners.get(event) === handler) listeners.delete(event);
+      return emblaApi;
+    }),
   };
 
   return { autoplay, emblaApi, listeners, selectedScrollSnap };
 });
+
+/** 목킹된 플러그인에 넘어간 Autoplay 옵션. 기본값 의존을 테스트로 고정한다. */
+const autoplayOptions = vi.hoisted(
+  () => ({ current: undefined }) as { current?: Record<string, unknown> },
+);
 
 vi.mock("embla-carousel-react", () => ({
   default: () => [vi.fn(), emblaApi],
 }));
 
 vi.mock("embla-carousel-autoplay", () => ({
-  default: () => ({ name: "autoplay" }),
+  default: (options: Record<string, unknown>) => {
+    autoplayOptions.current = options;
+    return { name: "autoplay" };
+  },
 }));
 
 const SLIDES: HeroSlide[] = [
@@ -220,5 +235,76 @@ describe("ShowcaseHero", () => {
     screen.getByRole("button", { name: "서울 심포니 마스터피스" }).click();
 
     expect(emblaApi.scrollTo).toHaveBeenCalledWith(2);
+  });
+
+  it("never calls play() with a single slide", () => {
+    /*
+     * 플러그인의 init()은 scrollSnapList().length <= 1이면 내부 delay 배열을
+     * 할당하기 전에 조기 반환한다. 그 상태에서 play()를 부르면 setTimer()가
+     * delay[...]를 읽어 TypeError로 랜딩 전체가 죽는다. 마운트 가드는
+     * length > 0인데 플러그인의 전제는 length > 1이라 생긴 간극이다.
+     */
+    renderHero([SLIDES[0]]);
+
+    expect(autoplay.play).not.toHaveBeenCalled();
+  });
+
+  it("keeps a single slide visible even though autoplay stays off", () => {
+    // 재생만 막는 것이지 슬라이드를 감추는 게 아니다.
+    renderHero([SLIDES[0]]);
+
+    expect(
+      screen.getByRole("link", { name: "여름밤 시티 팝 콘서트" }),
+    ).toHaveAttribute("href", "/shows/show-01");
+  });
+
+  it("re-stops autoplay if the plugin resumes it under reduced motion", () => {
+    /*
+     * stopOnMouseEnter + stopOnInteraction:false 조합은 mouseleave 핸들러를
+     * 등록하는데, 그 핸들러는 reduced-motion을 모른 채 무조건 재생을 재개한다.
+     * 한 번 호버했다 벗어나면 정지가 영구히 풀리므로 재개를 되받아 막아야 한다.
+     */
+    stubReducedMotion(true);
+    renderHero();
+
+    act(() => {
+      listeners.get("autoplay:play")?.();
+    });
+
+    expect(autoplay.stop.mock.calls.length).toBeGreaterThan(1);
+  });
+
+  it("does not fight the plugin when motion is allowed", () => {
+    // 같은 구독이 정상 사용자의 재생까지 되돌리면 캐러셀이 통째로 멈춘다.
+    renderHero();
+    autoplay.stop.mockClear();
+
+    act(() => {
+      listeners.get("autoplay:play")?.();
+    });
+
+    expect(autoplay.stop).not.toHaveBeenCalled();
+  });
+
+  it("anchors mouse-enter detection to the whole hero, not the background", () => {
+    /*
+     * autoplay의 rootNode 기본값은 emblaRef가 걸린 -z-10 배경 div다. 공연명
+     * 링크와 미리보기 버튼은 그 div의 형제라 마우스를 올려도 mouseenter가
+     * 도달하지 않는다. rootNode로 히어로 <section>을 지정해야 주석과 ADR-006이
+     * 약속한 "클릭 직전에 대상이 바뀌지 않는다"가 실제로 성립한다.
+     */
+    renderHero();
+
+    const resolveRoot = autoplayOptions.current?.rootNode as
+      | ((root: HTMLElement) => HTMLElement | null)
+      | undefined;
+
+    expect(resolveRoot).toBeTypeOf("function");
+
+    const section = document.createElement("section");
+    const background = document.createElement("div");
+    section.append(background);
+
+    expect(resolveRoot?.(background)).toBe(section);
   });
 });
