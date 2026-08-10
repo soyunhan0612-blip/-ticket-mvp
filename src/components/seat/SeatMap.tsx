@@ -1,6 +1,6 @@
 "use client";
 
-import type { JSX } from "react";
+import { type JSX, useMemo } from "react";
 
 import { getLayoutBox, getSeatPosition } from "@/lib/seat-layout";
 import type { Seat as SeatType } from "@/types";
@@ -22,7 +22,9 @@ export function SeatMap({
   sections,
   readOnly = false,
 }: SeatMapProps): JSX.Element {
-  const box = getLayoutBox(sections);
+  // 3초 폴링마다 컨테이너가 리렌더된다. 매번 새 객체를 넘기면 ZoomPanSvg의
+  // wheel·드래그 리스너가 그때마다 해제·재등록된다.
+  const box = useMemo(() => getLayoutBox(sections), [sections]);
 
   return (
     <div className="space-y-8">
