@@ -40,9 +40,9 @@ export function ReservationCard({
 
   return (
     <Card className={isCancelled ? "opacity-50" : ""}>
-      <div className="flex items-start justify-between gap-lg">
+      <div className="flex flex-col items-stretch justify-between gap-lg sm:flex-row sm:items-start">
         <div className="min-w-0 flex-1 space-y-sm">
-          <div className="flex items-center gap-md">
+          <div className="flex flex-wrap items-center gap-md">
             <h3 className="text-display-xs">#{id.slice(0, 8)}</h3>
             {/*
              * 배지가 아니라 텍스트다. 취소 상태는 카드 전체 명도로 표현하고
@@ -69,7 +69,7 @@ export function ReservationCard({
           )}
         </div>
 
-        <div className="flex shrink-0 flex-col items-end gap-sm">
+        <div className="flex w-full flex-row flex-wrap items-center justify-between gap-sm sm:w-auto sm:shrink-0 sm:flex-col sm:items-end">
           <Link
             className="rounded-sm text-body-sm text-body-aa transition-colors duration-150 hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink focus-visible:ring-offset-2 focus-visible:ring-offset-canvas"
             href={`/sessions/${sessionId}/seats`}
