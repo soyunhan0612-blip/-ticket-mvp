@@ -432,6 +432,28 @@ describe("ZoomPanSvg 팬", () => {
 });
 
 describe("ZoomPanSvg 줌", () => {
+  it("터치 화면에서도 사용할 수 있는 확대·축소 버튼을 제공한다", () => {
+    const { svg } = renderZoomPan(vi.fn());
+    const initial = parseViewBox(svg);
+
+    fireEvent.click(screen.getByRole("button", { name: "확대" }));
+    expect(parseViewBox(svg).width).toBeLessThan(initial.width);
+
+    fireEvent.click(screen.getByRole("button", { name: "축소" }));
+    expect(parseViewBox(svg).width).toBeCloseTo(initial.width, 5);
+  });
+
+  it("줌 컨트롤은 작은 화면에서 줄바꿈할 수 있고 사용법을 안내한다", () => {
+    renderZoomPan(vi.fn());
+
+    expect(screen.getByRole("group", { name: "좌석 배치도 확대/축소" })).toHaveClass(
+      "flex-wrap",
+    );
+    expect(
+      screen.getByText("확대·축소 버튼 또는 마우스 휠로 크기를 조절하고, 드래그하여 이동하세요."),
+    ).toBeInTheDocument();
+  });
+
   it("휠 확대·축소가 페이지 스크롤을 막는다", () => {
     const { svg } = renderZoomPan(vi.fn());
 

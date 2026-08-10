@@ -6,6 +6,7 @@ import {
   type PointerEvent as ReactPointerEvent,
   type ReactNode,
   useEffect,
+  useId,
   useRef,
   useState,
 } from "react";
@@ -35,6 +36,7 @@ interface DragState {
 export const DRAG_THRESHOLD_PX = 4;
 const MIN_VIEW_SCALE = 0.2;
 const WHEEL_SENSITIVITY = 0.001;
+const BUTTON_ZOOM_FACTOR = 0.75;
 
 function clamp(value: number, minimum: number, maximum: number): number {
   return Math.min(Math.max(value, minimum), maximum);
@@ -48,6 +50,36 @@ function constrainViewBox(viewBox: ViewBox, box: LayoutBox): ViewBox {
   };
 }
 
+function scaleViewBox(
+  current: ViewBox,
+  box: LayoutBox,
+  factor: number,
+  focalX: number,
+  focalY: number,
+): ViewBox {
+  const width = clamp(
+    current.width * factor,
+    box.width * MIN_VIEW_SCALE,
+    box.width,
+  );
+  const scale = width / current.width;
+  const height = clamp(
+    current.height * scale,
+    box.height * MIN_VIEW_SCALE,
+    box.height,
+  );
+
+  return constrainViewBox(
+    {
+      x: current.x + (current.width - width) * focalX,
+      y: current.y + (current.height - height) * focalY,
+      width,
+      height,
+    },
+    box,
+  );
+}
+
 export function ZoomPanSvg({
   box,
   children,
@@ -56,6 +88,8 @@ export function ZoomPanSvg({
   const [viewBox, setViewBox] = useState<ViewBox>(() => getInitialViewBox(box));
   // 드래그 중인지만 나타낸다. 좌표는 dragRef에 두어 이동마다 리렌더가 나지 않게 한다.
   const [dragging, setDragging] = useState(false);
+  const mapId = useId();
+  const instructionsId = useId();
   const svgRef = useRef<SVGSVGElement>(null);
   const dragRef = useRef<DragState | null>(null);
   const suppressClickRef = useRef(false);
@@ -78,24 +112,7 @@ export function ZoomPanSvg({
 
       setViewBox((current) => {
         const factor = Math.exp(event.deltaY * WHEEL_SENSITIVITY);
-        const width = clamp(
-          current.width * factor,
-          box.width * MIN_VIEW_SCALE,
-          box.width,
-        );
-        const scale = width / current.width;
-        const height = clamp(
-          current.height * scale,
-          box.height * MIN_VIEW_SCALE,
-          box.height,
-        );
-
-        return constrainViewBox({
-          x: current.x + (current.width - width) * pointerX,
-          y: current.y + (current.height - height) * pointerY,
-          width,
-          height,
-        }, box);
+        return scaleViewBox(current, box, factor, pointerX, pointerY);
       });
     }
 
@@ -197,14 +214,59 @@ export function ZoomPanSvg({
     setViewBox({ x: 0, y: 0, width: box.width, height: box.height });
   }
 
+  function changeZoom(factor: number): void {
+    setViewBox((current) => scaleViewBox(current, box, factor, 0.5, 0.5));
+  }
+
   return (
     <div className="space-y-lg">
-      <Button onClick={showFullLayout} size="sm" variant="outline-on-dark">
-        전체 보기
-      </Button>
+      <div
+        aria-label="좌석 배치도 확대/축소"
+        className="flex flex-wrap gap-sm"
+        role="group"
+      >
+        <Button
+          aria-controls={mapId}
+          className="min-h-11"
+          disabled={viewBox.width <= box.width * MIN_VIEW_SCALE}
+          onClick={() => changeZoom(BUTTON_ZOOM_FACTOR)}
+          size="sm"
+          variant="outline-on-dark"
+        >
+          확대
+        </Button>
+        <Button
+          aria-controls={mapId}
+          className="min-h-11"
+          disabled={viewBox.width >= box.width}
+          onClick={() => changeZoom(1 / BUTTON_ZOOM_FACTOR)}
+          size="sm"
+          variant="outline-on-dark"
+        >
+          축소
+        </Button>
+        <Button
+          aria-controls={mapId}
+          className="min-h-11"
+          onClick={showFullLayout}
+          size="sm"
+          variant="outline-on-dark"
+        >
+          전체 보기
+        </Button>
+      </div>
+
+      <p className="text-caption text-mute" id={instructionsId}>
+        확대·축소 버튼 또는 마우스 휠로 크기를 조절하고, 드래그하여 이동하세요.
+      </p>
 
       <svg
-        className={className}
+        aria-describedby={instructionsId}
+        aria-label="좌석 배치도"
+        className={[className, dragging ? "cursor-grabbing" : "cursor-grab"]
+          .filter(Boolean)
+          .join(" ")}
+        id={mapId}
         onClickCapture={handleClickCapture}
         onPointerDown={handlePointerDown}
         ref={svgRef}
