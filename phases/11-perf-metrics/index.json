@@ -1,0 +1,11 @@
+{
+  "project": "티켓 예매 MVP",
+  "phase": "11-perf-metrics",
+  "steps": [
+    { "step": 0, "name": "render-counter", "status": "pending" },
+    { "step": 1, "name": "seat-render-baseline", "status": "pending" },
+    { "step": 2, "name": "seat-render-current", "status": "pending" },
+    { "step": 3, "name": "measurement-guide", "status": "pending" },
+    { "step": 4, "name": "metrics-writeback", "status": "pending" }
+  ]
+}
