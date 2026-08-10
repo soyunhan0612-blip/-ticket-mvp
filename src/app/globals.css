@@ -1,3 +1,168 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/*
+ * Vodafone Design System 토큰 레이어.
+ * 원본: Vodafone Design System/tokens/*.css (colors, typography, spacing, radius, elevation, responsive)
+ * 이 :root가 유일한 소스이고 tailwind.config.ts가 여기를 참조한다 — 브랜드 교체는 이 블록만 바꾼다.
+ */
+@layer base {
+  :root {
+    /* colors.css */
+    --color-primary: #e60000;
+    --color-primary-hover: #b30000;
+    --color-on-primary: #ffffff;
+    --color-canvas: #ffffff;
+    --color-canvas-soft: #f2f2f2;
+    --color-ink: #25282b;
+    --color-body: #7e7e7e;
+    --color-mute: #bebebe;
+    --color-on-dark: #ffffff;
+    --color-border-hairline: #25282b;
+    --color-border-on-dark: rgba(255, 255, 255, 0.25);
+
+    /*
+     * DS 대비 의도적 편차 2건. 사유는 docs/UI_GUIDE.md "토큰 편차" 참조.
+     * body-aa: DS --color-body(#7e7e7e)는 흰 배경 대비 4.06:1로 본문 AA(4.5:1) 미달.
+     *          #6b6b6b는 5.33:1. 18px 이하 본문에는 이 값만 쓴다.
+     * ink-deep: DS에 없는 추가 토큰. 좌석 SVG 캔버스 전용 —
+     *           sold(#262626)를 ink(#25282b) 위에 올리면 배경과 구분되지 않는다.
+     */
+    --color-body-aa: #6b6b6b;
+    --color-ink-deep: #0a0a0a;
+
+    /* 좌석 4색 — UI_GUIDE.md 좌석 시각 규칙. ink-deep 캔버스 위 모노크롬 4단계 */
+    --seat-available: #737373;
+    --seat-available-hover: #9a9a9a;
+    --seat-mine: #ffffff;
+    --seat-other: #404040;
+    --seat-sold: #262626;
+
+    /* fonts.css — Google Fonts @import 대신 next/font가 이 변수를 채운다 (layout.tsx) */
+    --font-display: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+
+    /* typography.css */
+    --fs-display-hero: 144px;
+    --lh-display-hero: 114px;
+    --ls-display-hero: -1px;
+    --fw-display-hero: 800;
+    --fs-display-xxl: 126px;
+    --lh-display-xxl: 113px;
+    --ls-display-xxl: -1px;
+    --fw-display-xxl: 800;
+    --fs-display-xl: 90px;
+    --lh-display-xl: 84px;
+    --fw-display-xl: 800;
+    --fs-display-lg: 48px;
+    --lh-display-lg: 52px;
+    --fw-display-lg: 300;
+    --fs-display-md: 40px;
+    --lh-display-md: 44px;
+    --fw-display-md: 300;
+    --fs-display-sm: 32px;
+    --lh-display-sm: 40px;
+    --fw-display-sm: 700;
+    --fs-display-xs: 24px;
+    --lh-display-xs: 24px;
+    --fw-display-xs: 700;
+    --fs-eyebrow: 16px;
+    --lh-eyebrow: 24px;
+    --fw-eyebrow: 800;
+    --fs-body-lg: 22px;
+    --lh-body-lg: 24px;
+    --fw-body-lg: 400;
+    --fs-body-md: 18px;
+    --lh-body-md: 28px;
+    --fw-body-md: 400;
+    --fw-body-md-strong: 600;
+    --fs-body-sm: 16px;
+    --lh-body-sm: 20px;
+    --fw-body-sm: 400;
+    --fw-body-sm-strong: 700;
+    --fs-caption: 14px;
+    --lh-caption: 16px;
+    --fw-caption: 400;
+    --fw-caption-strong: 700;
+    --fs-caption-upper: 12px;
+    --lh-caption-upper: 16px;
+    --ls-caption-upper: 0.57px;
+    --fw-caption-upper: 600;
+    --fs-button-md: 18px;
+    --lh-button-md: 28px;
+    --fw-button-md: 400;
+
+    /* spacing.css */
+    --space-xxs: 2px;
+    --space-xs: 4px;
+    --space-sm: 8px;
+    --space-md: 12px;
+    --space-lg: 16px;
+    --space-xl: 20px;
+    --space-2xl: 24px;
+    --space-3xl: 32px;
+
+    /* radius.css */
+    --radius-none: 0px;
+    --radius-xs: 1px;
+    --radius-sm: 6px;
+    --radius-card: 6px;
+    --radius-pill-md: 32px;
+    --radius-pill-lg: 60px;
+    --radius-full: 9999px;
+  }
+
+  /*
+   * responsive.css — 컴포넌트가 같은 변수를 읽으므로 스케일링이 시스템 전체에 적용된다.
+   * Tailwind 브레이크포인트로 옮기지 않는 이유: DS가 반응형을 처리하는 방식 자체가 이것이다.
+   */
+  @media (max-width: 1023px) {
+    :root {
+      --fs-display-hero: 96px;
+      --lh-display-hero: 88px;
+      --fs-display-xxl: 90px;
+      --lh-display-xxl: 84px;
+      --fs-display-xl: 72px;
+      --lh-display-xl: 68px;
+      --fs-display-lg: 40px;
+      --lh-display-lg: 44px;
+      --fs-display-md: 32px;
+      --lh-display-md: 38px;
+      --space-3xl: 24px;
+    }
+  }
+
+  @media (max-width: 599px) {
+    :root {
+      --fs-display-hero: 64px;
+      --lh-display-hero: 60px;
+      --fs-display-xxl: 56px;
+      --lh-display-xxl: 54px;
+      --fs-display-xl: 48px;
+      --lh-display-xl: 46px;
+      --fs-display-lg: 32px;
+      --lh-display-lg: 36px;
+      --fs-display-md: 28px;
+      --lh-display-md: 32px;
+      --fs-display-sm: 24px;
+      --lh-display-sm: 30px;
+      --fs-body-lg: 18px;
+      --lh-body-lg: 26px;
+      --space-3xl: 20px;
+    }
+  }
+
+  /* 표면 기본값. 이전에는 배경이 없어 좌석 페이지가 흰 배경에 흰 글씨로 렌더됐다 */
+  body {
+    background-color: var(--color-canvas);
+    color: var(--color-ink);
+    font-family: var(--font-display);
+    /*
+     * 한글은 기본 줄바꿈이 글자 단위라 "반영됩니다"가 "반 / 영됩니다"로 쪼개진다.
+     * keep-all로 어절 단위 분절을 강제한다. display 스케일에서 특히 눈에 띈다.
+     */
+    word-break: keep-all;
+    /* keep-all이 좌석 ID·세션 ID 같은 긴 무공백 토큰을 넘치게 하는 것만 예외 처리 */
+    overflow-wrap: break-word;
+  }
+}
