@@ -61,10 +61,12 @@
     {
       "step": 7,
       "name": "redis-deploy",
-      "status": "blocked",
+      "status": "completed",
       "started_at": "2026-08-09T22:46:39+0900",
       "blocked_reason": "Vercel CLI가 Not authorized를 반환함. 배포를 진행하려면 사용자가 vercel login으로 직접 인증해야 함",
-      "blocked_at": "2026-08-09T22:48:00+0900"
+      "blocked_at": "2026-08-09T22:48:00+0900",
+      "summary": "차단 사유 해소 후 배포본 검증 완료(https://ticket-mvp-eight.vercel.app). 1 환경변수는 간접 확인만 — vercel env ls 권한이 없어 콘솔 대조는 못 했고 프로덕션이 Redis로 동작하는 것으로 유추함; 2 재배포 통과(Production 6건 Ready, 최신 08-10); 3 배포본 검증 통과(/shows 200에 시드 8개, /admin·/seller/new 401); 4 영속성 통과(셀러 등록 공연 page-c40024441a9a5153 잔존, 시드 8개 중복 주입 없음, snapshot version 5 잔존 — 재배포로 초기화되지 않음); 5 보안 통과(스냅샷 응답에 userId 없음, 10석 hold가 400 over-limit으로 거부, 프로덕션 클라이언트 청크 8개 508KB에 UPSTASH·ANTHROPIC_API_KEY·BASIC_AUTH_PASS 표식 없음); 6 README 갱신은 커밋 0a52e56에서 완료. 배포 자체는 하네스 밖에서 수행돼 상위 phases/index.json만 completed로 갱신되고 이 step 기록이 blocked로 남아 있던 것을 정정함",
+      "completed_at": "2026-08-13T21:50:46+0900"
     }
   ],
   "created_at": "2026-08-09T22:03:23+0900"
