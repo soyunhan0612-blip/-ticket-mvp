@@ -24,7 +24,7 @@
       "status": "completed",
       "started_at": "2026-08-13T22:22:59+0900",
       "summary": "현재 구현 계측 테스트 추가. ZoomPanSvg 포함 구조, 좌석 200석 기준 클릭 1회당 Seat React 리렌더 1회, 파생 atom 재계산 200회(= 좌석 수). 3초 폴링 배제 상태",
-      "completed_at": "2026-08-13T22:27:17+0900"
+      "completed_at": "2026-08-13T22:28:20+0900"
     },
     {
       "step": 3,
