@@ -49,14 +49,18 @@ Day 3의 순진한 구현은 현재 작업 트리에 없고 커밋 `91713d0`에�
 
 ## 4. 측정값 기록 위치
 
-현재 줄 번호를 기준으로 다음 위치를 갱신한다.
+줄 번호는 문서를 고칠 때마다 어긋나므로 검색으로 찾는다. 초기 마운트 시간 자리는 세 곳 모두 `TBD` 문자열을 포함한다.
 
-- `docs/PROGRESS.md` 97·98줄: Day 3 초기 마운트 시간과 클릭당 리렌더 수
-- `docs/PROGRESS.md` 132·133줄: Day 4 초기 마운트 시간과 클릭당 리렌더 수
-- `README.md` 58·59줄: 성능 before/after 표
-- `docs/ADR.md` ADR-004의 51줄: 6절의 Upstash 콘솔 실측 결과
+```bash
+rg "TBD" README.md docs/PROGRESS.md
+```
 
-플레이스홀더 형태는 서로 다르다. `docs/PROGRESS.md`의 Day 3은 `**_ ms`·`**_`, Day 4는 `**_ ms**`·`**_**` 형태이며 `README.md`는 `TBD`다. `docs/ADR.md`에는 플레이스홀더 대신 “Upstash 콘솔 실측은 아직 못 했다”는 문장이 있다.
+- `docs/PROGRESS.md` — Day 3 절 "before 측정"의 `초기 마운트 시간` 항목
+- `docs/PROGRESS.md` — Day 4 절 "after 측정"의 `초기 마운트 시간` 항목
+- `README.md` — "성능 before / after" 표의 `초기 마운트 시간` 행
+- `docs/ADR.md` — ADR-004의 “Upstash 콘솔 실측은 아직 못 했다” 문단에 6절 결과를 기록
+
+클릭당 리렌더 수와 파생 atom 재계산 수는 자동 계측값으로 이미 채워져 있으므로 수동 측정의 갱신 대상이 아니다. `docs/ADR.md`에는 플레이스홀더가 없고 위 문장이 그 자리를 대신한다.
 
 ## 5. 자동 측정 재현
 

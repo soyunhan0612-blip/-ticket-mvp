@@ -6,6 +6,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import {
   seatMapReadOnlyAtom,
   seatStatusAtomFamily,
+  seatVisualStateAtomFamily,
   selectedSeatIdsAtom,
   toggleSeatAtom,
 } from "@/atoms/seat";
@@ -15,7 +16,7 @@ import {
   createRenderCounter,
   type RenderCounter,
 } from "@/lib/render-counter";
-import type { SeatVisualState } from "@/types";
+import type { SeatSnapshotEntry, SeatVisualState } from "@/types";
 
 import { SeatMap } from "../SeatMap";
 
@@ -137,6 +138,42 @@ describe("현재 SeatMap 렌더 횟수", () => {
 
     for (const unsubscribe of unsubscribes) {
       unsubscribe();
+    }
+  });
+
+  // Jotai에는 파생 atom의 재계산 횟수를 세는 공개 API가 없어 위 테스트는 프로덕션
+  // seatVisualStateAtomFamily를 복제한 atom을 계측한다. 복제본이 프로덕션과 갈라지면
+  // 200회라는 수치는 근거를 잃고 README·PROGRESS의 기록이 조용히 거짓이 되므로,
+  // 두 atom이 같은 입력에 같은 값을 내는지를 여기서 강제한다.
+  //
+  // 한계: 이 테스트는 판정 로직의 드리프트를 잡지만 의존 atom 집합의 변화는 잡지
+  // 못한다. 프로덕션이 selectedSeatIdsAtom 전체 구독을 좁히면 값은 그대로여서 이
+  // 테스트는 통과하는데 실제 재계산 수는 200보다 작아진다. 그 변경을 할 때는 위
+  // 복제본과 README·PROGRESS의 수치를 함께 갱신해야 한다.
+  it("계측용 복제 atom은 프로덕션 seatVisualStateAtomFamily와 항상 같은 값을 낸다", () => {
+    const instrumentedVisualStateAtomFamily =
+      createInstrumentedVisualStateAtomFamily(createRenderCounter());
+    const seatId = seats[0].id;
+    const statuses: (SeatSnapshotEntry | null)[] = [
+      null,
+      { s: "held", mine: true, expiresAt: 1 },
+      { s: "held" },
+      { s: "sold" },
+    ];
+
+    for (const status of statuses) {
+      for (const selected of [true, false]) {
+        for (const readOnly of [true, false]) {
+          const store = createStore();
+          store.set(seatStatusAtomFamily(seatId), status);
+          store.set(selectedSeatIdsAtom, selected ? [seatId] : []);
+          store.set(seatMapReadOnlyAtom, readOnly);
+
+          expect(store.get(instrumentedVisualStateAtomFamily(seatId))).toBe(
+            store.get(seatVisualStateAtomFamily(seatId)),
+          );
+        }
+      }
     }
   });
 });
