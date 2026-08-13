@@ -59,7 +59,8 @@
     },
     {
       "dir": "11-perf-metrics",
-      "status": "pending"
+      "status": "completed",
+      "completed_at": "2026-08-13T22:41:25+0900"
     }
   ]
 }

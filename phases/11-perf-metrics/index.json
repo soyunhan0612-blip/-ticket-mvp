@@ -2,10 +2,47 @@
   "project": "티켓 예매 MVP",
   "phase": "11-perf-metrics",
   "steps": [
-    { "step": 0, "name": "render-counter", "status": "pending" },
-    { "step": 1, "name": "seat-render-baseline", "status": "pending" },
-    { "step": 2, "name": "seat-render-current", "status": "pending" },
-    { "step": 3, "name": "measurement-guide", "status": "pending" },
-    { "step": 4, "name": "metrics-writeback", "status": "pending" }
-  ]
+    {
+      "step": 0,
+      "name": "render-counter",
+      "status": "completed",
+      "started_at": "2026-08-13T22:11:02+0900",
+      "summary": "독립 인스턴스와 불변 스냅샷을 보장하는 순수 TypeScript 렌더 카운터 및 단위 테스트 7개 추가",
+      "completed_at": "2026-08-13T22:15:32+0900"
+    },
+    {
+      "step": 1,
+      "name": "seat-render-baseline",
+      "status": "completed",
+      "started_at": "2026-08-13T22:15:33+0900",
+      "summary": "Day 3 대조군 픽스처와 계측 테스트 추가. 좌석 200석에서 클릭 1회당 NaiveSeat 리렌더 200회(= 전체 좌석 수) 확인",
+      "completed_at": "2026-08-13T22:22:58+0900"
+    },
+    {
+      "step": 2,
+      "name": "seat-render-current",
+      "status": "completed",
+      "started_at": "2026-08-13T22:22:59+0900",
+      "summary": "현재 구현 계측 테스트 추가. ZoomPanSvg 포함 구조, 좌석 200석 기준 클릭 1회당 Seat React 리렌더 1회, 파생 atom 재계산 200회(= 좌석 수). 3초 폴링 배제 상태",
+      "completed_at": "2026-08-13T22:28:20+0900"
+    },
+    {
+      "step": 3,
+      "name": "measurement-guide",
+      "status": "completed",
+      "started_at": "2026-08-13T22:28:21+0900",
+      "summary": "React Profiler 초기 마운트와 Upstash 폴링·EVAL 과금 단위의 수동 측정 절차 및 스크린샷 디렉토리 추가",
+      "completed_at": "2026-08-13T22:35:55+0900"
+    },
+    {
+      "step": 4,
+      "name": "metrics-writeback",
+      "status": "completed",
+      "started_at": "2026-08-13T22:35:56+0900",
+      "summary": "README와 Progress Journal에 200석·폴링 제외 기준 React 리렌더 200→1회와 파생 atom 재계산 200회를 반영하고 초기 마운트 수동 측정 링크 명시",
+      "completed_at": "2026-08-13T22:41:24+0900"
+    }
+  ],
+  "created_at": "2026-08-13T22:11:02+0900",
+  "completed_at": "2026-08-13T22:41:25+0900"
 }
