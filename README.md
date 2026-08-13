@@ -39,8 +39,8 @@ TanStack Query와 Jotai는 목록에 스택을 더하기 위해 선택한 것이
 | 0 Foundation | 완료 | Next.js 15·TS strict·Tailwind·TanStack Query·Jotai·Vitest 기반, 도메인 타입, 좌석 순수 로직, 공연 8개·회차 24개 시드 |
 | 1 기반 + 사고 방지 | 완료 (Day 0에 흡수) | `.env*` 차단, 보안 헤더 3종, TDD/Stop 훅 범위 정리 |
 | 2 목록·상세 | 완료 | `/shows`, `/shows/[id]` RSC, 조회 API, UI 토큰, Vercel 조기 배포 |
-| 3 좌석맵 before | 구현 완료·측정 대기 | 2,000석 SVG와 의도적인 전역 배열/prop drilling 대조군, `force-dynamic` 좌석 route |
-| 4 좌석 최적화 | 구현 완료·측정 대기 | Jotai `atomFamily` + `React.memo`로 좌석별 구독 격리; Profiler 실측은 미완료 |
+| 3 좌석맵 before | 리렌더 측정 완료·초기 마운트 대기 | 2,000석 SVG와 의도적인 전역 배열/prop drilling 대조군, 자동 계측 픽스처 |
+| 4 좌석 최적화 | 리렌더 측정 완료·초기 마운트 대기 | Jotai `atomFamily` + `React.memo`로 좌석별 구독 격리; 초기 마운트 Profiler 실측만 미완료 |
 | 5 서버 hold | 완료 | 익명 UUID 쿠키, 5분 hold, 최대 4석·좌석 ID·소유권 서버 검증, 다중 좌석 전체 성공/실패 |
 | 6 폴링·롤백 | 완료 | 3초 스냅샷 폴링, 낙관적 hold, 409 전체 롤백, 충돌 토스트, 서버 시각 기반 타이머 |
 | 7 예매 | 완료 | 예매 확정·내역·취소, 사용자별 조회와 소유권 검증, 실패 시 보상 롤백 |
@@ -51,12 +51,17 @@ TanStack Query와 Jotai는 목록에 스택을 더하기 위해 선택한 것이
 
 ## 성능 before / after
 
-React DevTools Profiler로 같은 시나리오를 사람이 측정한 뒤 수치를 채웁니다. 추정값은 기록하지 않습니다.
+클릭 업데이트는 테스트에서 자동 계측한 값을 기록하고, 실제 레이아웃·페인트 비용이 필요한 초기 마운트 시간은 브라우저에서 측정하기 전까지 비워 둡니다. 추정값은 기록하지 않습니다.
 
 | 측정 | Day 3 (before) | Day 4 (after) |
 |---|---|---|
-| 좌석 1회 클릭 시 리렌더 컴포넌트 수 | TBD | TBD |
-| 초기 마운트 시간 | TBD | TBD |
+| 좌석 1회 클릭 시 React 좌석 컴포넌트 리렌더 수 (200석, 폴링 제외) | 200회 | 1회 |
+| 파생 atom 재계산 수 (200석, 폴링 제외) | 해당 없음 (파생 atom 미사용) | 200회 |
+| 초기 마운트 시간 | [TBD — 수동 측정 대기](docs/PERF_MEASUREMENT.md#3-day-3before-초기-마운트-시간) | [TBD — 수동 측정 대기](docs/PERF_MEASUREMENT.md#2-현재-구현의-초기-마운트-시간) |
+
+자동 계측은 jsdom 부하를 줄이기 위해 200석으로 실행하며 3초 폴링은 제외합니다. 대조군의 React 리렌더와 현재 구현의 파생 atom 재계산은 각각 전체 좌석 수와 같으므로, 프로덕션 2,000석 구조에서는 2,000회로 비례합니다. 현재 구현의 React 리렌더는 클릭한 `Seat` 1회로 유지됩니다. `npm test -- src/components/seat/__tests__`로 재현할 수 있으며, 근거는 [before 계측 테스트](src/components/seat/__tests__/naive-render-count.test.tsx)와 [현재 구현 계측 테스트](src/components/seat/__tests__/seat-render-count.test.tsx)입니다.
+
+`atomFamily` + `React.memo`가 없애는 것은 **React 컴포넌트 리렌더**이지 **파생 atom 재계산**이 아닙니다. `seatVisualStateAtomFamily`가 전역 `selectedSeatIdsAtom`을 구독하므로 클릭 때 모든 좌석의 파생 atom read가 다시 실행되지만, 반환값이 같은 좌석은 Jotai가 React 리렌더를 건너뜁니다.
 
 `atomFamily` + `React.memo`가 개선하는 것은 **업데이트 시 리렌더 수**이지 **초기 마운트 비용**이 아닙니다. 2,000개 SVG 노드 생성 비용은 구조적으로 남습니다. 이 조건은 [ADR-002](docs/ADR.md#adr-002-atomfamily로-좌석-구독-격리--beforeafter-측정)에 명시했으며, 초기 마운트까지 개선된 것처럼 과장하지 않습니다.
 
