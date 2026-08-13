@@ -20,6 +20,11 @@
 step 1이 before 수치를 고정했다. 이 step은 **after 수치**를 고정한다.
 단, 측정해야 할 층이 두 개이고 값이 크게 다르다는 점이 핵심이다.
 
+여기서 재는 "현재 구현"은 `ZoomPanSvg`가 들어간 **이후**의 구조다
+(`src/components/seat/SeatMap.tsx`가 `ZoomPanSvg`를 렌더한다).
+`docs/PROGRESS.md`의 Day 9 「성능 측정 후속」이 요구한 "`ZoomPanSvg` 도입 후 재측정"이
+이 step의 측정으로 충족된다는 뜻이므로, **`summary`에 "ZoomPanSvg 포함 구조 기준"임을 밝혀라.**
+
 `src/atoms/seat.ts:52-76`을 보면 `seatVisualStateAtomFamily`의 read 함수가
 `selectedSeatIdsAtom`을 통째로 구독한다:
 
