@@ -54,7 +54,10 @@ export function middleware(request: NextRequest) {
   if (isProtectedPath(pathname) && !isAuthenticated(request)) {
     // API는 모달을 띄울 자리가 없다. 화면 없이 상태만 돌려준다.
     if (isProtectedApiPath(pathname)) {
-      return NextResponse.json({ error: "unauthorized" }, { status: 401 });
+      return withUserIdCookie(
+        request,
+        NextResponse.json({ error: "unauthorized" }, { status: 401 }),
+      );
     }
 
     /*

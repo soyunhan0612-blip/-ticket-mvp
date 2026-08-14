@@ -79,13 +79,18 @@ describe("POST /api/auth/login", () => {
    * 로그인 폼이 열리는 방향으로 실패하면 미들웨어를 고쳐둔 의미가 사라진다.
    */
   it.each([
-    ["BASIC_AUTH_USER", "BASIC_AUTH_PASS"],
-    ["BASIC_AUTH_PASS", "BASIC_AUTH_USER"],
+    [["BASIC_AUTH_USER"]],
+    [["BASIC_AUTH_PASS"]],
+    // .env.example을 복사만 하고 채우지 않은 상태 — fail-closed 서사의 원래 대상이다.
+    [["BASIC_AUTH_USER", "BASIC_AUTH_PASS"]],
   ])("%s가 없으면 어떤 입력도 401이다", async (missing) => {
-    delete process.env[missing];
+    for (const name of missing) delete process.env[name];
 
     const response = await POST(
-      makeRequest({ username: "seller", password: "secret" }, `login-${missing}`),
+      makeRequest(
+        { username: "seller", password: "secret" },
+        `login-missing-${missing.join("-")}`,
+      ),
     );
 
     expect(response.status).toBe(401);

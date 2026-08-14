@@ -82,7 +82,12 @@ describe("encodeBasicCredentials", () => {
     ).toEqual({ authenticated: true });
   });
 
-  it("비밀번호에 콜론이 있어도 사용자명 경계가 흔들리지 않는다", () => {
+  /*
+   * 경계는 첫 콜론이므로 비밀번호에 콜론이 들어가도 왕복한다.
+   * 반대 방향(사용자명에 콜론이 있는 입력)까지 막아 주지는 않는다 —
+   * 그러려면 user:pass 전체 문자열을 이미 알아야 해서 권한 상승은 아니다.
+   */
+  it("비밀번호에 콜론이 있어도 왕복한다", () => {
     expect(
       verifyBasicAuth(
         `Basic ${encodeBasicCredentials("seller", "a:b:c")}`,

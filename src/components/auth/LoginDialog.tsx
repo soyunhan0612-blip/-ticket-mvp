@@ -1,12 +1,16 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useState, type FormEvent, type JSX } from "react";
 
 import { Button } from "@/components/ui/Button";
 import { Dialog } from "@/components/ui/Dialog";
 import { TextInput } from "@/components/ui/TextInput";
+
+const LOGIN_PATH = "/login";
+/** /login으로 직접 들어온 사용자를 로그인 후 데려다 놓을 곳. */
+const FALLBACK_DESTINATION = "/admin";
 
 const INVALID_MESSAGE = "사용자명 또는 비밀번호가 올바르지 않습니다.";
 const RATE_LIMITED_MESSAGE = "시도가 너무 잦습니다. 잠시 후 다시 시도해 주세요.";
@@ -24,6 +28,7 @@ function messageForStatus(status: number): string {
  */
 export function LoginDialog(): JSX.Element {
   const router = useRouter();
+  const pathname = usePathname();
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
@@ -47,13 +52,25 @@ export function LoginDialog(): JSX.Element {
 
       if (!response.ok) {
         setError(messageForStatus(response.status));
+        setSubmitting(false);
+        return;
+      }
+
+      /*
+       * 성공 경로에서는 submitting을 되돌리지 않는다. 화면은 아직 이 모달이고
+       * 버튼이 되살아나면 사용자가 다시 눌러 분당 5회 제한을 happy path에서
+       * 소진한다. 잠금은 아래 이동이 화면을 갈아끼우면서 사라진다.
+       */
+      if (pathname === LOGIN_PATH) {
+        // 리라이트로 온 게 아니라 /login을 직접 연 경우다. 여기서 refresh하면
+        // 보호되지 않은 같은 페이지가 다시 그려져 모달에 갇힌다.
+        router.replace(FALLBACK_DESTINATION);
         return;
       }
 
       router.refresh();
     } catch {
       setError(FAILED_MESSAGE);
-    } finally {
       setSubmitting(false);
     }
   };
