@@ -258,10 +258,14 @@ export function ShowcaseHero({ slides, children }: ShowcaseHeroProps) {
                  * 걸리지 않는다.
                  *
                  * 배경과 같은 원본을 쓰지만 다운로드는 공유되지 않는다. sizes가
-                 * 다르면 next/image가 다른 폭의 URL을 만들고(여기는 imageSizes의
-                 * 48·96, 배경은 deviceSizes의 100vw) 캐시 키가 갈린다. 슬라이드당
+                 * 다르면 브라우저가 다른 폭을 골라 캐시 키가 갈린다. 슬라이드당
                  * 별도 요청이 붙는 비용을 알고 감수하는 것이다 — 48px 썸네일이라
                  * 전송량 자체는 작다.
+                 *
+                 * 다만 srcset 후보가 48·96으로 좁혀지지는 않는다. next/image는
+                 * sizes에 vw가 없으면 deviceSizes로 필터링하지 않고 allSizes
+                 * (16~3840) 16개를 전부 후보로 낸다. 실제 전송은 브라우저가
+                 * 48×DPR에 맞춰 고르므로 여전히 작고, 늘어나는 건 HTML 크기다.
                  */}
                 <Image
                   alt={slide.title}
