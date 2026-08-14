@@ -165,4 +165,14 @@
     /* keep-all이 좌석 ID·세션 ID 같은 긴 무공백 토큰을 넘치게 하는 것만 예외 처리 */
     overflow-wrap: break-word;
   }
+
+  /*
+   * 모달 백드롭. docs/UI_GUIDE.md "이미지 위 텍스트"의 ink 단색 72%를 그대로 쓴다 —
+   * 새 색을 도입하지 않고, backdrop-filter는 쓰지 않는다(AI 슬롭 안티패턴 1번).
+   * Tailwind의 backdrop: 변형 대신 여기 두는 이유는 이 파일이 토큰의 단일 소스이기 때문이다.
+   */
+  dialog::backdrop {
+    background-color: var(--color-ink);
+    opacity: 0.72;
+  }
 }
