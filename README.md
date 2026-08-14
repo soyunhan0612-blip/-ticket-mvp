@@ -8,27 +8,24 @@
 
 시각적·기술적 중심은 2,000석 SVG 좌석 선택 화면입니다. 단순한 로컬 좌석 셀렉터가 아니라 서버가 좌석 hold와 소유권을 관리하므로, “동시에 두 명이 같은 좌석을 고르면?”이라는 상황에서 한 요청만 성공하고 다른 요청은 선택 좌석 전체가 롤백됩니다.
 
-## 데모
-
-데모 GIF는 아직 첨부하지 않았습니다. 추가 예정 경로는 `docs/assets/two-tab-seat-conflict.gif`입니다.
-
-> 같은 회차를 연 탭 2개에서 한쪽이 좌석을 hold하면, 반대편 좌석이 다음 3초 폴링 주기에 `held-other` 상태로 회색 전환되는 장면을 담을 예정입니다.
-
 ## 심사자용 3분 투어
 
-배포본에서 바로 확인할 수 있는 순서입니다. 좌석 경합은 **탭 2개**가 있어야 보이므로 4번을 건너뛰지 마세요.
+배포본에서 바로 확인할 수 있는 순서입니다. 좌석 경합은 **창 2개**가 있어야 보이므로 5번을 건너뛰지 마세요.
 
-1. **[/shows](https://ticket-mvp-eight.vercel.app/shows)** — 공연 목록(RSC). 카드를 눌러 상세로 들어가 회차를 고릅니다.
-2. **좌석 선택** — 2,000석 SVG. wheel로 줌, 드래그로 팬, `전체 보기`로 복귀합니다.
-3. **4석 상한** — 5번째 좌석을 눌러 보세요. 클라이언트뿐 아니라 `POST /api/holds`에서도 거절합니다 (`src/lib/seat-rules.ts`를 route handler가 재사용).
-4. **좌석 경합** — 같은 좌석 URL을 **시크릿 창**으로 하나 더 엽니다(익명 쿠키가 분리돼 다른 사용자가 됩니다). 한쪽에서 좌석을 잡으면 반대쪽은 3초 안에 회색으로 바뀌고, 같은 좌석을 동시에 잡으면 한쪽만 성공하고 나머지는 **선택 묶음 전체가** 롤백됩니다.
-5. **[/reservations](https://ticket-mvp-eight.vercel.app/reservations)** — 예매 확정 후 내역과 취소. 취소하면 좌석이 다시 예매 가능으로 돌아옵니다.
-6. **[/admin](https://ticket-mvp-eight.vercel.app/admin)** — 전체·예매가능·홀드중·판매완료 4개 카드와 읽기 전용 좌석맵. 위에서 잡은 좌석이 여기 반영됩니다. (Basic Auth)
-7. **[/seller/new](https://ticket-mvp-eight.vercel.app/seller/new)** — 공연 등록과 AI 설명 스트리밍. (Basic Auth)
+1. **[/](https://ticket-mvp-eight.vercel.app/)** — 랜딩. 히어로 캐러셀과 추천 공연 3개(RSC). 여기서 `공연 둘러보기`로 넘어갑니다.
+2. **[/shows](https://ticket-mvp-eight.vercel.app/shows)** — 공연 목록(RSC). 카드를 눌러 상세로 들어가 회차를 고릅니다.
+3. **좌석 선택** — 2,000석 SVG. wheel로 줌, 드래그로 팬, `전체 보기`로 복귀합니다.
+4. **4석 상한** — 5번째 좌석을 눌러 보세요. 클라이언트뿐 아니라 `POST /api/holds`에서도 거절합니다 (`src/lib/seat-rules.ts`를 route handler가 재사용).
+5. **좌석 경합** — 같은 좌석 URL을 **시크릿 창**으로 하나 더 엽니다(익명 쿠키가 분리돼 다른 사용자가 됩니다). 한쪽에서 좌석을 잡으면 반대쪽은 3초 안에 회색으로 바뀌고, 같은 좌석을 동시에 잡으면 한쪽만 성공하고 나머지는 **선택 묶음 전체가** 롤백됩니다.
+6. **[/reservations](https://ticket-mvp-eight.vercel.app/reservations)** — 예매 확정 후 내역과 취소. 취소하면 좌석이 다시 예매 가능으로 돌아옵니다.
+7. **[/admin](https://ticket-mvp-eight.vercel.app/admin)** — 전체·예매가능·홀드중·판매완료 4개 카드와 읽기 전용 좌석맵. 위에서 잡은 좌석이 여기 반영됩니다. (Basic Auth)
+8. **[/seller/new](https://ticket-mvp-eight.vercel.app/seller/new)** — 공연 등록과 AI 설명 스트리밍. (Basic Auth)
+
+> 5번 장면의 데모 GIF는 아직 첨부하지 않았습니다. 추가 예정 경로는 `docs/assets/two-tab-seat-conflict.gif`입니다.
 
 ## 심사자용 계정
 
-`/admin`, `/seller/new`는 환경변수 기반 Basic Auth 뒤에 있습니다.
+`/admin`·`/seller` 이하 경로와 `/api/admin` API는 미들웨어의 환경변수 기반 Basic Auth 뒤에 있습니다.
 
 - 사용자명: `<BASIC_AUTH_USER 값>`
 - 비밀번호: `<BASIC_AUTH_PASS 값>`
@@ -43,6 +40,8 @@
 - **Jotai** — `atomFamily(seatId)`로 2,000개 좌석의 구독을 분리하고 실제 변경된 좌석만 갱신합니다.
 - **Vitest** — 순수 로직, Store 구현, API route를 테스트 우선으로 검증합니다. 45개 파일 · 404개 테스트가 CI에서 lint·build와 함께 돕니다.
 - **Upstash Redis** — 공연·회차·좌석·예약을 영속화합니다. 좌석 상태는 회차별 sparse Hash에 저장하고 다중 좌석 전환은 Lua로 처리합니다.
+- **Zod** — 셀러 등록·AI 요청 등 외부에서 들어오는 본문을 route handler 입구에서 파싱합니다. 타입 단언으로 넘기지 않습니다.
+- **Embla Carousel** — 랜딩 히어로 슬라이드에만 씁니다. 직접 구현 대신 도입한 이유는 [ADR-006](docs/ADR.md#adr-006-랜딩-히어로-캐러셀에-embla-도입-직접-구현-대신)에 있습니다.
 
 TanStack Query와 Jotai는 목록에 스택을 더하기 위해 선택한 것이 아닙니다. 서버 hold를 도입하면서 폴링·낙관적 업데이트·롤백과 좌석 단위 구독 격리가 실제 요구사항이 되었고, 두 도구의 역할도 그 경계에 맞춰 나눴습니다. 상세한 결정과 트레이드오프는 [ADR](docs/ADR.md)에 기록했습니다.
 
@@ -67,10 +66,12 @@ TanStack Query와 Jotai는 목록에 스택을 더하기 위해 선택한 것이
 | 5 서버 hold | 완료 | 익명 UUID 쿠키, 5분 hold, 최대 4석·좌석 ID·소유권 서버 검증, 다중 좌석 전체 성공/실패 |
 | 6 폴링·롤백 | 완료 | 3초 스냅샷 폴링, 낙관적 hold, 409 전체 롤백, 충돌 토스트, 서버 시각 기반 타이머 |
 | 7 예매 | 완료 | 예매 확정·내역·취소, 사용자별 조회와 소유권 검증, 실패 시 보상 롤백 |
-| 8 셀러·AI | 완료 | 3종 좌석 프리셋 공연 등록, Haiku 4.5 설명 스트리밍과 키 없는 fallback, Basic Auth |
+| 8 셀러·AI | 완료 | 3종 좌석 프리셋(500·1,000·2,000석) 공연 등록, Haiku 4.5 설명 스트리밍과 키 없는 fallback, IP 단위 요청 제한, Basic Auth |
 | 9 Admin·Redis | 완료 | 재사용 좌석맵 기반 Admin, SVG `viewBox` 줌/팬, Redis Store·Lua·팩토리 교체; 로컬·프로덕션 양쪽에서 Redis 연결 확인 |
+| 10 릴리스 | 일부 blocked | Basic Auth fail-closed 수정, README 정리. 실측값이 없어 지표 문서화 단계는 [`blocked`](phases/10-release/index.json)로 멈춤 |
+| 11 성능 계측 | 완료 (초기 마운트 제외) | 렌더 카운터와 before/after 계측 테스트로 리렌더 수를 실측, 수동 측정 절차를 [Perf Measurement](docs/PERF_MEASUREMENT.md)에 문서화 |
 
-세부 진행 기록과 아직 남은 수동 검증은 [Progress Journal](docs/PROGRESS.md)과 [`phases/`](phases/)에 있습니다.
+세부 진행 기록과 아직 남은 수동 검증은 [Progress Journal](docs/PROGRESS.md)과 [`phases/`](phases/)에 있습니다. Day 10·11은 Day 0~9 구현 이후의 릴리스·계측 작업입니다.
 
 ## 성능 before / after
 
@@ -136,9 +137,11 @@ TanStack Query와 Jotai는 목록에 스택을 더하기 위해 선택한 것이
 ```bash
 corepack enable pnpm         # 또는 npm i -g pnpm
 pnpm install --frozen-lockfile
-cp .env.example .env.local   # 로컬 값 채우기
+cp .env.example .env.local   # 값은 비워 둬도 됩니다 (아래 참조)
 pnpm dev                     # http://localhost:3000
 ```
+
+**환경변수 없이도 관람객 여정 전체가 동작합니다.** Upstash 토큰이 없으면 인메모리 Store로, `ANTHROPIC_API_KEY`가 없으면 AI 설명이 고정 문구 fallback으로 대체됩니다. 다만 `BASIC_AUTH_USER`/`BASIC_AUTH_PASS`는 **비어 있으면 열리지 않고 닫힙니다** — `/admin`·`/seller`를 로컬에서 보려면 두 값을 채워야 합니다.
 
 `.env.local`은 커밋되지 않습니다 (`.gitignore` 참조). 필요한 변수와 설명은 `.env.example`에서 확인할 수 있습니다.
 
