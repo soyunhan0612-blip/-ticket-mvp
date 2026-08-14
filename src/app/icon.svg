@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <!-- 좌석맵 4색 축약: available 2 · held-other 1 · mine 1. globals.css의 --seat-* 값 -->
+  <rect width="32" height="32" rx="7" fill="#0a0a0a" />
+  <rect x="6" y="7" width="9" height="8" rx="2" fill="#737373" />
+  <rect x="17" y="7" width="9" height="8" rx="2" fill="#737373" />
+  <rect x="6" y="17" width="9" height="8" rx="2" fill="#404040" />
+  <rect x="17" y="17" width="9" height="8" rx="2" fill="#ffffff" />
+</svg>
