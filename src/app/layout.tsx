@@ -19,9 +19,24 @@ const inter = Inter({
   display: "swap",
 });
 
+/*
+ * metadataBase가 없으면 opengraph-image의 URL이 상대 경로로 남아
+ * 메신저·메일의 링크 미리보기가 이미지를 못 찾는다.
+ */
 export const metadata: Metadata = {
+  metadataBase: new URL("https://ticket-mvp-eight.vercel.app"),
   title: "티켓 MVP",
-  description: "티켓링크형 예매 서비스 포트폴리오 MVP",
+  description:
+    "2,000석 좌석맵과 서버 hold로 좌석 경합을 다루는 티켓 예매 포트폴리오 MVP",
+  openGraph: {
+    type: "website",
+    locale: "ko_KR",
+    siteName: "티켓 MVP",
+    title: "티켓 MVP",
+    description:
+      "2,000석 좌석맵과 서버 hold로 좌석 경합을 다루는 티켓 예매 포트폴리오 MVP",
+  },
+  twitter: { card: "summary_large_image" },
 };
 
 export default function RootLayout({
