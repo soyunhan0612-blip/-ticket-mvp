@@ -14,7 +14,7 @@ export default defineConfig({
     globals: true,
     include: ["src/**/*.{test,spec}.{ts,tsx}"],
     setupFiles: ["./vitest.setup.ts"],
-    // 42개 파일 전부가 jsdom을 세우므로 부하가 걸린 전체 실행에서만 기본 5초를
+    // 45개 파일 전부가 jsdom을 세우므로 부하가 걸린 전체 실행에서만 기본 5초를
     // 넘긴다. vitest.setup.ts의 asyncUtilTimeout 상향과 같은 이유다.
     testTimeout: 15_000,
   },

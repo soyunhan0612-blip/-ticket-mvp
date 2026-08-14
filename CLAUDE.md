@@ -40,8 +40,10 @@
 
 ## 명령어
 ```
-npm run dev      # 개발 서버
-npm run build    # 프로덕션 빌드 (배포 직전 수동)
-npm run lint     # ESLint
-npm run test     # 테스트 (Stop 훅에서 자동)
+pnpm dev      # 개발 서버
+pnpm build    # 프로덕션 빌드 (배포 직전 수동)
+pnpm lint     # ESLint
+pnpm test     # 테스트 (Stop 훅에서 자동)
 ```
+
+패키지 매니저는 pnpm으로 고정한다 (`package.json`의 `packageManager`). Stop 훅 스크립트는 `npm run lint`/`npm run test`를 그대로 호출하는데, pnpm이 만든 `node_modules/.bin`에서도 동일하게 동작하므로 훅은 바꾸지 않는다.

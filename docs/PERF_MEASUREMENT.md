@@ -6,8 +6,8 @@
 
 | 측정 항목 | 방식 | 근거 위치 |
 |---|---|---|
-| 좌석 클릭당 React 리렌더 수(before/after) | 자동 | `npm test` — `src/components/seat/__tests__/naive-render-count.test.tsx`, `src/components/seat/__tests__/seat-render-count.test.tsx` |
-| 파생 atom 재계산 수 | 자동 | `npm test` — `src/components/seat/__tests__/seat-render-count.test.tsx` |
+| 좌석 클릭당 React 리렌더 수(before/after) | 자동 | `pnpm test` — `src/components/seat/__tests__/naive-render-count.test.tsx`, `src/components/seat/__tests__/seat-render-count.test.tsx` |
+| 파생 atom 재계산 수 | 자동 | `pnpm test` — `src/components/seat/__tests__/seat-render-count.test.tsx` |
 | 초기 마운트 시간 | **수동** | 브라우저 React DevTools Profiler — 아래 2·3절 |
 | 폴링 1회당 Upstash 커맨드 수 | **수동** | Upstash 콘솔 — 아래 6절 |
 
@@ -16,7 +16,7 @@
 ## 2. 현재 구현의 초기 마운트 시간
 
 1. Chrome 또는 Edge에 React DevTools 확장을 설치한다.
-2. 저장소 루트에서 `npm run dev`를 실행한다.
+2. 저장소 루트에서 `pnpm dev`를 실행한다.
 3. `http://localhost:3000/sessions/session-01/seats`에 접속한다. `session-01`은 `src/lib/mock-data.ts` 104줄에 있는 시드 세션이다.
 4. 개발자 도구의 React `Profiler` 탭에서 `Record`를 누르고 페이지를 새로고침한 뒤 `Stop`을 누른다.
 5. 좌석 페이지는 `src/hooks/use-seat-snapshot.ts` 11줄의 설정에 따라 3초마다 스냅샷을 폴링한다. 이때 `SeatMapContainer`·`SeatMap`·`ZoomPanSvg`가 함께 리렌더될 수 있다. 초기 마운트 측정에는 Profiler의 첫 번째 커밋만 사용하고, 이후 약 3초 간격의 커밋은 폴링 영향으로 보고 제외한다.
@@ -37,7 +37,7 @@ Day 3의 순진한 구현은 현재 작업 트리에 없고 커밋 `91713d0`에�
    npm run dev
    ```
 
-   현재 개발 서버가 실행 중이면 먼저 종료해 포트 충돌을 피한다. 2절과 같은 URL과 3회 중앙값 절차를 사용하고 캡처는 `docs/assets/day3-before-profiler.png`에 저장한다. 측정이 끝난 뒤 원래 저장소에서 `git worktree remove ../ticket-mvp-day3`로 별도 worktree를 정리할 수 있다.
+   이 커밋에는 `pnpm-lock.yaml`이 없으므로 worktree 안에서는 `npm`을 그대로 쓴다. 현재 개발 서버가 실행 중이면 먼저 종료해 포트 충돌을 피한다. 2절과 같은 URL과 3회 중앙값 절차를 사용하고 캡처는 `docs/assets/day3-before-profiler.png`에 저장한다. 측정이 끝난 뒤 원래 저장소에서 `git worktree remove ../ticket-mvp-day3`로 별도 worktree를 정리할 수 있다.
 
    다만 이 커밋에는 현재 구현의 `ZoomPanSvg`, 서버 hold, 3초 폴링이 없다. 따라서 두 초기 마운트 시간은 동일 조건 비교가 아니며, 결과를 기록할 때 이 차이를 각주로 함께 남긴다.
 
@@ -67,7 +67,7 @@ rg "TBD" README.md docs/PROGRESS.md
 저장소 루트에서 다음 명령을 실행한다.
 
 ```bash
-npm test -- src/components/seat/__tests__
+pnpm test src/components/seat/__tests__
 ```
 
 이 명령은 before와 현재 구현의 계측 테스트를 함께 실행한다. 통과 결과는 추정치가 아니라 각 테스트가 직접 수집한 렌더·atom read 계측값을 검증한 결과다.
@@ -89,7 +89,7 @@ npm test -- src/components/seat/__tests__
 ### 사전 조건과 트래픽 격리
 
 1. `.env.local`에 `.env.example` 5·8줄과 글자 단위로 같은 `UPSTASH_REDIS_REST_URL`·`UPSTASH_REDIS_REST_TOKEN`을 설정한다. 둘 다 있어야 `src/services/index.ts` 19줄의 `hasRedisConfig()` 결과로 Redis 구현이 선택된다. 하나라도 없으면 인메모리 Store가 선택되어 Upstash 커맨드가 조용히 0으로 나온다. 환경변수를 바꿨다면 개발 서버를 다시 시작한다.
-2. 좌석 페이지는 한 탭만 열고 Admin, 다른 좌석 탭, 다른 브라우저를 모두 닫는다. 로컬 `npm run dev`에서 측정하는 편이 트래픽을 통제하기 쉽다. 단, 로컬과 배포본이 같은 Upstash DB를 사용하면 배포본 방문자의 폴링도 같은 카운터에 섞이므로 사용자가 없는 DB나 시간대를 선택한다.
+2. 좌석 페이지는 한 탭만 열고 Admin, 다른 좌석 탭, 다른 브라우저를 모두 닫는다. 로컬 `pnpm dev`에서 측정하는 편이 트래픽을 통제하기 쉽다. 단, 로컬과 배포본이 같은 Upstash DB를 사용하면 배포본 방문자의 폴링도 같은 카운터에 섞이므로 사용자가 없는 DB나 시간대를 선택한다.
 3. 측정 중 좌석 탭을 전면에 둔다. 백그라운드 탭에서는 폴링이 중단될 수 있다.
 
 ### 평상시 폴링 경로 측정

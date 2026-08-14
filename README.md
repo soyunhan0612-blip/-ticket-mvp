@@ -59,7 +59,7 @@ TanStack Query와 Jotai는 목록에 스택을 더하기 위해 선택한 것이
 | 파생 atom 재계산 수 (200석, 폴링 제외) | 해당 없음 (파생 atom 미사용) | 200회 |
 | 초기 마운트 시간 | [TBD — 수동 측정 대기](docs/PERF_MEASUREMENT.md#3-day-3before-초기-마운트-시간) | [TBD — 수동 측정 대기](docs/PERF_MEASUREMENT.md#2-현재-구현의-초기-마운트-시간) |
 
-자동 계측은 jsdom 부하를 줄이기 위해 200석으로 실행하며 3초 폴링은 제외합니다. 대조군의 React 리렌더와 현재 구현의 파생 atom 재계산은 각각 전체 좌석 수와 같으므로, 프로덕션 2,000석 구조에서는 2,000회로 비례합니다. 현재 구현의 React 리렌더는 클릭한 `Seat` 1회로 유지됩니다. `npm test -- src/components/seat/__tests__`로 재현할 수 있으며, 근거는 [before 계측 테스트](src/components/seat/__tests__/naive-render-count.test.tsx)와 [현재 구현 계측 테스트](src/components/seat/__tests__/seat-render-count.test.tsx)입니다.
+자동 계측은 jsdom 부하를 줄이기 위해 200석으로 실행하며 3초 폴링은 제외합니다. 대조군의 React 리렌더와 현재 구현의 파생 atom 재계산은 각각 전체 좌석 수와 같으므로, 프로덕션 2,000석 구조에서는 2,000회로 비례합니다. 현재 구현의 React 리렌더는 클릭한 `Seat` 1회로 유지됩니다. `pnpm test src/components/seat/__tests__`로 재현할 수 있으며, 근거는 [before 계측 테스트](src/components/seat/__tests__/naive-render-count.test.tsx)와 [현재 구현 계측 테스트](src/components/seat/__tests__/seat-render-count.test.tsx)입니다.
 
 `atomFamily` + `React.memo`가 없애는 것은 **React 컴포넌트 리렌더**이지 **파생 atom 재계산**이 아닙니다. `seatVisualStateAtomFamily`가 전역 `selectedSeatIdsAtom`을 구독하므로 클릭 때 모든 좌석의 파생 atom read가 다시 실행되지만, 반환값이 같은 좌석은 Jotai가 React 리렌더를 건너뜁니다.
 
@@ -81,14 +81,15 @@ TanStack Query와 Jotai는 목록에 스택을 더하기 위해 선택한 것이
 ### 요구사항
 
 - Node.js 22 이상 (jsdom/undici 의존성이 `webidl.util.markAsUncloneable` 요구)
-- npm 10 이상
+- pnpm 10 (`package.json`의 `packageManager` 필드에 버전이 고정돼 있습니다)
 
 ### 설치 & 실행
 
 ```bash
-npm install
+corepack enable pnpm         # 또는 npm i -g pnpm
+pnpm install --frozen-lockfile
 cp .env.example .env.local   # 로컬 값 채우기
-npm run dev                  # http://localhost:3000
+pnpm dev                     # http://localhost:3000
 ```
 
 `.env.local`은 커밋되지 않습니다 (`.gitignore` 참조). 필요한 변수와 설명은 `.env.example`에서 확인할 수 있습니다.
@@ -97,11 +98,11 @@ npm run dev                  # http://localhost:3000
 
 | 명령 | 용도 |
 |---|---|
-| `npm run dev` | 개발 서버 |
-| `npm run build` | 프로덕션 빌드 (배포 직전 수동) |
-| `npm run lint` | ESLint |
-| `npm run test` | Vitest 전체 테스트 |
-| `npm run test:watch` | Vitest 워치 모드 |
+| `pnpm dev` | 개발 서버 |
+| `pnpm build` | 프로덕션 빌드 (배포 직전 수동) |
+| `pnpm lint` | ESLint |
+| `pnpm test` | Vitest 전체 테스트 (45개 파일 · 404개 테스트) |
+| `pnpm test:watch` | Vitest 워치 모드 |
 
 ## 심사자용 계정
 
